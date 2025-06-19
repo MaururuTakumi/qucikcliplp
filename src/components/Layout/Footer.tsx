@@ -9,6 +9,7 @@ const Footer: React.FC = () => {
     { name: '会社概要', href: '/about' },
     { name: '商品紹介', href: '/product' },
     { name: '役員紹介', href: '/team' },
+    { name: 'ブログ', href: '/blog' },
     { name: 'お問い合わせ', href: '/contact' },
     { name: 'プライバシーポリシー', href: '/privacy' },
   ];
@@ -40,7 +41,7 @@ const Footer: React.FC = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4">サイトマップ</h3>
             <ul className="space-y-2">
-              {navigation.slice(0, 4).map((item) => (
+              {navigation.slice(0, 5).map((item) => (
                 <li key={item.name}>
                   <Link
                     to={item.href}

@@ -11,4 +11,15 @@ export default defineConfig({
       plugins: [tailwind()],
     },
   },
+  define: {
+    global: 'globalThis',
+  },
+  resolve: {
+    alias: {
+      buffer: 'buffer',
+    },
+  },
+  optimizeDeps: {
+    include: ['buffer'],
+  },
 });
