@@ -41,7 +41,7 @@ export const StepsSection = (): JSX.Element => {
   return (
     <section className="flex flex-col w-full items-center justify-end gap-[54px] px-6 py-8 bg-[#f2f2f2]">
       <h2 className="w-full [font-family:'Lato',Helvetica] font-semibold text-black text-[45px] text-center leading-normal">
-        Quick Clipが、その"もったいない"を解消します！！
+        KizunaFinderが、その"もったいない"を解消します！！
       </h2>
 
       <div className="w-full py-8">
