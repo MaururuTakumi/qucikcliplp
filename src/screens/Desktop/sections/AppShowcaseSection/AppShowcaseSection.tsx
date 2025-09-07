@@ -41,10 +41,10 @@ export const AppShowcaseSection = (): JSX.Element => {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md shadow-lg border-b border-gray-100 py-4 md:py-5 transition-all duration-300" role="banner">
       <div className="section-container w-full flex items-center justify-between mx-auto px-6 max-w-7xl">
-        <a href="#top" className="flex-shrink-0" aria-label="Quick Clipホームページへ戻る">
+        <a href="#top" className="flex-shrink-0" aria-label="KizunaFinderホームページへ戻る">
           <img
             className="h-16 md:h-20 object-contain hover:scale-105 transition-transform duration-300"
-            alt="Honkoma Quick Clipロゴ - App Clipによる5秒決済ソリューション"
+            alt="Honkoma KizunaFinderロゴ - AIによる1分インフルエンサー検索サービス"
             src="/honkoma-logo-transparent--1--2.png"
             width="256"
             height="128"
