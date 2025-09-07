@@ -5,7 +5,7 @@ import { Card, CardContent } from '../components/ui/card';
 
 const ProductPage: React.FC = () => {
   React.useEffect(() => {
-    document.title = 'Quick Clip - App Clipで5秒決済を実現 | Honkoma';
+    document.title = 'KizunaFinder - AIが最適なインフルエンサーを発見 | Honkoma';
   }, []);
 
   // Challenge cards data
@@ -14,22 +14,22 @@ const ProductPage: React.FC = () => {
       id: 1,
       iconSrc: "/---icon--cart-.png",
       iconBgColor: "bg-[#1e3a8a33]",
-      title: ["いろんな商品を展示したいけど、", "在庫リスクやスペースが", "ネック"],
-      description: ["本当に売りたい商品を、", "在庫リスクで諦めていませんか？"],
+      title: ["自社の製品を宣伝する", "インフルエンサーを探したいけど", "どこから始めればいい？"],
+      description: ["適切なインフルエンサーを見つけるのに", "時間がかかりすぎていませんか？"],
     },
     {
       id: 2,
       iconSrc: "/chatgpt------2025-5-25--1.png",
       iconBgColor: "bg-[#8a811e33]",
-      title: ['お客様の"欲しい!"という', "気持ちをその場で", "売上に繋げたいが..."],
-      description: ["お客様の熱意を、", "持ち帰りの手間で", "逃していませんか？"],
+      title: ["費用対効果の高い", "インフルエンサーマーケティングが", "したいが..."],
+      description: ["マッチング精度が低くて", "期待した成果が出ない経験", "ありませんか？"],
     },
     {
       id: 3,
       iconSrc: "/---icon--credit-card-.png",
       iconBgColor: "bg-[#558a1e33]",
-      title: ["イベントや催事で、", "持ち帰りの手間が", "購入の障壁に"],
-      description: ["限定品や大型商品も、", "スマート販売しませんか？"],
+      title: ["多数のプラットフォームから", "最適なインフルエンサーを", "探すのが大変"],
+      description: ["YouTube、TikTok、Instagramなど", "効率的に探せたら良いのに..."],
     },
   ];
 
@@ -37,25 +37,25 @@ const ProductPage: React.FC = () => {
   const featureSteps = [
     {
       id: 1,
-      title: "発見&スキャン",
-      description: "商品や展示物のQRコードをスキャン",
-      icon: "📱",
+      title: "要件入力",
+      description: "依頼したいインフルエンサーのイメージ、登録者数の範囲を入力",
+      icon: "📝",
       gradient: "from-blue-500 to-cyan-500",
       bgGradient: "from-blue-50 to-cyan-50",
     },
     {
       id: 2,
-      title: "確認&決済",
-      description: "ワンタップで簡単に決済完了",
-      icon: "💳",
+      title: "AI分析",
+      description: "AIが最適なインフルエンサーを1分で分析・選定",
+      icon: "🤖",
       gradient: "from-purple-500 to-pink-500",
       bgGradient: "from-purple-50 to-pink-50",
     },
     {
       id: 3,
-      title: "自宅で受け取り",
-      description: "商品は自宅に直接配送",
-      icon: "🚚",
+      title: "リスト提供",
+      description: "写真付きで適切なインフルエンサーリストを提供",
+      icon: "📋",
       gradient: "from-green-500 to-emerald-500",
       bgGradient: "from-green-50 to-emerald-50",
     },
@@ -67,15 +67,15 @@ const ProductPage: React.FC = () => {
       id: 1,
       icon: "/vector.svg",
       iconBg: "bg-[#b3fdf866]",
-      title: "手ぶらで快適な購買体験",
-      description: "商品を持ち歩く必要がなく、観光や買い物がより快適に。",
+      title: "高精度なAIマッチング",
+      description: "AIがあなたの製品に最適なインフルエンサーを精度高くマッチング。",
     },
     {
       id: 2,
       icon: "/---icon--credit-card--1.png",
       iconBg: "bg-[#fecfae33]",
-      title: "簡単・スピーディーな瞬間購入",
-      description: "アプリ不要でQRコードをスキャンするだけの簡単決済。",
+      title: "短時間で効率的な検索",
+      description: "今まで数日かかっていたインフルエンサー検索を1分で完了。",
     },
   ];
 
@@ -84,36 +84,24 @@ const ProductPage: React.FC = () => {
       id: 1,
       icon: "/-------2025-5-25--2.png",
       iconBg: "bg-[#b3fdf866]",
-      title: "在庫リスクゼロで新たな収益機会",
-      description: "実物の在庫を持たずに販売が可能で、スペースを有効活用。",
+      title: "適切なインフルエンサー発見",
+      description: "自分では見つけられなかった適切なインフルエンサーをAIが発見。",
     },
     {
       id: 2,
       icon: "/-------2025-5-25--21-17-56--2.png",
       iconBg: "bg-[#fecfae33]",
-      title: "簡単オペレーションで売上向上",
-      description: "QRコードを設置するだけで、新たな収益チャネルを構築。",
+      title: "幅広いプラットフォーム対応",
+      description: "YouTube、TikTok、Instagram、Xなど多数のプラットフォームから検索。",
     },
   ];
 
   // FAQ data
   const faqData = [
     {
-      question: 'App Clipとは何ですか？',
-      answer: 'App Clipは、アプリをダウンロードすることなく、QRコードやNFCタグをスキャンするだけでアプリの一部機能にアクセスできるAppleの技術です。'
-    },
-    {
       question: '導入にはどのくらいの費用がかかりますか？',
-      answer: '導入費用はお客様の要件により異なります。まずは無償PoCからご相談いただけますので、お気軽にお問い合わせください。'
+      answer: '現在、KizunaFinderは登録から2週間の間無料でご利用いただけます。将来的に有料プランを導入する可能性がありますが、詳細は追ってお知らせいたします。'
     },
-    {
-      question: 'どのような決済方法に対応していますか？',
-      answer: 'Apple Pay、Google Pay、クレジットカード決済に対応しています。セキュアで安全な決済を提供いたします。'
-    },
-    {
-      question: '商品の配送はどのように行われますか？',
-      answer: '決済完了後、お客様が指定された住所に商品を配送いたします。配送方法や期間は商品により異なります。'
-    }
   ];
 
   return (
@@ -126,18 +114,18 @@ const ProductPage: React.FC = () => {
             <div className="flex-1 space-y-8 text-center md:text-left">
               <div className="space-y-4">
                 <div className="inline-flex items-center bg-primary-100 text-primary-700 px-4 py-2 rounded-full text-sm font-semibold">
-                  ⚡ App Clip Technology
+                  AIが最適なインフルエンサーを1分で発見
                 </div>
                 <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold leading-tight tracking-tight">
                   <span className="bg-gradient-to-r from-primary-900 to-primary-700 bg-clip-text text-transparent">
-                    Quick Clip
+                    KizunaFinder
                   </span>
                 </h1>
                 
                 <p className="text-3xl sm:text-4xl leading-snug font-medium">
-                  <span className="font-semibold text-primary-700">"欲しい"</span> を、その場で<br className="md:hidden" />
-                  スマートに。<br />
-                  新しい <span className="font-semibold text-orange-600">『発見型コマース』</span> 体験を。
+                  自社の製品を宣伝するインフルエンサーを探さないといけないけど、<br />
+                  どこから始めればいいかわからない...<br />
+                  <span className="font-semibold text-orange-600">そんなお悩み、ありませんか？</span>
                 </p>
               </div>
 
@@ -159,10 +147,16 @@ const ProductPage: React.FC = () => {
 
               <div className="inline-flex items-center gap-3 flex-wrap justify-center md:justify-start">
                 <span className="inline-flex items-center bg-primary-100 text-primary-700 px-4 py-2 rounded-full text-sm font-semibold">
-                  ⚡ 5秒で購入完了
+                  🎯 YouTube 対応
                 </span>
-                <span className="inline-flex items-center bg-green-100 text-green-700 px-4 py-2 rounded-full text-sm font-semibold">
-                  📱 アプリダウンロード不要
+                <span className="inline-flex items-center bg-orange-100 text-orange-700 px-4 py-2 rounded-full text-sm font-semibold">
+                  🔄 TikTok (Coming Soon...)
+                </span>
+                <span className="inline-flex items-center bg-pink-100 text-pink-700 px-4 py-2 rounded-full text-sm font-semibold">
+                  📷 Instagram (Coming Soon...)
+                </span>
+                <span className="inline-flex items-center bg-gray-100 text-gray-700 px-4 py-2 rounded-full text-sm font-semibold">
+                  🐦 X (Coming Soon...)
                 </span>
               </div>
             </div>
@@ -171,8 +165,8 @@ const ProductPage: React.FC = () => {
             <div className="flex-1 max-w-xl flex justify-center md:justify-end relative">
               <div className="absolute inset-0 bg-gradient-to-r from-primary-600/20 to-orange-600/20 rounded-full blur-3xl animate-pulse"></div>
               <img
-                src="/assets/quickclip-demo.gif"
-                alt="Quick Clip Demo - App Clipによる5秒決済の実演"
+                src="/assets/kizuna/kzfinder_demo_horz.png"
+                alt="KizunaFinder Demo - AIによるインフルエンサー検索"
                 className="rounded-2xl shadow-2xl w-full relative z-10 hover:scale-105 transition-transform duration-500"
               />
             </div>
@@ -237,12 +231,12 @@ const ProductPage: React.FC = () => {
       <section className="py-24 bg-white">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8 mb-16">
           <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-            Quick Clipが、その"もったいない"を解消します！
+            KizunaFinderが、その"もったいない"を解消します！
           </h2>
           <p className="text-xl text-gray-600 leading-relaxed">
-            店頭や展示商品に設置されたQR/NFCコードをスマートフォンでスキャンするだけ。<br />
-            アプリ不要で即座に商品詳細ページへアクセス、Apple Pay/Google Payでワンタップ決済。<br />
-            商品は後日ご自宅へ配送される、新しい発見型コマースです。
+            依頼したいインフルエンサーのイメージ、登録者数の範囲を入力するだけで<br />
+            適切なインフルエンサーをAIが1分でリストアップ！！<br />
+            写真付きで適切なインフルエンサーを検索できます。
           </p>
         </div>
       </section>
@@ -255,7 +249,7 @@ const ProductPage: React.FC = () => {
               たった3ステップの簡単フロー
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              誰でも簡単に、わずか数秒で完了する革新的な購買体験
+              誰でも簡単に、AIで1分で最適なインフルエンサーを発見
             </p>
           </header>
 
@@ -300,51 +294,25 @@ const ProductPage: React.FC = () => {
         <div className="max-w-7xl mx-auto space-y-16 relative z-10">
           <div>
             <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary-900 to-primary-700 bg-clip-text text-transparent">
-              導入フローは <span className="text-primary-600 font-bold">3ステップ</span> だけ
+              使い方は <span className="text-primary-600 font-bold">簡単</span> です
             </h2>
           </div>
 
-          <div className="flex items-start justify-between max-w-7xl mx-auto overflow-x-auto lg:overflow-visible scrollbar-hide snap-x snap-mandatory px-6">
-            <div className="flex-shrink-0 snap-center flex flex-col items-center min-w-[220px] group">
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-primary-600/20 to-orange-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-500"></div>
-                <img src="/assets/steps/scan.png" alt="QRをスキャンするiPhone" className="h-72 md:h-80 lg:h-[300px] xl:h-[320px] w-[260px] object-contain object-top relative z-10 hover:scale-105 transition-transform duration-500" />
-              </div>
-            </div>
-            <div className="flex-shrink-0 snap-center flex items-center justify-center min-w-[100px]">
-              <span className="text-5xl lg:text-6xl text-primary-600 animate-pulse">→</span>
-            </div>
-            <div className="flex-shrink-0 snap-center flex flex-col items-center min-w-[220px] group">
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-primary-600/20 to-orange-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-500"></div>
-                <img src="/assets/steps/appclip.png" alt="App Clipカード" className="h-72 md:h-80 lg:h-[300px] xl:h-[320px] w-[260px] object-contain object-top relative z-10 hover:scale-105 transition-transform duration-500" />
-              </div>
-            </div>
-            <div className="flex-shrink-0 snap-center flex items-center justify-center min-w-[100px]">
-              <span className="text-5xl lg:text-6xl text-primary-600 animate-pulse">→</span>
-            </div>
-            <div className="flex-shrink-0 snap-center flex flex-col items-center min-w-[220px] group">
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-primary-600/20 to-orange-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-500"></div>
-                <img src="/assets/steps/pay.png" alt="Apple Payシート" className="h-72 md:h-80 lg:h-[300px] xl:h-[320px] w-[260px] object-contain object-top relative z-10 hover:scale-105 transition-transform duration-500" />
-              </div>
-            </div>
-            <div className="flex-shrink-0 snap-center flex items-center justify-center min-w-[100px]">
-              <span className="text-5xl lg:text-6xl text-primary-600 animate-pulse">→</span>
-            </div>
-            <div className="flex-shrink-0 snap-center flex flex-col items-center min-w-[220px] group">
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-primary-600/20 to-orange-600/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-500"></div>
-                <img src="/assets/steps/success.png" alt="購入完了" className="h-72 md:h-80 lg:h-[310px] xl:h-[330px] w-[270px] object-contain object-top relative z-10 hover:scale-105 transition-transform duration-500" />
-              </div>
+          <div className="flex justify-center">
+            <div className="relative max-w-4xl">
+              <div className="absolute inset-0 bg-gradient-to-r from-primary-600/20 to-orange-600/20 rounded-2xl blur-xl"></div>
+              <img 
+                src="/assets/kizuna/kzfinder_demo_horz.png" 
+                alt="KizunaFinderの使い方デモ" 
+                className="w-full relative z-10 rounded-2xl shadow-2xl hover:scale-105 transition-transform duration-500" 
+              />
             </div>
           </div>
 
           <div className="space-y-4">
             <p className="text-gray-700 text-lg md:text-xl font-medium">
-              QR / NFC をかざす → App Clip が即起動 → Apple Pay ワンタップ決済 → 完了
+              要件入力 → AIが分析 → 最適インフルエンサーリスト提供 → 完了
             </p>
-            <p className="text-sm text-gray-500">※ 画像を横スクロールしてご覧ください</p>
           </div>
         </div>
       </section>
@@ -354,10 +322,10 @@ const ProductPage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Quick Clipがもたらすメリット
+              KizunaFinderがもたらすメリット
             </h2>
             <p className="text-xl text-gray-600">
-              お客様と施設様、双方にとっての価値を提供します
+              マーケティング担当者とインフルエンサー、双方にとっての価値を提供します
             </p>
           </div>
 
@@ -365,7 +333,7 @@ const ProductPage: React.FC = () => {
             {/* Customer Benefits */}
             <div className="bg-white rounded-[30px] p-8">
               <h3 className="font-bold text-gray-900 text-2xl text-center mb-8">
-                お客様にとってのメリット
+                マーケティング担当者のメリット
               </h3>
               <div className="space-y-6">
                 {customerBenefits.map((benefit) => (
@@ -391,7 +359,7 @@ const ProductPage: React.FC = () => {
             {/* Facility Benefits */}
             <div className="bg-white rounded-[30px] p-8">
               <h3 className="font-bold text-gray-900 text-2xl text-center mb-8">
-                施設様にとってのメリット
+                インフルエンサーのメリット
               </h3>
               <div className="space-y-6">
                 {facilityBenefits.map((benefit) => (
@@ -422,58 +390,23 @@ const ProductPage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary-900 to-primary-700 bg-clip-text text-transparent mb-4">
-              導入シーンはいろいろ
+              サービスを使ってみる
             </h2>
             <p className="text-xl text-gray-600">
-              様々な業界・シーンでご活用いただけます
+              現在登録者２週間無料キャンペーン実施中！！
             </p>
           </div>
 
-          <div className="grid gap-8 md:grid-cols-3">
-            <div className="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col hover:shadow-xl transition-shadow duration-300 group">
-              <img
-                src="/assets/usecase/hotel.jpg"
-                alt="ホテル客室アメニティ"
-                className="h-48 w-full object-cover group-hover:scale-110 transition-transform duration-500"
-              />
-              <div className="p-6 flex flex-col flex-grow relative">
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary-600 to-orange-600"></div>
-                <h3 className="font-bold mb-3 text-lg text-primary-900">ホテル客室アメニティ</h3>
-                <p className="text-sm text-gray-600 flex-grow">
-                  試して気に入った瞬間にQRスキャン。手ぶらで帰宅できる新しい宿泊体験。
-                </p>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col hover:shadow-xl transition-shadow duration-300 group">
-              <img
-                src="/assets/usecase/salon.jpg"
-                alt="美容院の店販シャンプー"
-                className="h-48 w-full object-cover group-hover:scale-110 transition-transform duration-500"
-              />
-              <div className="p-6 flex flex-col flex-grow relative">
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary-600 to-orange-600"></div>
-                <h3 className="font-bold mb-3 text-lg text-primary-900">美容院の店販シャンプー</h3>
-                <p className="text-sm text-gray-600 flex-grow">
-                  施術後に即購入。サロン在庫ゼロでリピート率向上。
-                </p>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col hover:shadow-xl transition-shadow duration-300 group">
-              <img
-                src="/assets/usecase/lounge.jpg"
-                alt="空港ラウンジ限定ギフト"
-                className="h-48 w-full object-cover group-hover:scale-110 transition-transform duration-500"
-              />
-              <div className="p-6 flex flex-col flex-grow relative">
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary-600 to-orange-600"></div>
-                <h3 className="font-bold mb-3 text-lg text-primary-900">空港ラウンジ限定ギフト</h3>
-                <p className="text-sm text-gray-600 flex-grow">
-                  待ち時間にスキャン→帰国後受け取り。免税品を並ばず購入可能。
-                </p>
-              </div>
-            </div>
+          <div className="flex justify-center">
+            <a
+              href="https://kizunafinderfront.vercel.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center bg-gradient-to-r from-primary-600 to-primary-700 text-white px-12 py-6 rounded-xl text-2xl font-bold hover:from-primary-700 hover:to-primary-800 transition-all duration-300 shadow-lg hover:shadow-xl group text-center"
+            >
+              こちらからチェック！
+              <ArrowRight className="ml-3 h-6 w-6 group-hover:translate-x-1 transition-transform" />
+            </a>
           </div>
         </div>
       </section>
@@ -512,20 +445,23 @@ const ProductPage: React.FC = () => {
       <section className="py-24 bg-gradient-to-r from-primary-600 to-primary-700">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
           <h2 className="text-4xl font-bold text-white mb-6">
-            Quick Clipで新しい購買体験を始めませんか？
+            KizunaFinderで最適なインフルエンサーを見つけませんか？
           </h2>
           <p className="text-xl text-primary-100 mb-8 leading-relaxed">
-            無償PoCのご相談から本格導入まで、お客様のニーズに合わせてサポートいたします。<br />
-            まずはお気軽にお問い合わせください。
+            現在登録者２週間無料キャンペーン実施中！<br />
+            あなたのブランドに最適なインフルエンサーをAIが見つけます。<br />
+            まずはお気軽にお試しください。
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              to="/contact"
+            <a
+              href="https://kizunafinderfront.vercel.app/"
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex items-center justify-center bg-white text-primary-600 px-8 py-4 rounded-xl text-lg font-semibold hover:bg-gray-100 transition-all duration-300 shadow-lg hover:shadow-xl group"
             >
-              無償PoCを相談する
+              無料で使ってみる
               <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-            </Link>
+            </a>
             <Link
               to="/about"
               className="inline-flex items-center justify-center border-2 border-white text-white px-8 py-4 rounded-xl text-lg font-semibold hover:bg-white hover:text-primary-600 transition-all duration-300"

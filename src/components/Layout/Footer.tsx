@@ -77,10 +77,10 @@ const Footer: React.FC = () => {
             </ul>
             
             <div className="mt-6">
-              <h4 className="text-sm font-semibold mb-2">Quick Clip</h4>
+              <h4 className="text-sm font-semibold mb-2">KizunaFinder</h4>
               <p className="text-sm text-gray-400">
-                App Clipで実現する<br />
-                5秒決済ソリューション
+                AIで実現する<br />
+                1分インフルエンサー検索
               </p>
             </div>
           </div>
