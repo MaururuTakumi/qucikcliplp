@@ -11,7 +11,7 @@ const AboutPage: React.FC = () => {
     { label: '設立年月日', value: '2025年7月（予定）' },
     { label: '資本金', value: '50万円（予定）' },
     { label: '所在地', value: '(詳細は後日公開)' },
-    { label: '事業内容', value: 'App Clipを活用したQRコード決済ソリューションの開発・提供' },
+    { label: '事業内容', value: 'AIを活用したインフルエンサー検索サービスの開発・提供' },
     { label: '従業員数', value: '3名（創業メンバー）' }
   ];
 
@@ -19,7 +19,7 @@ const AboutPage: React.FC = () => {
     {
       year: '2025年3月',
       title: '構想開始',
-      description: 'App Clipテクノロジーに着目し、Quick Clipの構想をスタート'
+      description: 'AIテクノロジーに着目し、KizunaFinderの構想をスタート'
     },
     {
       year: '2025年7月',
@@ -29,7 +29,7 @@ const AboutPage: React.FC = () => {
     {
       year: '2025年夏(予定)',
       title: 'MVP開発完了',
-      description: 'Quick ClipのMVP（最小実行可能製品）を完成予定'
+      description: 'KizunaFinderのMVP（最小実行可能製品）を完成予定'
     },
     {
       year: '2025年秋(予定)',
@@ -100,7 +100,7 @@ const AboutPage: React.FC = () => {
                 次世代コマースの標準を創る
               </p>
               <p className="text-gray-600 leading-relaxed">
-                App Clipテクノロジーを活用した革新的な決済体験を通じて、デジタルコマースの新しいスタンダードを確立します。
+                AIテクノロジーを活用した革新的なインフルエンサーマーケティング体験を通じて、デジタルマーケティングの新しいスタンダードを確立します。
               </p>
             </div>
           </div>
@@ -120,7 +120,7 @@ const AboutPage: React.FC = () => {
                 </p>
                 <p>
                   私たちHonkomaは、この課題をテクノロジーの力で解決したいと考えています。
-                  App Clipを活用したQuick Clipは、アプリのダウンロードという障壁を取り除き、
+                  AIを活用したKizunaFinderは、インフルエンサー検索の時間という障壁を取り除き、
                   わずか5秒で決済を完了させることができます。
                 </p>
                 <p>
@@ -190,16 +190,16 @@ const AboutPage: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="bg-white rounded-xl p-8 shadow-lg">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Quick Clip</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">KizunaFinder</h3>
               <p className="text-gray-600 mb-6">
-                当社の主力サービスであるQuick Clipは、App Clipテクノロジーを活用したQRコード決済ソリューションです。
-                アプリのダウンロードが不要で、QRコードをスキャンするだけで瞬時に決済画面にアクセスできます。
+                当社の主力サービスであるKizunaFinderは、AIテクノロジーを活用したインフルエンサー検索サービスです。
+                あなたのブランドに最適なインフルエンサーを簡単な入力で瞬時に発見できます。
               </p>
               <ul className="space-y-2 text-sm text-gray-600">
-                <li>• アプリダウンロード不要の瞬時アクセス</li>
-                <li>• 5秒で完了する高速決済プロセス</li>
-                <li>• セキュアで信頼性の高い取引システム</li>
-                <li>• 店舗側の導入コスト削減</li>
+                <li>• AIによる高精度マッチング</li>
+                <li>• 1分で完了する高速検索プロセス</li>
+                <li>• 多プラットフォーム対応</li>
+                <li>• コスト効率最大化の新しいマーケティング手法</li>
               </ul>
             </div>
 

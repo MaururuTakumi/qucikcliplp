@@ -8,23 +8,23 @@ export const CallToActionSection = (): JSX.Element => {
         <div className="flex-1 space-y-8 text-center md:text-left fade-in-up animate">
           {/* サービス名 */}
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold leading-tight tracking-tight text-primary-900 bg-gradient-to-r from-primary-900 to-primary-700 bg-clip-text text-transparent">
-            Quick&nbsp;Clip
+            KizunaFinder
         </h1>
 
           {/* 理念コピー */}
           <p className="text-3xl sm:text-4xl leading-snug font-medium animate-pulse">
-            <span className="font-semibold text-primary-700">"欲しい"</span> を、その場で<br className="md:hidden" />
-            スマートに。<br />
-            新しい <span className="font-semibold text-orange-600">『発見型コマース』</span> 体験を。
+            自社の製品を宣伝するインフルエンサーを探さないといけないけど、<br />
+            どこから始めればいいかわからない...<br />
+            <span className="font-semibold text-orange-600">そんなお悩み、ありませんか？</span>
           </p>
 
           <div className="inline-flex items-center gap-3 flex-wrap justify-center md:justify-start">
             <span className="inline-flex items-center bg-primary-100 text-primary-700 px-4 py-2 rounded-full text-sm font-semibold pulse-glow">
-              ⚡ 5 秒で購入完了
+              🤖 AIで1分で検索完了
             </span>
 
-            <a href="#contact" className="btn-primary pulse-glow">
-              無償 PoC を相談
+            <a href="https://kizunafinderfront.vercel.app/" target="_blank" rel="noopener noreferrer" className="btn-primary pulse-glow">
+              無料で使ってみる
             </a>
           </div>
         </div>
@@ -33,8 +33,8 @@ export const CallToActionSection = (): JSX.Element => {
         <div className="flex-1 max-w-xl flex justify-center md:justify-end relative">
           <div className="absolute inset-0 bg-gradient-to-r from-primary-600/20 to-orange-600/20 rounded-full blur-3xl animate-pulse"></div>
           <img
-            src="/assets/quickclip-demo.gif"
-            alt="App Clip Demo"
+            src="/assets/kizuna/kzfinder_demo_vert.png"
+            alt="KizunaFinder Demo"
             className="rounded-2xl shadow-2xl w-full floating relative z-10 hover:scale-105 transition-transform duration-500"
           />
       </div>

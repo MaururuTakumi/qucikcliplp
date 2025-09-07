@@ -23,10 +23,10 @@ export const Desktop = (): JSX.Element => {
   useEffect(() => {
     const updateTitle = () => {
       const sections = [
-        { id: 'hero', title: 'Quick Clip - App Clipで5秒決済を実現' },
-        { id: 'usecase', title: 'ユースケース | Quick Clip' },
-        { id: 'features', title: '機能紹介 | Quick Clip' },
-        { id: 'contact', title: 'お問い合わせ | Quick Clip' }
+        { id: 'hero', title: 'KizunaFinder - AIで1分インフルエンサー検索' },
+        { id: 'usecase', title: 'ユースケース | KizunaFinder' },
+        { id: 'features', title: '機能紹介 | KizunaFinder' },
+        { id: 'contact', title: 'お問い合わせ | KizunaFinder' }
       ];
 
       const currentSection = sections.find(section => {
@@ -249,8 +249,8 @@ export const Desktop = (): JSX.Element => {
                 <div className="absolute inset-0 bg-gradient-to-r from-primary-600/10 to-orange-600/10 rounded-3xl blur-3xl"></div>
                 <img
                   className="w-full max-w-[420px] lg:max-w-[520px] h-auto object-contain aspect-auto relative z-10 floating"
-                  alt="Quick Clipモバイルアプリケーションのスクリーンショット - App Clipによる決済画面"
-                  src="/----1.png"
+                  alt="KizunaFinderアプリケーションのスクリーンショット - AIによるインフルエンサー検索画面"
+                  src="/assets/kizuna/kzfind_logo_rect-removebg-preview.png"
                   loading="lazy"
                 />
               </aside>
