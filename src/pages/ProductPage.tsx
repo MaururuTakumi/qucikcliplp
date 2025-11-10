@@ -123,8 +123,8 @@ const ProductPage: React.FC = () => {
             日本のプロダクト開発に、<br />
             世界級の若手エンジニアを。
           </h1>
-          <p className="text-xl md:text-2xl text-primary-100 mb-8 max-w-3xl mx-auto leading-relaxed">
-            インドの優秀な新卒エンジニアが持つ、<strong className="text-white">CS基礎・実務経験・英語力</strong>を、<br />
+          <p className="text-xl md:text-2xl text-white mb-8 max-w-3xl mx-auto leading-relaxed opacity-95">
+            インドの優秀な新卒エンジニアが持つ、<strong className="text-yellow-200">CS基礎・実務経験・英語力</strong>を、<br />
             日本のものづくりに接続します。
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -443,7 +443,7 @@ const ProductPage: React.FC = () => {
             ハイレベルな技術力を持つ外国人エンジニアの採用に<br />
             ご関心があれば、まずはご相談ください。
           </h2>
-          <p className="text-xl text-primary-100 mb-8 leading-relaxed">
+          <p className="text-xl text-white mb-8 leading-relaxed opacity-95">
             候補者サンプルのご提示や、AIスクリーニングのデモも可能です。<br />
             貴社の課題に合わせて、最適なご提案をさせていただきます。
           </p>
