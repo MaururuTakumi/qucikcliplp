@@ -67,13 +67,13 @@ const ContactPage: React.FC = () => {
     {
       icon: <Mail className="h-6 w-6" />,
       title: 'メールアドレス',
-      content: 'rizzboost@ltdhonkoma.com',
+      content: 'quickclip@ltdhonkoma.com',
       description: '24時間受付（回答は営業時間内）'
     },
     {
       icon: <Phone className="h-6 w-6" />,
       title: '電話番号',
-      content: '準備中',
+      content: '080-6256-2320',
       description: '平日 9:00-18:00'
     },
     {
@@ -91,8 +91,9 @@ const ContactPage: React.FC = () => {
   ];
 
   const inquiryTypes = [
-    'Quick Clipに関するお問い合わせ',
-    '無償PoCのご相談',
+    'インド人材紹介に関するお問い合わせ',
+    'AIスクリーニングツールについて',
+    '候補者サンプルのご依頼',
     '導入・料金に関するご質問',
     'パートナーシップについて',
     'メディア・取材について',
@@ -111,7 +112,7 @@ const ContactPage: React.FC = () => {
             お問い合わせ
           </h1>
           <p className="text-xl text-gray-600 leading-relaxed">
-            Quick Clipに関するご質問、無償PoCのご相談、<br />
+            外国人エンジニア採用に関するご質問、無償PoCのご相談、<br />
             その他お気軽にお問い合わせください。
           </p>
         </div>
