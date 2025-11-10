@@ -14,6 +14,9 @@ import BlogDetailPage from "./pages/BlogDetailPage";
 import BlogTagPage from "./pages/BlogTagPage";
 import BlogSearchPage from "./pages/BlogSearchPage";
 import RSSFeedPage from "./pages/RSSFeedPage";
+import HistoryPage from "./pages/HistoryPage";
+import QuickClipArchivePage from "./pages/QuickClipArchivePage";
+import KizunaFinderArchivePage from "./pages/KizunaFinderArchivePage";
 
 createRoot(document.getElementById("app") as HTMLElement).render(
   <StrictMode>
@@ -32,6 +35,9 @@ createRoot(document.getElementById("app") as HTMLElement).render(
             <Route path="/blog/tags/:tag" element={<BlogTagPage />} />
             <Route path="/blog/rss.xml" element={<RSSFeedPage />} />
             <Route path="/blog/:slug" element={<BlogDetailPage />} />
+            <Route path="/history" element={<HistoryPage />} />
+            <Route path="/history/quickclip" element={<QuickClipArchivePage />} />
+            <Route path="/history/kizunafinder" element={<KizunaFinderArchivePage />} />
           </Routes>
         </Layout>
       </Router>
