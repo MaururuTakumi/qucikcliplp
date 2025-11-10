@@ -7,7 +7,8 @@ const Footer: React.FC = () => {
   const navigation = [
     { name: 'ホーム', href: '/' },
     { name: '会社概要', href: '/about' },
-    { name: '商品紹介', href: '/product' },
+    { name: '沿革', href: '/history' },
+    { name: '事業紹介', href: '/product' },
     { name: '役員紹介', href: '/team' },
     { name: 'ブログ', href: '/blog' },
     { name: 'お問い合わせ', href: '/contact' },
@@ -28,8 +29,8 @@ const Footer: React.FC = () => {
               />
             </div>
             <p className="text-gray-300 mb-4 leading-relaxed">
-              ユーザーの「体験」を起点にした購買体験を豊かにして、<br />
-              売り手、買い手がWin-Winになる世界を目指しています。
+              インドの次世代エンジニアと日本企業を結び、<br />
+              双方にとって価値のある関係を築きます。
             </p>
             <div className="text-sm text-gray-400">
               <p>株式会社Honkoma</p>
@@ -77,10 +78,10 @@ const Footer: React.FC = () => {
             </ul>
             
             <div className="mt-6">
-              <h4 className="text-sm font-semibold mb-2">KizunaFinder</h4>
+              <h4 className="text-sm font-semibold mb-2">主なサービス</h4>
               <p className="text-sm text-gray-400">
-                AIで実現する<br />
-                1分インフルエンサー検索
+                インド人材紹介<br />
+                AIスクリーニングツール
               </p>
             </div>
           </div>
