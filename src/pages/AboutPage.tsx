@@ -1,6 +1,5 @@
 import React from 'react';
-import { Heart, Target, Eye, Building2, Calendar, MapPin, ArrowRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Heart, Target, Eye, Building2 } from 'lucide-react';
 
 const AboutPage: React.FC = () => {
   React.useEffect(() => {
@@ -9,10 +8,8 @@ const AboutPage: React.FC = () => {
 
   const companyInfo = [
     { label: '商号', value: '株式会社Honkoma' },
-    { label: '設立年月日', value: '2025年7月（予定）' },
-    { label: '資本金', value: '50万円（予定）' },
-    { label: '所在地', value: '(詳細は後日公開)' },
-    { label: '事業内容', value: 'AIを活用したインフルエンサー検索サービスの開発・提供' },
+    { label: '設立年月日', value: '2025年7月' },
+    { label: '事業内容', value: 'インドにおけるエンジニア採用事業' },
     { label: '従業員数', value: '3名（創業メンバー）' }
   ];
 
@@ -143,12 +140,12 @@ const AboutPage: React.FC = () => {
               </div>
             </div>
             <div className="order-1 lg:order-2 flex justify-center">
-              <div className="w-80 h-80 bg-gradient-to-br from-primary-100 to-gray-200 rounded-2xl flex items-center justify-center shadow-xl">
-                <div className="text-center">
-                  <div className="w-32 h-32 bg-gray-300 rounded-full mx-auto mb-4"></div>
-                  <p className="text-gray-600 text-sm">CEO 林拓海</p>
-                  <p className="text-gray-500 text-xs">写真準備中</p>
-                </div>
+              <div className="w-80 h-80 bg-gradient-to-br from-primary-100 to-gray-200 rounded-2xl overflow-hidden shadow-xl">
+                <img
+                  src="/team/hayashi_img.jpg"
+                  alt="CEO 林拓海"
+                  className="w-full h-full object-cover"
+                />
               </div>
             </div>
           </div>
@@ -224,26 +221,6 @@ const AboutPage: React.FC = () => {
         </div>
       </section>
 
-      {/* History Link Section */}
-      <section className="py-24 bg-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="bg-gradient-to-br from-primary-50 to-gray-50 rounded-2xl p-12">
-            <Calendar className="h-16 w-16 text-primary-600 mx-auto mb-6" />
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">沿革</h2>
-            <p className="text-lg text-gray-600 mb-8 leading-relaxed">
-              Quick Clipから始まり、KizunaFinderを経て、現在のインド人材紹介事業へ。<br />
-              「本当に困っている人の力になる」という理念のもと、私たちは常に進化を続けています。
-            </p>
-            <Link
-              to="/history"
-              className="inline-flex items-center bg-primary-600 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:bg-primary-700 transition-all duration-300 shadow-lg hover:shadow-xl group"
-            >
-              沿革を見る
-              <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-            </Link>
-          </div>
-        </div>
-      </section>
     </div>
   );
 };

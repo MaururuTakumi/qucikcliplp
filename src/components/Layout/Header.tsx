@@ -9,17 +9,12 @@ const Header: React.FC = () => {
   const navigation = [
     { name: 'ホーム', href: '/' },
     { name: '会社概要', href: '/about' },
-    { name: '沿革', href: '/history' },
     { name: '事業紹介', href: '/product' },
     { name: '役員紹介', href: '/team' },
-    { name: 'ブログ', href: '/blog' },
     { name: 'お問い合わせ', href: '/contact' },
   ];
 
   const isActive = (path: string) => {
-    if (path === '/blog') {
-      return location.pathname.startsWith('/blog');
-    }
     return location.pathname === path;
   };
 
