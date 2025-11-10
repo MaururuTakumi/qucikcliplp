@@ -66,7 +66,7 @@ const HomePage: React.FC = () => {
               <div className="space-y-6">
                 <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-tight tracking-tight text-gray-900">
                   インドの次世代エンジニアを、<br />
-                  <span className="bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">
+                  <span className="bg-gradient-to-r">
                     日本の成長エンジンに。
                   </span>
                 </h1>
@@ -258,7 +258,7 @@ const HomePage: React.FC = () => {
             ハイレベルな技術力を持つ外国人エンジニアの採用に<br />
             ご関心があれば、まずはご相談ください。
           </h2>
-          <p className="text-xl text-primary-100 mb-8 leading-relaxed">
+          <p className="text-xl text-white mb-8 leading-relaxed opacity-95">
             候補者サンプルのご提示や、AIスクリーニングのデモも可能です。<br />
             貴社の課題に合わせて、最適なご提案をさせていただきます。
           </p>

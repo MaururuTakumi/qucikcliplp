@@ -57,14 +57,21 @@ const Header: React.FC = () => {
             </div>
           </div>
 
-          {/* CTA Button */}
-          <div className="hidden md:block">
-            <Link
-              to="/contact"
-              className="bg-gradient-to-r from-primary-600 to-primary-700 text-white px-6 py-2 rounded-lg text-sm font-semibold hover:from-primary-700 hover:to-primary-800 transition-all duration-300 shadow-md hover:shadow-lg"
+          {/* Language Switcher */}
+          <div className="hidden md:flex items-center space-x-2 border border-gray-300 rounded-lg overflow-hidden">
+            <button
+              className="px-4 py-2 text-sm font-semibold bg-primary-600 text-white cursor-default"
             >
-              お問い合わせ
-            </Link>
+              JP
+            </button>
+            <a
+              href="https://bmp-lp.vercel.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-100 transition-colors duration-200"
+            >
+              EN
+            </a>
           </div>
 
           {/* Mobile menu button */}
@@ -101,14 +108,22 @@ const Header: React.FC = () => {
                   {item.name}
                 </Link>
               ))}
-              <div className="pt-4 pb-2">
-                <Link
-                  to="/contact"
-                  onClick={() => setIsMenuOpen(false)}
-                  className="block w-full bg-gradient-to-r from-primary-600 to-primary-700 text-white px-6 py-3 rounded-lg text-center font-semibold hover:from-primary-700 hover:to-primary-800 transition-all duration-300"
-                >
-                  お問い合わせ
-                </Link>
+              <div className="pt-4 pb-2 px-2">
+                <div className="flex items-center space-x-2 border border-gray-300 rounded-lg overflow-hidden">
+                  <button
+                    className="flex-1 px-4 py-3 text-base font-semibold bg-primary-600 text-white cursor-default text-center"
+                  >
+                    JP
+                  </button>
+                  <a
+                    href="https://bmp-lp.vercel.app/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 px-4 py-3 text-base font-semibold text-gray-700 hover:bg-gray-100 transition-colors duration-200 text-center"
+                  >
+                    EN
+                  </a>
+                </div>
               </div>
             </div>
           </div>
