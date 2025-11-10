@@ -9,14 +9,7 @@ import ProductPage from "./pages/ProductPage";
 import TeamPage from "./pages/TeamPage";
 import ContactPage from "./pages/ContactPage";
 import PrivacyPage from "./pages/PrivacyPage";
-import BlogPage from "./pages/BlogPage";
-import BlogDetailPage from "./pages/BlogDetailPage";
-import BlogTagPage from "./pages/BlogTagPage";
-import BlogSearchPage from "./pages/BlogSearchPage";
-import RSSFeedPage from "./pages/RSSFeedPage";
-import HistoryPage from "./pages/HistoryPage";
-import QuickClipArchivePage from "./pages/QuickClipArchivePage";
-import KizunaFinderArchivePage from "./pages/KizunaFinderArchivePage";
+import AwwwardsLandingPage from "./pages/AwwwardsLandingPage";
 
 createRoot(document.getElementById("app") as HTMLElement).render(
   <StrictMode>
@@ -30,14 +23,7 @@ createRoot(document.getElementById("app") as HTMLElement).render(
             <Route path="/team" element={<TeamPage />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/privacy" element={<PrivacyPage />} />
-            <Route path="/blog" element={<BlogPage />} />
-            <Route path="/blog/search" element={<BlogSearchPage />} />
-            <Route path="/blog/tags/:tag" element={<BlogTagPage />} />
-            <Route path="/blog/rss.xml" element={<RSSFeedPage />} />
-            <Route path="/blog/:slug" element={<BlogDetailPage />} />
-            <Route path="/history" element={<HistoryPage />} />
-            <Route path="/history/quickclip" element={<QuickClipArchivePage />} />
-            <Route path="/history/kizunafinder" element={<KizunaFinderArchivePage />} />
+            <Route path="/awwwards" element={<AwwwardsLandingPage />} />
           </Routes>
         </Layout>
       </Router>
