@@ -62,13 +62,10 @@ const HomePage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col-reverse md:flex-row items-center gap-12 relative">
             {/* Left: Copy */}
-            <div className="flex-1 space-y-8 text-center md:text-left">
+            <div className="flex-1 space-y-10 text-center md:text-left">
               <div className="space-y-6">
-                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-tight tracking-tight text-gray-900">
-                  インドの次世代エンジニアを、<br />
-                  <span className="bg-gradient-to-r">
-                    日本の成長エンジンに。
-                  </span>
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-tight tracking-tight text-gray-900 max-w-none">
+                  インドの次世代エンジニアを、<span className="bg-gradient-to-r">日本の成長エンジンに。</span>
                 </h1>
 
                 <p className="text-lg sm:text-xl text-gray-600 leading-relaxed max-w-2xl">
