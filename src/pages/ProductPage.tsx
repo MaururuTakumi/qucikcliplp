@@ -334,26 +334,6 @@ const ProductPage: React.FC = () => {
               </div>
             ))}
           </div>
-
-          <div className="mt-12 bg-white rounded-2xl p-8 shadow-lg">
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">価格・契約</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="border-l-4 border-primary-600 pl-6">
-                <h4 className="font-bold text-gray-900 mb-2">人材紹介</h4>
-                <p className="text-gray-700">成功報酬型（内定承諾時）を基本に個別設計</p>
-              </div>
-              <div className="border-l-4 border-purple-600 pl-6">
-                <h4 className="font-bold text-gray-900 mb-2">ツール</h4>
-                <p className="text-gray-700">フリープラン（上限あり）／月額（上位プランはATS連携・SLA）</p>
-              </div>
-            </div>
-            <div className="mt-6 bg-primary-50 rounded-xl p-6">
-              <h4 className="font-bold text-gray-900 mb-2">適正コストの考え方</h4>
-              <p className="text-gray-700">
-                国際市場の報酬レンジと、貴社の役割設計（英語要否・責務範囲）を踏まえ、<strong>長期的にフェアな条件</strong>でご提案します。
-              </p>
-            </div>
-          </div>
         </div>
       </section>
 

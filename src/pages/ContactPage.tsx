@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mail, Phone, MapPin, Clock, Send, CheckCircle, AlertCircle } from 'lucide-react';
+import { Mail, Phone, Clock, Send, CheckCircle, AlertCircle } from 'lucide-react';
 
 const ContactPage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -77,12 +77,6 @@ const ContactPage: React.FC = () => {
       description: '平日 9:00-18:00'
     },
     {
-      icon: <MapPin className="h-6 w-6" />,
-      title: '所在地',
-      content: '東京都文京区',
-      description: '詳細住所は後日公開'
-    },
-    {
       icon: <Clock className="h-6 w-6" />,
       title: '営業時間',
       content: '平日 9:00-18:00',
@@ -96,6 +90,7 @@ const ContactPage: React.FC = () => {
     '候補者サンプルのご依頼',
     '導入・料金に関するご質問',
     'パートナーシップについて',
+    '投資のご相談',
     'メディア・取材について',
     'その他'
   ];
@@ -121,9 +116,9 @@ const ContactPage: React.FC = () => {
       {/* Contact Info Cards */}
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="flex flex-wrap justify-center gap-6">
             {contactInfo.map((info, index) => (
-              <div key={index} className="bg-gray-50 rounded-xl p-6 text-center hover:bg-gray-100 transition-colors duration-300">
+              <div key={index} className="bg-gray-50 rounded-xl p-6 text-center hover:bg-gray-100 transition-colors duration-300 w-full md:w-64">
                 <div className="inline-flex items-center justify-center w-12 h-12 bg-primary-100 text-primary-600 rounded-full mb-4">
                   {info.icon}
                 </div>

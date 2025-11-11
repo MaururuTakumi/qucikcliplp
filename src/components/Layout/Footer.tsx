@@ -7,10 +7,8 @@ const Footer: React.FC = () => {
   const navigation = [
     { name: 'ホーム', href: '/' },
     { name: '会社概要', href: '/about' },
-    { name: '沿革', href: '/history' },
     { name: '事業紹介', href: '/product' },
     { name: '役員紹介', href: '/team' },
-    { name: 'ブログ', href: '/blog' },
     { name: 'お問い合わせ', href: '/contact' },
     { name: 'プライバシーポリシー', href: '/privacy' },
   ];
@@ -34,7 +32,6 @@ const Footer: React.FC = () => {
             </p>
             <div className="text-sm text-gray-400">
               <p>株式会社Honkoma</p>
-              <p>(登記準備中)</p>
             </div>
           </div>
 
