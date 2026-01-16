@@ -40,11 +40,10 @@ const Header: React.FC = () => {
                 <Link
                   key={item.name}
                   to={item.href}
-                  className={`px-3 py-2 text-sm font-medium transition-colors duration-200 ${
-                    isActive(item.href)
-                      ? 'text-primary-600 border-b-2 border-primary-600'
-                      : 'text-gray-700 hover:text-primary-600 hover:border-b-2 hover:border-primary-300'
-                  }`}
+                  className={`px-3 py-2 text-sm font-medium transition-colors duration-200 ${isActive(item.href)
+                    ? 'text-primary-600 border-b-2 border-primary-600'
+                    : 'text-gray-700 hover:text-primary-600 hover:border-b-2 hover:border-primary-300'
+                    }`}
                 >
                   {item.name}
                 </Link>
@@ -52,22 +51,7 @@ const Header: React.FC = () => {
             </div>
           </div>
 
-          {/* Language Switcher */}
-          <div className="hidden md:flex items-center space-x-2 border border-gray-300 rounded-lg overflow-hidden">
-            <button
-              className="px-4 py-2 text-sm font-semibold bg-primary-600 text-white cursor-default"
-            >
-              JP
-            </button>
-            <a
-              href="https://bmp-lp.vercel.app/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-100 transition-colors duration-200"
-            >
-              EN
-            </a>
-          </div>
+
 
           {/* Mobile menu button */}
           <div className="md:hidden">
@@ -94,32 +78,15 @@ const Header: React.FC = () => {
                   key={item.name}
                   to={item.href}
                   onClick={() => setIsMenuOpen(false)}
-                  className={`block px-3 py-2 text-base font-medium rounded-md transition-colors duration-200 ${
-                    isActive(item.href)
-                      ? 'text-primary-600 bg-primary-50'
-                      : 'text-gray-700 hover:text-primary-600 hover:bg-gray-50'
-                  }`}
+                  className={`block px-3 py-2 text-base font-medium rounded-md transition-colors duration-200 ${isActive(item.href)
+                    ? 'text-primary-600 bg-primary-50'
+                    : 'text-gray-700 hover:text-primary-600 hover:bg-gray-50'
+                    }`}
                 >
                   {item.name}
                 </Link>
               ))}
-              <div className="pt-4 pb-2 px-2">
-                <div className="flex items-center space-x-2 border border-gray-300 rounded-lg overflow-hidden">
-                  <button
-                    className="flex-1 px-4 py-3 text-base font-semibold bg-primary-600 text-white cursor-default text-center"
-                  >
-                    JP
-                  </button>
-                  <a
-                    href="https://bmp-lp.vercel.app/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex-1 px-4 py-3 text-base font-semibold text-gray-700 hover:bg-gray-100 transition-colors duration-200 text-center"
-                  >
-                    EN
-                  </a>
-                </div>
-              </div>
+
             </div>
           </div>
         )}

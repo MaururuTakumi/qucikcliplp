@@ -13,7 +13,7 @@ const TeamPage: React.FC = () => {
       position: '代表取締役CEO',
       image: '/team/hayashi_img.jpg',
       bio: '西大和学園高等学校卒業後、東京大学文科一類に入学。現在は農学部農業資源経済学専修に所属。在学中よりFintechスタートアップでビジネスディベロップメントとして法人営業に従事し、ビジネスと技術の橋渡し役として活躍。現在は事業会社のM&Aチームにも参画し、事業開発と経営戦略の両面から企業価値創造に取り組む。',
-      message: '日本のIT業界が直面するエンジニア不足と、インドの優秀な若手エンジニアの可能性。この両者を適切に結びつけることで、真のWin-Winを実現したいと考えています。重要なのは、大学のブランドではなく実際のスキルと人柄。現地ネットワークとAI技術を組み合わせ、「本当に戦力になる人材」を丁寧に見極める仕組みを構築しました。適正なコスト設計で、長期的にフェアな関係を築いていきます。',
+      message: '「本当に困っている人の力になりたい」。その想いから、私たちは教育と生活という、人々の暮らしに直結する領域で事業を展開しています。日本での学習支援『アカスタ』、フィリピンでの生活支援『Helperly』。それぞれの場所で、それぞれの課題に真摯に向き合い、テクノロジーの力で最適な解決策を提示し続けます。国境を越え、人々の人生を少しでも豊かにするために、私たちは挑戦を続けます。',
       social: {
         email: 'quickclip@ltdhonkoma.com',
         linkedin: '',
@@ -25,8 +25,8 @@ const TeamPage: React.FC = () => {
       nameEn: 'Kosuke Nakajima',
       position: '共同創業者・エンジニア',
       image: '/team/nakajima_img.jpg',
-      bio: '2022年に東京大学文科一類に入学後経済学部に進学。部活動を通じてPythonとTypeScriptを習得し、プログラミングの世界に魅了される。在学中にスタートアップ2社でエンジニアとしてのインターンを経験し、実践的な開発スキルを磨く。AIスクリーニングツールの開発と、技術評価の仕組み設計を担当。',
-      message: 'エンジニアとして、スキル評価の難しさを身をもって経験してきました。大学名や経歴だけでは測れない実力を、どう正確に見極めるか。この課題に対し、AIと人の目を組み合わせたスクリーニングツールを開発しました。技術者として、真に実力のあるエンジニアが正当に評価される仕組みを作りたいと考えています。',
+      bio: '2022年に東京大学文科一類に入学後経済学部に進学。部活動を通じてPythonとTypeScriptを習得し、プログラミングの世界に魅了される。在学中にスタートアップ2社でエンジニアとしてのインターンを経験し、実践的な開発スキルを磨く。現在はAkastaおよびHelperlyのプロダクト開発を統括し、ユーザー体験の向上とシステムの安定稼働に注力している。',
+      message: 'エンジニアとして最も大切にしているのは、技術そのものではなく、それがユーザーの課題をどう解決するかです。Akastaでは学習の機会を、Helperlyでは生活のゆとりを。国境を越えて、人々の生活を支えるプラットフォームを創り上げることに情熱を注いでいます。使いやすく、信頼できるサービスを届けるために、技術の研鑽を続けていきます。',
       social: {
         email: 'quickclip@ltdhonkoma.com',
         linkedin: 'https://www.linkedin.com/in/kosuke-nakajima-05a115352?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app',
@@ -39,7 +39,7 @@ const TeamPage: React.FC = () => {
       position: '最高技術責任者（CTO）',
       image: '/team/taniguchi.jpg', // 仮置き
       bio: '(準備中)',
-      message: 'AIスクリーニングツールの技術責任者として、精度と説明責任の両立を追求しています。単に効率化するだけでなく、なぜその評価になったのかを明確に示すこと。生成AIのコピペを見抜く仕組みを組み込むこと。技術的な卓越性を追求しながら、人事担当者が信頼して使えるツールを創り上げていきます。',
+      message: '技術責任者として、サービスの安全性と拡張性を追求しています。ユーザーの皆様が安心して利用できるプラットフォーム基盤の構築と、AI等の新技術の適切な導入を通じて、事業の成長とユーザー体験の向上に貢献していきます。',
       social: {
         email: 'quickclip@ltdhonkoma.com',
         linkedin: '#',
@@ -68,9 +68,8 @@ const TeamPage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="space-y-24">
             {teamMembers.map((member, index) => (
-              <div key={index} className={`grid grid-cols-1 lg:grid-cols-2 gap-12 items-center ${
-                index % 2 === 1 ? 'lg:grid-flow-col-dense' : ''
-              }`}>
+              <div key={index} className={`grid grid-cols-1 lg:grid-cols-2 gap-12 items-center ${index % 2 === 1 ? 'lg:grid-flow-col-dense' : ''
+                }`}>
                 {/* Photo */}
                 <div className={`${index % 2 === 1 ? 'lg:col-start-2' : ''}`}>
                   <div className="relative max-w-md mx-auto">
