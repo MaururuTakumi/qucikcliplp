@@ -27,8 +27,8 @@ const Footer: React.FC = () => {
               />
             </div>
             <p className="text-gray-300 mb-4 leading-relaxed">
-              インドの次世代エンジニアと日本企業を結び、<br />
-              双方にとって価値のある関係を築きます。
+              テクノロジーの力で、<br />
+              本当に困っている人の力になる。
             </p>
             <div className="text-sm text-gray-400">
               <p>株式会社Honkoma</p>
@@ -73,12 +73,12 @@ const Footer: React.FC = () => {
                 </Link>
               </li>
             </ul>
-            
+
             <div className="mt-6">
               <h4 className="text-sm font-semibold mb-2">主なサービス</h4>
               <p className="text-sm text-gray-400">
-                インド人材紹介<br />
-                AIスクリーニングツール
+                学習支援 アカスタ<br />
+                生活支援 Helperly
               </p>
             </div>
           </div>

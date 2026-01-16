@@ -38,7 +38,7 @@ const ContactPage: React.FC = () => {
 
       setSubmitStatus('success');
       e.currentTarget.reset();
-      
+
       // Google Analytics event tracking
       if (window.gtag) {
         window.gtag('event', 'form_submit', {
@@ -51,7 +51,7 @@ const ContactPage: React.FC = () => {
       // Google Apps Scriptの場合、CORSエラーでもデータは送信されているため成功として扱う
       setSubmitStatus('success');
       e.currentTarget.reset();
-      
+
       if (window.gtag) {
         window.gtag('event', 'form_submit', {
           event_category: 'engagement',
@@ -73,7 +73,7 @@ const ContactPage: React.FC = () => {
     {
       icon: <Phone className="h-6 w-6" />,
       title: '電話番号',
-      content: '080-6256-2320',
+      content: '',
       description: '平日 9:00-18:00'
     },
     {
@@ -85,11 +85,9 @@ const ContactPage: React.FC = () => {
   ];
 
   const inquiryTypes = [
-    'インド人材紹介に関するお問い合わせ',
-    'AIスクリーニングツールについて',
-    '候補者サンプルのご依頼',
-    '導入・料金に関するご質問',
-    'パートナーシップについて',
+    'Akasta (教育事業) に関するお問い合わせ',
+    'Helperly (生活支援事業) に関するお問い合わせ',
+    '事業提携・パートナーシップについて',
     '投資のご相談',
     'メディア・取材について',
     'その他'
@@ -146,7 +144,7 @@ const ContactPage: React.FC = () => {
                   担当者より2営業日以内にご連絡いたします。
                 </p>
               </div>
-              
+
               <form className="space-y-6" onSubmit={handleSubmit}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
@@ -249,7 +247,7 @@ const ContactPage: React.FC = () => {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full bg-gradient-to-r from-primary-600 to-primary-700 text-white py-4 px-6 rounded-xl hover:from-primary-700 hover:to-primary-800 transition-all duration-300 text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl hover:scale-105 flex items-center justify-center"
+                  className="w-full bg-gradient-to-r from-primary-600 to-primary-700 text-white py-4 px-6 rounded-xl hover:from-primary-700 hover:to-primary-900 transition-all duration-300 text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl hover:scale-105 flex items-center justify-center"
                 >
                   {isSubmitting ? (
                     <>
