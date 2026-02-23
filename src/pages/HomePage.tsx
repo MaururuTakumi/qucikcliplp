@@ -1,231 +1,315 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, GraduationCap, Home, Heart, Smartphone, CheckCircle } from 'lucide-react';
-import akastaIcon from '../static/akasta_app_icon.png';
-import helperlyLogo from '../static/helperly.png';
-import heroBg from '../static/hero_bg.png';
+import { ArrowRight, ArrowUpRight } from 'lucide-react';
 
 const HomePage: React.FC = () => {
   React.useEffect(() => {
-    document.title = 'Honkoma | 本当に困っている人の力になる';
+    document.title = 'Honkoma | AI導入・業務自動化・開発支援';
   }, []);
 
+  const services = [
+    {
+      num: '01',
+      title: 'ルーティーンワーク自動化',
+      description: '日々の繰り返し業務をRPA・スクリプト・AIで自動化。人がやるべき仕事に集中できる環境を構築します。',
+    },
+    {
+      num: '02',
+      title: 'AI導入支援',
+      description: '御社の業務フローを分析し、最適なAIソリューションを設計・実装。導入後の運用支援まで一気通貫でサポート。',
+    },
+    {
+      num: '03',
+      title: 'AIツール導入支援',
+      description: 'Claude Code、OpenClawなど最新AIツールの選定から導入・活用研修まで。チーム全体の生産性を飛躍的に向上。',
+    },
+  ];
+
+  const useCases = [
+    'データ入力・集計の自動化',
+    'レポート・報告書の自動生成',
+    '顧客対応のAIチャットボット構築',
+    'コードレビュー・開発の効率化',
+    'ドキュメント管理・検索の最適化',
+    '社内ナレッジのAI活用',
+  ];
+
   return (
-    <div className="bg-white">
-      {/* Hero Section */}
-      <section
-        className="relative py-24 md:py-32 overflow-hidden"
-        style={{
-          backgroundImage: `url(${heroBg})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-        }}
-      >
-        {/* Overlay for readability */}
-        <div className="absolute inset-0 bg-black/50 z-0"></div>
-
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col items-center text-center">
-            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-extrabold leading-tight tracking-tight text-white max-w-4xl mb-8 drop-shadow-lg">
-              <span className="text-primary-300">本当に困っている人</span>の<br />
-              力になる。
-            </h1>
-
-            <p className="text-lg sm:text-xl text-gray-100 leading-relaxed max-w-2xl mb-12 drop-shadow-md">
-              日本での教育支援、フィリピンでの生活支援。<br />
-              私たちはテクノロジーの力で、それぞれの場所にある<br className="hidden sm:block" />
-              「切実なニーズ」に応えるソリューションを提供します。
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-4 justify-center w-full max-w-lg">
-              <a
-                href="#akasta"
-                className="inline-flex items-center justify-center bg-white text-primary-600 px-8 py-4 rounded-xl text-lg font-bold hover:bg-gray-100 transition-all duration-300 shadow-lg hover:shadow-xl group w-full sm:w-auto"
-              >
-                <GraduationCap className="mr-2 h-5 w-5" />
-                アカスタ (教育)
-              </a>
-              <a
-                href="#helperly"
-                className="inline-flex items-center justify-center bg-transparent border-2 border-white text-white px-8 py-4 rounded-xl text-lg font-bold hover:bg-white/10 transition-all duration-300 shadow-md hover:shadow-lg w-full sm:w-auto"
-              >
-                <Home className="mr-2 h-5 w-5" />
-                Helperly (生活)
-              </a>
+    <div className="bg-cream">
+      {/* ===== HERO ===== */}
+      <section className="min-h-[90vh] flex items-center relative">
+        <div className="max-w-[1200px] mx-auto px-6 lg:px-8 w-full py-24 md:py-32">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-end">
+            {/* Left: Label */}
+            <div className="lg:col-span-3 opacity-0 animate-fade-up">
+              <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">
+                AI × Automation
+              </span>
             </div>
-          </div>
-        </div>
-      </section>
 
-      {/* Mission Section */}
-      <section className="py-20 bg-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-primary-100 rounded-full mb-8">
-            <Heart className="h-8 w-8 text-primary-600" />
-          </div>
-          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-6">
-            その課題解決は、<br />
-            誰かの人生を少しでも良くするか。
-          </h2>
-          <p className="text-xl text-gray-600 leading-relaxed">
-            私たちが事業を作る基準はシンプルです。<br />
-            それは、「本当に困っている人の助けになるか」ということ。<br />
-            国境を越え、領域を越え、本質的な価値を提供し続けます。
-          </p>
-        </div>
-      </section>
+            {/* Right: Main content */}
+            <div className="lg:col-span-9">
+              <h1 className="font-serif text-[clamp(2.5rem,7vw,5.5rem)] font-bold leading-[1.1] tracking-tight text-ink mb-8 opacity-0 animate-fade-up-delay-1">
+                AIと自動化で、<br />
+                ビジネスを<span className="text-accent">加速</span>。
+              </h1>
 
-      {/* Akasta Section */}
-      <section id="akasta" className="py-24 bg-gradient-to-br from-blue-50 to-indigo-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row items-center gap-16">
-            <div className="flex-1 space-y-6">
-              <div className="inline-flex items-center bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm font-semibold">
-                Education / Japan
-              </div>
-              <h2 className="text-4xl font-bold text-gray-900">
-                Akasta (アカスタ)
-              </h2>
-              <h3 className="text-2xl font-bold text-gray-700">
-                必要な学習を、必要なタイミングで。
-              </h3>
-              <p className="text-lg text-gray-600 leading-relaxed">
-                中学受験を中心とした学習ニーズを持つ家庭と、東大生をはじめとする優秀な大学生講師をマッチング。<br />
-                「テスト前だけ」「苦手単元だけ」といったスポットでの利用を可能にし、
-                従来の家庭教師サービスの「高額・固定契約」という常識を変えます。
+              <p className="text-lg md:text-xl text-warm leading-relaxed max-w-2xl mb-12 opacity-0 animate-fade-up-delay-2">
+                ルーティーンワークの自動化、AI導入支援、<br className="hidden sm:block" />
+                Claude CodeやOpenClawなど最新AIツールの導入支援。<br className="hidden sm:block" />
+                御社のDX推進を、構想から実装まで伴走します。
               </p>
 
-              <div className="space-y-3 pt-4">
-                <div className="flex items-center text-gray-700">
-                  <CheckCircle className="h-5 w-5 text-blue-600 mr-3" />
-                  <span>入会金・解約金なしの完全スポット利用</span>
-                </div>
-                <div className="flex items-center text-gray-700">
-                  <CheckCircle className="h-5 w-5 text-blue-600 mr-3" />
-                  <span>東大生を中心とした厳選された講師陣</span>
-                </div>
-                <div className="flex items-center text-gray-700">
-                  <CheckCircle className="h-5 w-5 text-blue-600 mr-3" />
-                  <span>オンライン・対面の柔軟な指導形態</span>
-                </div>
-              </div>
-
-              <div className="pt-8">
-                <a
-                  href="https://prosta-lp.vercel.app/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center text-blue-600 font-bold text-lg hover:underline"
+              <div className="flex flex-col sm:flex-row gap-4 opacity-0 animate-fade-up-delay-3">
+                <Link
+                  to="/contact"
+                  className="group inline-flex items-center justify-center px-8 py-4 bg-ink text-cream text-base font-medium tracking-wide hover:bg-accent transition-colors duration-300"
                 >
-                  サービス詳細を見る (LP)
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </a>
-                <div className="mt-4">
-                  <a
-                    href="https://apps.apple.com/jp/app/%E3%82%A2%E3%82%AB%E3%82%B9%E3%82%BF/id6757215353"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center bg-black text-white px-6 py-3 rounded-lg text-sm font-semibold hover:bg-gray-800 transition-colors"
+                  AI導入・開発のご相談はこちら
+                  <ArrowRight className="ml-3 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                </Link>
+                <Link
+                  to="/product"
+                  className="inline-flex items-center justify-center px-8 py-4 border border-ink text-ink text-base font-medium tracking-wide hover:bg-ink hover:text-cream transition-all duration-300"
+                >
+                  サービス詳細
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* Decorative line */}
+          <div className="mt-20 h-px bg-subtle w-0 animate-draw-line"></div>
+        </div>
+      </section>
+
+      {/* ===== SERVICES ===== */}
+      <section className="py-32 border-t border-subtle">
+        <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
+          {/* Section header */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-20">
+            <div className="lg:col-span-3">
+              <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">Services</span>
+            </div>
+            <div className="lg:col-span-9">
+              <h2 className="font-serif text-4xl md:text-5xl font-bold leading-tight text-ink">
+                3つの柱で、<br />御社のDXを推進
+              </h2>
+              <p className="mt-6 text-warm text-lg max-w-xl">
+                業務分析から導入・運用まで、ワンストップでサポート。<br />
+                御社に最適なAI活用戦略をご提案します。
+              </p>
+            </div>
+          </div>
+
+          {/* Service cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-subtle">
+            {services.map((service) => (
+              <Link
+                to="/product"
+                key={service.num}
+                className="group bg-cream p-8 md:p-10 hover:bg-accent-light transition-colors duration-500"
+              >
+                <span className="font-mono text-sm text-warm">{service.num}</span>
+                <h3 className="font-serif text-2xl font-bold text-ink mt-4 mb-4">
+                  {service.title}
+                </h3>
+                <p className="text-warm text-sm leading-relaxed mb-8">
+                  {service.description}
+                </p>
+                <span className="inline-flex items-center text-xs font-mono tracking-wide text-accent group-hover:text-accent-hover transition-colors">
+                  詳しく見る
+                  <ArrowUpRight className="ml-1 h-3 w-3" />
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ===== USE CASES ===== */}
+      <section className="py-32 border-t border-subtle">
+        <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
+            <div className="lg:col-span-5">
+              <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">Use Cases</span>
+              <h2 className="font-serif text-4xl md:text-5xl font-bold leading-tight text-ink mt-4 mb-8">
+                こんな業務、<br />
+                自動化できます。
+              </h2>
+              <p className="text-warm text-lg leading-relaxed mb-10">
+                「この作業、毎回手動でやるのか...」<br />
+                そんな業務こそ、AIと自動化の出番です。
+              </p>
+              <Link
+                to="/contact"
+                className="group inline-flex items-center px-8 py-4 bg-ink text-cream text-sm font-medium tracking-wide hover:bg-accent transition-colors duration-300"
+              >
+                無料相談する
+                <ArrowRight className="ml-3 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </div>
+
+            <div className="lg:col-span-7">
+              <div className="border-t border-subtle">
+                {useCases.map((useCase, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between py-5 border-b border-subtle group hover:pl-4 transition-all duration-300"
                   >
-                    <Smartphone className="mr-2 h-4 w-4" />
-                    App Storeでダウンロード
-                  </a>
-                </div>
-              </div>
-            </div>
-            <div className="flex-1 flex justify-center">
-              <div className="relative w-full max-w-md aspect-square rounded-3xl overflow-hidden shadow-2xl transition-transform hover:scale-105 duration-500">
-                <img
-                  src={akastaIcon}
-                  alt="Akasta App Icon"
-                  className="w-full h-full object-cover"
-                />
+                    <div className="flex items-center gap-4">
+                      <span className="font-mono text-xs text-warm w-6">{String(index + 1).padStart(2, '0')}</span>
+                      <span className="text-ink font-medium">{useCase}</span>
+                    </div>
+                    <ArrowUpRight className="h-4 w-4 text-warm opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                ))}
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Helperly Section */}
-      <section id="helperly" className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row-reverse items-center gap-16">
-            <div className="flex-1 space-y-6">
-              <div className="inline-flex items-center bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-semibold">
-                Life Support / Philippines
+      {/* ===== STATS ===== */}
+      <section className="py-24 bg-ink">
+        <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-px">
+            {[
+              { value: '80%', sub: '最大', label: '業務時間削減' },
+              { value: '98%', sub: '', label: '導入後の満足度' },
+              { value: '全業種', sub: '', label: '対応可能業種' },
+            ].map((stat, i) => (
+              <div key={i} className="text-center py-12 md:py-16">
+                <div className="font-serif text-5xl md:text-6xl font-bold text-cream mb-2">
+                  {stat.sub && <span className="text-lg font-mono font-normal text-cream/40 mr-1">{stat.sub}</span>}
+                  {stat.value}
+                </div>
+                <div className="font-mono text-xs tracking-widest uppercase text-cream/40 mt-3">{stat.label}</div>
               </div>
-              <h2 className="text-4xl font-bold text-gray-900">
-                Helperly
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ===== AI TOOLS ===== */}
+      <section className="py-32 border-t border-subtle">
+        <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-20">
+            <div className="lg:col-span-3">
+              <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">Tools</span>
+            </div>
+            <div className="lg:col-span-9">
+              <h2 className="font-serif text-4xl md:text-5xl font-bold leading-tight text-ink">
+                最新AIツールを、<br />御社の武器に。
               </h2>
-              <h3 className="text-2xl font-bold text-gray-700">
-                暮らしの困りごとを、タップひとつで解決。
-              </h3>
-              <p className="text-lg text-gray-600 leading-relaxed">
-                フィリピン・セブ島を拠点とする生活支援サービスのマッチングプラットフォーム。<br />
-                清掃、家事代行、ベビーシッターなど、信頼できるワーカーをアプリで簡単に検索・予約。<br />
-                現地で暮らす日本人や外国人の生活を強力にサポートします。
+              <p className="mt-6 text-warm text-lg max-w-xl">
+                Claude Code、OpenClawをはじめ、急速に進化するAIツール。
+                選定・導入・活用研修まで、御社のチームに合わせてサポートします。
               </p>
-
-              <div className="space-y-3 pt-4">
-                <div className="flex items-center text-gray-700">
-                  <CheckCircle className="h-5 w-5 text-green-600 mr-3" />
-                  <span>アプリ完結の予約・チャット・決済</span>
-                </div>
-                <div className="flex items-center text-gray-700">
-                  <CheckCircle className="h-5 w-5 text-green-600 mr-3" />
-                  <span>日本語・英語・現地語対応</span>
-                </div>
-                <div className="flex items-center text-gray-700">
-                  <CheckCircle className="h-5 w-5 text-green-600 mr-3" />
-                  <span>ワーカーの柔軟な働き方を支援</span>
-                </div>
-              </div>
-
-              <div className="pt-8">
-                <a
-                  href="https://apps.apple.com/jp/app/helperly-ph/id6755625986"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center bg-black text-white px-6 py-3 rounded-lg text-sm font-semibold hover:bg-gray-800 transition-colors"
-                >
-                  <Smartphone className="mr-2 h-4 w-4" />
-                  App Storeでダウンロード
-                </a>
-              </div>
             </div>
-            {/* Helperly Image Container - Adjusted for landscape */}
-            <div className="flex-1 flex justify-center w-full">
-              <div className="relative w-full max-w-xl rounded-2xl overflow-hidden shadow-xl transition-transform hover:scale-105 duration-500 bg-gray-50 border border-gray-100 p-2">
-                <img
-                  src={helperlyLogo}
-                  alt="Helperly Logo"
-                  className="w-full h-auto object-contain"
-                />
-              </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-subtle">
+            {/* Claude Code */}
+            <div className="bg-ink p-10 md:p-14">
+              <span className="font-mono text-xs tracking-[0.2em] uppercase text-cream/40">AI Coding Tool</span>
+              <h3 className="font-serif text-3xl font-bold text-cream mt-4 mb-5">Claude Code</h3>
+              <p className="text-cream/50 leading-relaxed mb-8">
+                Anthropic社のAIコーディングツール。コードの自動生成・レビュー・デバッグをAIがサポートし、開発速度を劇的に向上。
+              </p>
+              <ul className="space-y-3 font-mono text-sm text-cream/60">
+                <li className="flex items-center gap-3">
+                  <span className="w-1 h-1 bg-accent rounded-full flex-shrink-0"></span>
+                  コード生成・リファクタリング
+                </li>
+                <li className="flex items-center gap-3">
+                  <span className="w-1 h-1 bg-accent rounded-full flex-shrink-0"></span>
+                  自然言語での開発指示
+                </li>
+                <li className="flex items-center gap-3">
+                  <span className="w-1 h-1 bg-accent rounded-full flex-shrink-0"></span>
+                  既存コードベースの理解・修正
+                </li>
+              </ul>
+            </div>
+
+            {/* OpenClaw */}
+            <div className="bg-ink p-10 md:p-14">
+              <span className="font-mono text-xs tracking-[0.2em] uppercase text-cream/40">AI Automation Tool</span>
+              <h3 className="font-serif text-3xl font-bold text-cream mt-4 mb-5">OpenClaw</h3>
+              <p className="text-cream/50 leading-relaxed mb-8">
+                業務プロセスをAIで自動化するツール。ノーコードで複雑なワークフローを構築し、チーム全体の生産性を向上。
+              </p>
+              <ul className="space-y-3 font-mono text-sm text-cream/60">
+                <li className="flex items-center gap-3">
+                  <span className="w-1 h-1 bg-accent rounded-full flex-shrink-0"></span>
+                  ワークフロー自動化
+                </li>
+                <li className="flex items-center gap-3">
+                  <span className="w-1 h-1 bg-accent rounded-full flex-shrink-0"></span>
+                  AIエージェントの構築
+                </li>
+                <li className="flex items-center gap-3">
+                  <span className="w-1 h-1 bg-accent rounded-full flex-shrink-0"></span>
+                  既存ツールとの連携
+                </li>
+              </ul>
             </div>
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-24 bg-gradient-to-r from-primary-600 to-primary-900">
-        <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-            事業についてのご相談・お問い合わせ
-          </h2>
-          <p className="text-xl text-white mb-8 leading-relaxed opacity-95">
-            アカスタ、Helperlyの事業提携や、<br />
-            株式会社Honkomaへの取材・お問い合わせはこちらから。
-          </p>
-          <div className="flex justify-center">
-            <Link
-              to="/contact"
-              className="inline-flex items-center justify-center bg-white text-primary-600 px-8 py-4 rounded-xl text-lg font-semibold hover:bg-gray-100 transition-all duration-300 shadow-lg hover:shadow-xl group"
-            >
-              お問い合わせ
-              <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-            </Link>
+      {/* ===== PROCESS ===== */}
+      <section className="py-32 border-t border-subtle">
+        <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-20">
+            <div className="lg:col-span-3">
+              <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">Process</span>
+            </div>
+            <div className="lg:col-span-9">
+              <h2 className="font-serif text-4xl md:text-5xl font-bold leading-tight text-ink">
+                導入の流れ
+              </h2>
+            </div>
           </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-px bg-subtle">
+            {[
+              { step: '01', title: 'ヒアリング', desc: '現在の業務フロー・課題をお伺いし、自動化・AI導入の可能性を分析します。' },
+              { step: '02', title: '提案', desc: '最適なソリューションと導入計画をご提案。費用対効果も明確にお伝えします。' },
+              { step: '03', title: '実装', desc: 'アジャイルで開発・導入を進行。途中経過を共有しながら、御社に最適な形に仕上げます。' },
+              { step: '04', title: '運用支援', desc: '導入後の運用サポート・改善提案を継続。チームへの研修も実施します。' },
+            ].map((item) => (
+              <div key={item.step} className="bg-cream p-8 md:p-10">
+                <span className="font-mono text-4xl font-light text-subtle">{item.step}</span>
+                <h3 className="font-serif text-xl font-bold text-ink mt-6 mb-3">{item.title}</h3>
+                <p className="text-warm text-sm leading-relaxed">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ===== BOTTOM CTA ===== */}
+      <section className="py-32 bg-ink">
+        <div className="max-w-[800px] mx-auto text-center px-6 lg:px-8">
+          <h2 className="font-serif text-4xl md:text-5xl font-bold text-cream mb-6">
+            まずは、お気軽に<br />ご相談ください。
+          </h2>
+          <p className="text-cream/50 text-lg mb-12 leading-relaxed">
+            「何から始めたらいいかわからない」でも大丈夫。<br />
+            御社の状況をお聞きした上で、最適なプランをご提案します。
+          </p>
+          <Link
+            to="/contact"
+            className="group inline-flex items-center px-10 py-5 border border-cream/20 text-cream text-lg font-serif font-medium hover:bg-cream hover:text-ink transition-all duration-500"
+          >
+            無料相談を申し込む
+            <ArrowRight className="ml-4 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+          </Link>
+          <p className="font-mono text-xs text-cream/30 mt-8 tracking-wide">
+            初回相談は無料です。
+          </p>
         </div>
       </section>
     </div>
