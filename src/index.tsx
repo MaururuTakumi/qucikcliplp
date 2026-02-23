@@ -9,8 +9,6 @@ import ProductPage from "./pages/ProductPage";
 import TeamPage from "./pages/TeamPage";
 import ContactPage from "./pages/ContactPage";
 import PrivacyPage from "./pages/PrivacyPage";
-import AwwwardsLandingPage from "./pages/AwwwardsLandingPage";
-
 createRoot(document.getElementById("app") as HTMLElement).render(
   <StrictMode>
     <HelmetProvider>
@@ -23,7 +21,6 @@ createRoot(document.getElementById("app") as HTMLElement).render(
             <Route path="/team" element={<TeamPage />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/privacy" element={<PrivacyPage />} />
-            <Route path="/awwwards" element={<AwwwardsLandingPage />} />
           </Routes>
         </Layout>
       </Router>

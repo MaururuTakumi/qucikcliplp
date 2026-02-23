@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mail, Phone, Clock, Send, CheckCircle, AlertCircle } from 'lucide-react';
+import { Mail, Clock, Send, CheckCircle, AlertCircle, MessageSquare } from 'lucide-react';
 
 const ContactPage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -26,188 +26,142 @@ const ContactPage: React.FC = () => {
     };
 
     try {
-      // Google Apps Scriptにデータを送信
       await fetch('https://script.google.com/macros/s/AKfycbxVMYEL9aJS124xpDj-bpynGYH_QbyEsb0yGqUznlTALT6OreAjCSS7oth4f7ETDciQ/exec', {
         method: 'POST',
         mode: 'no-cors',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
-
       setSubmitStatus('success');
       e.currentTarget.reset();
-
-      // Google Analytics event tracking
       if (window.gtag) {
-        window.gtag('event', 'form_submit', {
-          event_category: 'engagement',
-          event_label: 'contact_form'
-        });
+        window.gtag('event', 'form_submit', { event_category: 'engagement', event_label: 'contact_form' });
       }
     } catch (error) {
       console.error('Error submitting form:', error);
-      // Google Apps Scriptの場合、CORSエラーでもデータは送信されているため成功として扱う
       setSubmitStatus('success');
       e.currentTarget.reset();
-
       if (window.gtag) {
-        window.gtag('event', 'form_submit', {
-          event_category: 'engagement',
-          event_label: 'contact_form'
-        });
+        window.gtag('event', 'form_submit', { event_category: 'engagement', event_label: 'contact_form' });
       }
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const contactInfo = [
-    {
-      icon: <Mail className="h-6 w-6" />,
-      title: 'メールアドレス',
-      content: 'quickclip@ltdhonkoma.com',
-      description: '24時間受付（回答は営業時間内）'
-    },
-    {
-      icon: <Phone className="h-6 w-6" />,
-      title: '電話番号',
-      content: '',
-      description: '平日 9:00-18:00'
-    },
-    {
-      icon: <Clock className="h-6 w-6" />,
-      title: '営業時間',
-      content: '平日 9:00-18:00',
-      description: '土日祝日を除く'
-    }
-  ];
-
   const inquiryTypes = [
-    'Akasta (教育事業) に関するお問い合わせ',
-    'Helperly (生活支援事業) に関するお問い合わせ',
+    'AI導入に関するご相談',
+    'ルーティーンワーク自動化のご相談',
+    'AIツール（Claude Code・OpenClaw等）導入のご相談',
+    'ソフトウェア開発のご依頼',
     '事業提携・パートナーシップについて',
-    '投資のご相談',
-    'メディア・取材について',
-    'その他'
+    'その他',
   ];
 
   return (
-    <div className="bg-white">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-br from-primary-50 to-gray-50 py-24">
-        <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-primary-100 rounded-full mb-6">
-            <Mail className="h-8 w-8 text-primary-600" />
+    <div className="bg-cream">
+      {/* Hero */}
+      <section className="py-24 md:py-32 border-b border-subtle">
+        <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <div className="lg:col-span-3">
+              <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">Contact</span>
+            </div>
+            <div className="lg:col-span-9">
+              <h1 className="font-serif text-5xl md:text-6xl font-bold text-ink mb-6">お問い合わせ</h1>
+              <p className="text-warm text-xl leading-relaxed">
+                AI導入・業務自動化・開発に関するご相談、<br />
+                お気軽にお問い合わせください。初回相談は無料です。
+              </p>
+            </div>
           </div>
-          <h1 className="text-5xl font-bold text-gray-900 mb-6">
-            お問い合わせ
-          </h1>
-          <p className="text-xl text-gray-600 leading-relaxed">
-            外国人エンジニア採用に関するご質問、無償PoCのご相談、<br />
-            その他お気軽にお問い合わせください。
-          </p>
         </div>
       </section>
 
-      {/* Contact Info Cards */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-wrap justify-center gap-6">
-            {contactInfo.map((info, index) => (
-              <div key={index} className="bg-gray-50 rounded-xl p-6 text-center hover:bg-gray-100 transition-colors duration-300 w-full md:w-64">
-                <div className="inline-flex items-center justify-center w-12 h-12 bg-primary-100 text-primary-600 rounded-full mb-4">
-                  {info.icon}
+      {/* Contact Info */}
+      <section className="border-b border-subtle">
+        <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-subtle">
+            {[
+              { icon: <Mail className="h-4 w-4" />, label: 'メールアドレス', value: 'quickclip@ltdhonkoma.com', sub: '24時間受付' },
+              { icon: <Clock className="h-4 w-4" />, label: '営業時間', value: '平日 9:00-18:00', sub: '土日祝日を除く' },
+              { icon: <MessageSquare className="h-4 w-4" />, label: '初回相談', value: '無料', sub: 'オンライン対応可' },
+            ].map((item, i) => (
+              <div key={i} className="bg-cream p-8 md:p-10">
+                <div className="flex items-center gap-2 text-warm mb-3">
+                  {item.icon}
+                  <span className="font-mono text-xs tracking-[0.2em] uppercase">{item.label}</span>
                 </div>
-                <h3 className="font-semibold text-gray-900 mb-2">{info.title}</h3>
-                <p className="text-primary-600 font-medium mb-1">{info.content}</p>
-                <p className="text-sm text-gray-500">{info.description}</p>
+                <p className="font-serif text-xl font-bold text-ink">{item.value}</p>
+                <p className="text-warm text-sm mt-1">{item.sub}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Main Contact Section */}
-      <section className="py-24 bg-gradient-to-br from-gray-50 to-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-            {/* Contact Form */}
-            <div className="bg-white rounded-3xl shadow-2xl p-8 md:p-12">
-              <div className="mb-8">
-                <h2 className="text-4xl font-bold bg-gradient-to-r from-primary-900 to-primary-700 bg-clip-text text-transparent mb-4">
-                  お問い合わせフォーム
-                </h2>
-                <p className="text-gray-600">
-                  下記フォームに必要事項をご記入の上、送信してください。<br />
-                  担当者より2営業日以内にご連絡いたします。
-                </p>
-              </div>
+      {/* Form Section */}
+      <section className="py-32">
+        <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
+            {/* Form */}
+            <div className="lg:col-span-7">
+              <h2 className="font-serif text-3xl font-bold text-ink mb-2">お問い合わせフォーム</h2>
+              <p className="text-warm mb-10">
+                下記フォームに必要事項をご記入の上、送信してください。<br />
+                担当者より2営業日以内にご連絡いたします。
+              </p>
 
-              <form className="space-y-6" onSubmit={handleSubmit}>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <form className="space-y-8" onSubmit={handleSubmit}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div>
-                    <label htmlFor="name" className="block text-base font-semibold text-gray-800 mb-3">
-                      お名前 <span className="text-red-500">*</span>
+                    <label htmlFor="name" className="block font-mono text-xs tracking-wide uppercase text-warm mb-3">
+                      お名前 <span className="text-accent">*</span>
                     </label>
                     <input
-                      type="text"
-                      id="name"
-                      name="name"
-                      className="w-full px-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-300 hover:border-primary-300"
-                      required
+                      type="text" id="name" name="name" required
+                      className="w-full px-0 py-3 bg-transparent border-0 border-b border-subtle focus:border-ink focus:ring-0 text-ink transition-colors"
                     />
                   </div>
                   <div>
-                    <label htmlFor="email" className="block text-base font-semibold text-gray-800 mb-3">
-                      メールアドレス <span className="text-red-500">*</span>
+                    <label htmlFor="email" className="block font-mono text-xs tracking-wide uppercase text-warm mb-3">
+                      メールアドレス <span className="text-accent">*</span>
                     </label>
                     <input
-                      type="email"
-                      id="email"
-                      name="email"
-                      className="w-full px-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-300 hover:border-primary-300"
-                      required
+                      type="email" id="email" name="email" required
+                      className="w-full px-0 py-3 bg-transparent border-0 border-b border-subtle focus:border-ink focus:ring-0 text-ink transition-colors"
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div>
-                    <label htmlFor="company" className="block text-base font-semibold text-gray-800 mb-3">
-                      会社名 <span className="text-red-500">*</span>
+                    <label htmlFor="company" className="block font-mono text-xs tracking-wide uppercase text-warm mb-3">
+                      会社名 <span className="text-accent">*</span>
                     </label>
                     <input
-                      type="text"
-                      id="company"
-                      name="company"
-                      className="w-full px-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-300 hover:border-primary-300"
-                      required
+                      type="text" id="company" name="company" required
+                      className="w-full px-0 py-3 bg-transparent border-0 border-b border-subtle focus:border-ink focus:ring-0 text-ink transition-colors"
                     />
                   </div>
                   <div>
-                    <label htmlFor="department" className="block text-base font-semibold text-gray-800 mb-3">
+                    <label htmlFor="department" className="block font-mono text-xs tracking-wide uppercase text-warm mb-3">
                       部署名
                     </label>
                     <input
-                      type="text"
-                      id="department"
-                      name="department"
-                      className="w-full px-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-300 hover:border-primary-300"
+                      type="text" id="department" name="department"
+                      className="w-full px-0 py-3 bg-transparent border-0 border-b border-subtle focus:border-ink focus:ring-0 text-ink transition-colors"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label htmlFor="inquiryType" className="block text-base font-semibold text-gray-800 mb-3">
-                    お問い合わせ種別 <span className="text-red-500">*</span>
+                  <label htmlFor="inquiryType" className="block font-mono text-xs tracking-wide uppercase text-warm mb-3">
+                    お問い合わせ種別 <span className="text-accent">*</span>
                   </label>
                   <select
-                    id="inquiryType"
-                    name="inquiryType"
-                    className="w-full px-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-300 hover:border-primary-300"
-                    required
+                    id="inquiryType" name="inquiryType" required
+                    className="w-full px-0 py-3 bg-transparent border-0 border-b border-subtle focus:border-ink focus:ring-0 text-ink transition-colors appearance-none cursor-pointer"
                   >
                     <option value="">選択してください</option>
                     {inquiryTypes.map((type, index) => (
@@ -217,122 +171,99 @@ const ContactPage: React.FC = () => {
                 </div>
 
                 <div>
-                  <label htmlFor="message" className="block text-base font-semibold text-gray-800 mb-3">
-                    お問い合わせ内容 <span className="text-red-500">*</span>
+                  <label htmlFor="message" className="block font-mono text-xs tracking-wide uppercase text-warm mb-3">
+                    お問い合わせ内容 <span className="text-accent">*</span>
                   </label>
                   <textarea
-                    id="message"
-                    name="message"
-                    rows={6}
-                    className="w-full px-4 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none transition-all duration-300 hover:border-primary-300"
-                    placeholder="お問い合わせの詳細をご記入ください"
-                    required
+                    id="message" name="message" rows={5} required
+                    placeholder="ご相談内容の詳細をお聞かせください"
+                    className="w-full px-0 py-3 bg-transparent border-0 border-b border-subtle focus:border-ink focus:ring-0 text-ink resize-none transition-colors placeholder:text-subtle"
                   ></textarea>
                 </div>
 
                 {submitStatus === 'success' && (
-                  <div className="flex items-center text-green-600 font-medium bg-green-50 p-4 rounded-xl border border-green-200">
-                    <CheckCircle className="h-5 w-5 mr-2" />
-                    お問い合わせを受け付けました。担当者より連絡させていただきます。
+                  <div className="flex items-center gap-2 text-ink border border-subtle p-4">
+                    <CheckCircle className="h-4 w-4 text-accent" />
+                    <span className="text-sm">お問い合わせを受け付けました。担当者より連絡させていただきます。</span>
                   </div>
                 )}
 
                 {submitStatus === 'error' && (
-                  <div className="flex items-center text-red-600 font-medium bg-red-50 p-4 rounded-xl border border-red-200">
-                    <AlertCircle className="h-5 w-5 mr-2" />
-                    送信に失敗しました。時間をおいて再度お試しください。
+                  <div className="flex items-center gap-2 text-ink border border-accent p-4">
+                    <AlertCircle className="h-4 w-4 text-accent" />
+                    <span className="text-sm">送信に失敗しました。時間をおいて再度お試しください。</span>
                   </div>
                 )}
 
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full bg-gradient-to-r from-primary-600 to-primary-700 text-white py-4 px-6 rounded-xl hover:from-primary-700 hover:to-primary-900 transition-all duration-300 text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl hover:scale-105 flex items-center justify-center"
+                  className="w-full bg-ink text-cream py-4 font-medium tracking-wide hover:bg-accent transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {isSubmitting ? (
                     <>
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                      <div className="animate-spin h-4 w-4 border-2 border-cream/30 border-t-cream rounded-full"></div>
                       送信中...
                     </>
                   ) : (
                     <>
-                      <Send className="h-5 w-5 mr-2" />
+                      <Send className="h-4 w-4" />
                       送信する
                     </>
                   )}
                 </button>
 
-                <p className="text-sm text-gray-500 text-center">
+                <p className="text-xs text-warm text-center">
                   送信いただいた個人情報は、当社の
-                  <a href="/privacy" className="text-primary-600 hover:underline">プライバシーポリシー</a>
+                  <a href="/privacy" className="text-accent hover:underline">プライバシーポリシー</a>
                   に基づいて適切に管理いたします。
                 </p>
               </form>
             </div>
 
-            {/* Additional Information */}
-            <div className="space-y-8">
-              {/* Quick Response Promise */}
-              <div className="bg-gradient-to-br from-primary-50 to-blue-50 rounded-2xl p-8">
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">迅速な対応をお約束</h3>
-                <div className="space-y-4">
-                  <div className="flex items-start space-x-3">
-                    <div className="flex-shrink-0 w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center mt-1">
-                      <span className="text-white text-sm font-bold">1</span>
+            {/* Sidebar */}
+            <div className="lg:col-span-5 space-y-8">
+              <div className="border border-subtle p-8">
+                <h3 className="font-serif text-xl font-bold text-ink mb-6">ご相談の流れ</h3>
+                <div className="space-y-6">
+                  {[
+                    { n: '01', t: 'フォーム送信', d: '御社の状況やお悩みをお聞かせください' },
+                    { n: '02', t: '無料ヒアリング', d: 'オンラインで詳しくお話をお伺いします（約30分）' },
+                    { n: '03', t: 'ご提案', d: '御社に最適なAI活用プランをご提示します' },
+                  ].map((item) => (
+                    <div key={item.n} className="flex gap-4">
+                      <span className="font-mono text-sm text-warm w-6 flex-shrink-0">{item.n}</span>
+                      <div>
+                        <h4 className="font-serif font-bold text-ink text-sm">{item.t}</h4>
+                        <p className="text-warm text-xs mt-1">{item.d}</p>
+                      </div>
                     </div>
-                    <div>
-                      <h4 className="font-semibold text-gray-900">自動受付確認</h4>
-                      <p className="text-gray-600 text-sm">お問い合わせ送信後、即座に受付確認をお送りします</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start space-x-3">
-                    <div className="flex-shrink-0 w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center mt-1">
-                      <span className="text-white text-sm font-bold">2</span>
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-gray-900">担当者からの連絡</h4>
-                      <p className="text-gray-600 text-sm">2営業日以内に担当者よりご連絡いたします</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start space-x-3">
-                    <div className="flex-shrink-0 w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center mt-1">
-                      <span className="text-white text-sm font-bold">3</span>
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-gray-900">詳細なご提案</h4>
-                      <p className="text-gray-600 text-sm">お客様のニーズに合わせた詳細なご提案をいたします</p>
-                    </div>
-                  </div>
+                  ))}
                 </div>
               </div>
 
-              {/* FAQ Link */}
-              <div className="bg-gray-50 rounded-2xl p-8">
-                <h3 className="text-xl font-bold text-gray-900 mb-4">よくあるご質問</h3>
-                <p className="text-gray-600 mb-6">
-                  お問い合わせ前に、よくあるご質問もご確認ください。
-                </p>
-                <a
-                  href="/product#faq"
-                  className="inline-flex items-center text-primary-600 hover:text-primary-700 font-semibold transition-colors duration-300"
-                >
-                  FAQを見る
-                  <svg className="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </a>
+              <div className="border border-subtle p-8">
+                <h3 className="font-serif text-lg font-bold text-ink mb-4">こんなご相談に対応</h3>
+                <ul className="space-y-3">
+                  {[
+                    '日常業務の自動化で工数を削減したい',
+                    'AIを使いたいが何から始めたらいいかわからない',
+                    'Claude CodeやOpenClawを社内に導入したい',
+                    '開発プロジェクトを依頼したい',
+                  ].map((item, i) => (
+                    <li key={i} className="flex items-start gap-3">
+                      <span className="w-1 h-1 bg-accent rounded-full flex-shrink-0 mt-2"></span>
+                      <span className="text-warm text-sm">{item}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
 
-              {/* Emergency Contact */}
-              <div className="bg-orange-50 rounded-2xl p-8 border border-orange-200">
-                <h3 className="text-xl font-bold text-gray-900 mb-4">緊急時のご連絡</h3>
-                <p className="text-gray-600 mb-4">
-                  サービスに関する緊急のお問い合わせがございましたら、以下までご連絡ください。
+              <div className="bg-accent-light border border-accent/20 p-8">
+                <h3 className="font-serif text-lg font-bold text-ink mb-2">初回相談無料</h3>
+                <p className="text-warm text-sm leading-relaxed">
+                  まずはお気軽にお問い合わせください。御社の状況をお伺いした上で、最適なプランをご提案いたします。
                 </p>
-                <div className="space-y-2 text-sm">
-                  <p><strong>緊急連絡先：</strong>準備中</p>
-                  <p><strong>対応時間：</strong>平日 9:00-18:00</p>
-                </div>
               </div>
             </div>
           </div>

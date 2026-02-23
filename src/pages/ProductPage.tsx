@@ -1,105 +1,72 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, CheckCircle, Clock, Award, Shield, DollarSign, Smartphone } from 'lucide-react';
-import akastaIcon from '../static/akasta_app_icon.png';
-import helperlyLogo from '../static/helperly.png';
+import { ArrowRight, ArrowUpRight } from 'lucide-react';
 
 const ProductPage: React.FC = () => {
   React.useEffect(() => {
-    document.title = '事業紹介 | Honkoma';
+    document.title = 'サービス紹介 | Honkoma';
   }, []);
 
   return (
-    <div className="bg-white">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-br from-gray-900 to-gray-800 text-white py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-6">
-            事業紹介
-          </h1>
-          <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
-            私たちは、テクノロジーと人をつなぎ、<br />
-            教育と生活の現場にある「不便」を「快適」に変えていきます。
-          </p>
+    <div className="bg-cream">
+      {/* Hero */}
+      <section className="py-24 md:py-32 border-b border-subtle">
+        <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <div className="lg:col-span-3">
+              <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">Services</span>
+            </div>
+            <div className="lg:col-span-9">
+              <h1 className="font-serif text-5xl md:text-6xl font-bold text-ink mb-6">サービス紹介</h1>
+              <p className="text-warm text-xl leading-relaxed max-w-2xl">
+                業務自動化からAI導入、最新ツールの活用支援まで。<br />
+                御社のビジネスを加速する3つのサービスをご提供します。
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Akasta Section */}
-      <section id="akasta" className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="inline-flex items-center bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm font-semibold mb-8">
-            Education Tech
-          </div>
-
-          <div className="flex flex-col lg:flex-row gap-16 items-start">
-            <div className="flex-1 space-y-8">
-              <div>
-                <h2 className="text-4xl font-bold text-gray-900 mb-4 flex items-center gap-4">
-                  <img src={akastaIcon} alt="Akasta Icon" className="w-16 h-16 rounded-2xl shadow-md object-cover" />
-                  Akasta (アカスタ)
-                </h2>
-                <p className="text-2xl text-blue-600 font-bold mb-4">
-                  必要な時に、必要なだけ。<br />
-                  東大生講師によるスポット家庭教師。
-                </p>
-                <p className="text-gray-600 leading-relaxed text-lg">
-                  「テスト前だけ教えてほしい」「苦手なこの単元だけ復習したい」。
-                  そんなニーズに対して、従来の塾や家庭教師は月額固定や長期契約が前提で、柔軟に応えられていませんでした。
-                  Akastaは、1回単位で依頼できるスポット型マッチングで、この課題を解決します。
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-gray-50 p-6 rounded-xl">
-                  <Clock className="h-8 w-8 text-blue-600 mb-4" />
-                  <h4 className="font-bold text-gray-900 mb-2">完全スポット利用</h4>
-                  <p className="text-sm text-gray-600">入会金や解約金は一切不要。1回だけの利用も、毎週の利用も自由自在です。</p>
-                </div>
-                <div className="bg-gray-50 p-6 rounded-xl">
-                  <Award className="h-8 w-8 text-blue-600 mb-4" />
-                  <h4 className="font-bold text-gray-900 mb-2">厳選された講師陣</h4>
-                  <p className="text-sm text-gray-600">東大生を中心とした、学力と指導力を兼ね備えた学生講師が在籍しています。</p>
-                </div>
-              </div>
-
-              <div className="pt-4">
-                <a
-                  href="https://prosta-lp.vercel.app/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center bg-blue-600 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:bg-blue-700 transition-all duration-300 shadow-md hover:shadow-lg"
-                >
-                  サービスサイトへ
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </a>
-              </div>
+      {/* Service 1 */}
+      <section id="automation" className="py-32 border-b border-subtle">
+        <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
+            <div className="lg:col-span-3">
+              <span className="font-mono text-5xl font-light text-subtle">01</span>
             </div>
+            <div className="lg:col-span-9">
+              <h2 className="font-serif text-3xl md:text-4xl font-bold text-ink mb-4">
+                ルーティーンワーク自動化
+              </h2>
+              <p className="font-serif text-xl text-accent mb-6">
+                繰り返し業務を撲滅。人がやるべき仕事に集中できる環境を。
+              </p>
+              <p className="text-warm leading-relaxed text-lg mb-10 max-w-2xl">
+                データ入力、レポート作成、メール対応、ファイル管理...。
+                毎日繰り返される定型業務をRPA・スクリプト・AIで自動化。
+                人件費削減だけでなく、ミスの排除・処理速度の向上を同時に実現します。
+              </p>
 
-            <div className="flex-1 w-full">
-              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-8 border border-blue-100">
-                <h3 className="text-xl font-bold text-gray-900 mb-6">利用の流れ</h3>
-                <div className="space-y-6">
-                  <div className="flex items-start">
-                    <div className="flex-shrink-0 w-8 h-8 bg-white border-2 border-blue-600 rounded-full flex items-center justify-center text-blue-600 font-bold mr-4">1</div>
-                    <div>
-                      <h4 className="font-bold text-gray-900">アプリで講師を検索</h4>
-                      <p className="text-sm text-gray-600">科目や希望日時、予算に合わせて講師を探します。</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-subtle mb-10">
+                <div className="bg-cream p-6">
+                  <h4 className="font-serif font-bold text-ink mb-2">作業時間を大幅削減</h4>
+                  <p className="text-warm text-sm leading-relaxed">手動で数時間かかっていた作業を数分に短縮。空いた時間を本来の業務に活用。</p>
+                </div>
+                <div className="bg-cream p-6">
+                  <h4 className="font-serif font-bold text-ink mb-2">ヒューマンエラーを排除</h4>
+                  <p className="text-warm text-sm leading-relaxed">自動化によりミスを根絶。データの正確性と業務品質を保証します。</p>
+                </div>
+              </div>
+
+              <div className="border-t border-subtle pt-8">
+                <h4 className="font-mono text-xs tracking-[0.2em] uppercase text-warm mb-5">自動化できる業務例</h4>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {['データ入力・集計', 'レポート自動生成', 'メール自動振り分け', 'ファイル整理・管理', '請求書処理', 'スケジュール管理'].map((item, i) => (
+                    <div key={i} className="flex items-center gap-2">
+                      <span className="w-1 h-1 bg-accent rounded-full flex-shrink-0"></span>
+                      <span className="text-sm text-ink">{item}</span>
                     </div>
-                  </div>
-                  <div className="flex items-start">
-                    <div className="flex-shrink-0 w-8 h-8 bg-white border-2 border-blue-600 rounded-full flex items-center justify-center text-blue-600 font-bold mr-4">2</div>
-                    <div>
-                      <h4 className="font-bold text-gray-900">予約・支払い</h4>
-                      <p className="text-sm text-gray-600">アプリ内で予約と決済が完結。面倒な手続きはありません。</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start">
-                    <div className="flex-shrink-0 w-8 h-8 bg-white border-2 border-blue-600 rounded-full flex items-center justify-center text-blue-600 font-bold mr-4">3</div>
-                    <div>
-                      <h4 className="font-bold text-gray-900">授業実施</h4>
-                      <p className="text-sm text-gray-600">オンラインまたは対面で、質の高い指導を受けられます。</p>
-                    </div>
-                  </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -107,76 +74,46 @@ const ProductPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Helperly Section */}
-      <section id="helperly" className="py-24 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="inline-flex items-center bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-semibold mb-8">
-            Life Support Tech
-          </div>
-
-          <div className="flex flex-col lg:flex-row-reverse gap-16 items-start">
-            <div className="flex-1 space-y-8">
-              <div>
-                <h2 className="text-4xl font-bold text-gray-900 mb-4 flex items-center gap-4">
-                  <img src={helperlyLogo} alt="Helperly Logo" className="w-auto h-12 object-contain" />
-                  Helperly (ヘルパリー)
-                </h2>
-                <p className="text-2xl text-green-600 font-bold mb-4">
-                  セブ島での暮らしを、もっと快適に。<br />
-                  安心の生活支援プラットフォーム。
-                </p>
-                <p className="text-gray-600 leading-relaxed text-lg">
-                  フィリピン・セブ島における生活者の「困った」を解決します。
-                  清掃、洗濯、ベビーシッターなど、日常の家事を信頼できるワーカーに依頼できるマーケットプレイス型アプリです。
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-white p-6 rounded-xl shadow-sm">
-                  <Shield className="h-8 w-8 text-green-600 mb-4" />
-                  <h4 className="font-bold text-gray-900 mb-2">安心・安全への配慮</h4>
-                  <p className="text-sm text-gray-600">ワーカーのプロフィールやレビューを事前に確認可能。安心して依頼できます。</p>
-                </div>
-                <div className="bg-white p-6 rounded-xl shadow-sm">
-                  <DollarSign className="h-8 w-8 text-green-600 mb-4" />
-                  <h4 className="font-bold text-gray-900 mb-2">透明な料金体系</h4>
-                  <p className="text-sm text-gray-600">事前に料金が明確に提示され、アプリ内で決済完結。現地での現金トラブルを防ぎます。</p>
-                </div>
-              </div>
-
-              <div className="pt-4">
-                <a
-                  href="https://apps.apple.com/jp/app/helperly-ph/id6755625986"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center bg-green-600 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:bg-green-700 transition-all duration-300 shadow-md hover:shadow-lg"
-                >
-                  <Smartphone className="mr-2 h-5 w-5" />
-                  App Storeでダウンロード
-                </a>
-              </div>
+      {/* Service 2 */}
+      <section id="ai-consulting" className="py-32 border-b border-subtle">
+        <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
+            <div className="lg:col-span-3">
+              <span className="font-mono text-5xl font-light text-subtle">02</span>
             </div>
+            <div className="lg:col-span-9">
+              <h2 className="font-serif text-3xl md:text-4xl font-bold text-ink mb-4">
+                AI導入支援
+              </h2>
+              <p className="font-serif text-xl text-accent mb-6">
+                御社に最適なAI活用を、構想から実装まで伴走。
+              </p>
+              <p className="text-warm leading-relaxed text-lg mb-10 max-w-2xl">
+                「AIを導入したいが何から始めればいいかわからない」。
+                そんな企業の声に応え、業務分析からAIソリューションの設計・実装、
+                導入後の運用支援まで一気通貫でサポートします。
+              </p>
 
-            <div className="flex-1 w-full">
-              <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
-                <h3 className="text-xl font-bold text-gray-900 mb-6">提供サービス</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="flex items-center p-4 bg-green-50 rounded-lg">
-                    <CheckCircle className="h-5 w-5 text-green-600 mr-3" />
-                    <span className="font-medium text-gray-700">清掃・ハウスクリーニング</span>
-                  </div>
-                  <div className="flex items-center p-4 bg-green-50 rounded-lg">
-                    <CheckCircle className="h-5 w-5 text-green-600 mr-3" />
-                    <span className="font-medium text-gray-700">洗濯代行</span>
-                  </div>
-                  <div className="flex items-center p-4 bg-green-50 rounded-lg">
-                    <CheckCircle className="h-5 w-5 text-green-600 mr-3" />
-                    <span className="font-medium text-gray-700">ベビーシッター</span>
-                  </div>
-                  <div className="flex items-center p-4 bg-green-50 rounded-lg">
-                    <CheckCircle className="h-5 w-5 text-green-600 mr-3" />
-                    <span className="font-medium text-gray-700">家事サポート全般</span>
-                  </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-subtle mb-10">
+                <div className="bg-cream p-6">
+                  <h4 className="font-serif font-bold text-ink mb-2">業務分析・要件定義</h4>
+                  <p className="text-warm text-sm leading-relaxed">現行の業務フローを徹底分析し、AI導入による効果が最大化するポイントを特定。</p>
+                </div>
+                <div className="bg-cream p-6">
+                  <h4 className="font-serif font-bold text-ink mb-2">導入後の運用支援</h4>
+                  <p className="text-warm text-sm leading-relaxed">導入して終わりではなく、定着化・改善提案・チーム研修まで継続的にサポート。</p>
+                </div>
+              </div>
+
+              <div className="border-t border-subtle pt-8">
+                <h4 className="font-mono text-xs tracking-[0.2em] uppercase text-warm mb-5">AI導入の活用領域</h4>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {['カスタマーサポート', 'ドキュメント処理', 'データ分析・予測', 'コンテンツ生成', '社内ナレッジ検索', '品質管理・検査'].map((item, i) => (
+                    <div key={i} className="flex items-center gap-2">
+                      <span className="w-1 h-1 bg-accent rounded-full flex-shrink-0"></span>
+                      <span className="text-sm text-ink">{item}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -184,21 +121,101 @@ const ProductPage: React.FC = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-24 bg-white">
-        <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-6">
-            ビジネスに関するお問い合わせ
+      {/* Service 3 */}
+      <section id="ai-tools" className="py-32 border-b border-subtle">
+        <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
+            <div className="lg:col-span-3">
+              <span className="font-mono text-5xl font-light text-subtle">03</span>
+            </div>
+            <div className="lg:col-span-9">
+              <h2 className="font-serif text-3xl md:text-4xl font-bold text-ink mb-4">
+                AIツール導入支援
+              </h2>
+              <p className="font-serif text-xl text-accent mb-6">
+                最先端AIツールを、御社のチームの武器に。
+              </p>
+              <p className="text-warm leading-relaxed text-lg mb-10 max-w-2xl">
+                Claude Code、OpenClawをはじめ、急速に進化するAIツール。
+                御社の業務に最適なツールの選定から導入、チーム全体への活用研修まで、
+                包括的にサポートします。
+              </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-ink mb-10">
+                <div className="bg-ink p-8">
+                  <span className="font-mono text-xs tracking-[0.2em] uppercase text-cream/40">AI Coding</span>
+                  <h4 className="font-serif text-xl font-bold text-cream mt-3 mb-2">Claude Code</h4>
+                  <p className="text-cream/50 text-sm leading-relaxed">AIによるコード生成・レビュー・デバッグ。開発チームの生産性を劇的に向上。</p>
+                </div>
+                <div className="bg-ink p-8 border-l border-cream/10">
+                  <span className="font-mono text-xs tracking-[0.2em] uppercase text-cream/40">AI Automation</span>
+                  <h4 className="font-serif text-xl font-bold text-cream mt-3 mb-2">OpenClaw</h4>
+                  <p className="text-cream/50 text-sm leading-relaxed">業務ワークフローのAI自動化。ノーコードで複雑なプロセスを構築。</p>
+                </div>
+              </div>
+
+              <div className="border-t border-subtle pt-8">
+                <h4 className="font-mono text-xs tracking-[0.2em] uppercase text-warm mb-5">サポート内容</h4>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {['ツール選定コンサルティング', '導入設計・セットアップ', 'チーム向け研修', '活用ワークショップ', 'カスタム設定・連携開発', '継続的な活用改善'].map((item, i) => (
+                    <div key={i} className="flex items-center gap-2">
+                      <span className="w-1 h-1 bg-accent rounded-full flex-shrink-0"></span>
+                      <span className="text-sm text-ink">{item}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section id="faq" className="py-32 border-b border-subtle">
+        <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-16">
+            <div className="lg:col-span-3">
+              <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">FAQ</span>
+            </div>
+            <div className="lg:col-span-9">
+              <h2 className="font-serif text-3xl md:text-4xl font-bold text-ink">よくあるご質問</h2>
+            </div>
+          </div>
+
+          <div className="lg:ml-[25%]">
+            {[
+              { q: 'AIの知識がない状態でも相談できますか？', a: 'もちろんです。専門知識は不要です。御社の業務課題をお聞かせいただければ、最適なソリューションをわかりやすくご提案いたします。' },
+              { q: '小規模な企業でも依頼できますか？', a: 'はい。規模に関わらず対応しています。小規模だからこそ効果を実感しやすい自動化施策も多くあります。' },
+              { q: '費用感を教えてください。', a: '案件の規模や内容によって異なります。まずは無料相談で御社の状況をお聞かせいただき、最適なプランと概算費用をご提示します。' },
+              { q: '導入までどのくらいの期間がかかりますか？', a: '小規模な自動化であれば1〜2週間、AI導入を伴うプロジェクトは1〜3ヶ月が目安です。ヒアリング時に詳細なスケジュールをご提示します。' },
+            ].map((item, index) => (
+              <div key={index} className="border-b border-subtle py-8">
+                <h3 className="font-serif text-lg font-bold text-ink mb-3 flex items-start gap-4">
+                  <span className="font-mono text-sm text-accent mt-0.5">Q</span>
+                  {item.q}
+                </h3>
+                <p className="text-warm leading-relaxed ml-8">{item.a}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="py-32 bg-ink">
+        <div className="max-w-[800px] mx-auto text-center px-6 lg:px-8">
+          <h2 className="font-serif text-4xl md:text-5xl font-bold text-cream mb-6">
+            まずは無料相談から。
           </h2>
-          <p className="text-lg text-gray-600 mb-8">
-            各事業の詳細や協業のご相談など、お気軽にお問い合わせください。
+          <p className="text-cream/50 text-lg mb-12">
+            御社の課題に合わせて、最適なAI活用プランをご提案します。
           </p>
           <Link
             to="/contact"
-            className="inline-flex items-center justify-center bg-primary-600 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:bg-primary-700 transition-all duration-300 shadow-lg hover:shadow-xl group"
+            className="group inline-flex items-center px-10 py-5 border border-cream/20 text-cream text-lg font-serif font-medium hover:bg-cream hover:text-ink transition-all duration-500"
           >
-            お問い合わせフォームへ
-            <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+            無料相談を申し込む
+            <ArrowRight className="ml-4 h-5 w-5 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
       </section>

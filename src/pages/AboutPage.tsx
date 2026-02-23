@@ -1,5 +1,6 @@
 import React from 'react';
-import { Heart, Target, Eye, Building2, Smartphone } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { ArrowRight } from 'lucide-react';
 
 const AboutPage: React.FC = () => {
   React.useEffect(() => {
@@ -9,113 +10,101 @@ const AboutPage: React.FC = () => {
   const companyInfo = [
     { label: '商号', value: '株式会社Honkoma' },
     { label: '設立年月日', value: '2025年7月' },
-    { label: '事業内容', value: '学習支援マッチングプラットフォーム「アカスタ」の運営、生活支援マッチングプラットフォーム「Helperly」の運営' },
-    { label: '従業員数', value: '3名（創業メンバー）' }
+    { label: '事業内容', value: 'ルーティーンワークの自動化支援、AI導入支援、AIツール（Claude Code・OpenClaw等）の導入支援、ソフトウェア開発' },
+    { label: '従業員数', value: '2名（創業メンバー）' },
   ];
 
   return (
-    <div className="bg-white">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-br from-primary-50 to-gray-50 py-24">
-        <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-          <h1 className="text-5xl font-bold text-gray-900 mb-6">
-            会社概要
-          </h1>
-          <p className="text-xl text-gray-600 leading-relaxed">
-            私たちHonkomaは、テクノロジーの力で「本当に困っている人の力になる」ことを目指し、<br />
-            教育と生活の領域で新しい価値創造に取り組んでいます。
-          </p>
-        </div>
-      </section>
-
-      {/* Mission & Vision Section */}
-      <section className="py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-            {/* 企業理念 */}
-            <div className="text-center lg:text-left">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mb-6">
-                <Heart className="h-8 w-8 text-red-600" />
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">企業理念</h2>
-              <p className="text-lg text-primary-600 font-semibold mb-3">
-                本当に困っている人の力になる
-              </p>
-              <p className="text-gray-600 leading-relaxed">
-                利益追求よりも先に、まず人々の切実な課題を解決すること。それが私たちの原点であり、全ての事業活動の指針です。
-              </p>
+    <div className="bg-cream">
+      {/* Hero */}
+      <section className="py-24 md:py-32 border-b border-subtle">
+        <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <div className="lg:col-span-3">
+              <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">About</span>
             </div>
-
-            {/* ミッション */}
-            <div className="text-center lg:text-left">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-primary-100 rounded-full mb-6">
-                <Target className="h-8 w-8 text-primary-600" />
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">ミッション</h2>
-              <p className="text-lg text-primary-600 font-semibold mb-3">
-                必要な支援を、必要な人へ届け切る
-              </p>
-              <p className="text-gray-600 leading-relaxed">
-                テクノロジーを活用して情報の非対称性を解消し、既存の仕組みでは手の届かなかったニーズに対して、最適なソリューションを提供します。
-              </p>
-            </div>
-
-            {/* ビジョン */}
-            <div className="text-center lg:text-left">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-orange-100 rounded-full mb-6">
-                <Eye className="h-8 w-8 text-orange-600" />
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">ビジョン</h2>
-              <p className="text-lg text-primary-600 font-semibold mb-3">
-                国境を越えた課題解決のプラットフォームへ
-              </p>
-              <p className="text-gray-600 leading-relaxed">
-                日本、フィリピン、そして世界へ。場所にとらわれず、人々が互いに助け合える仕組みを構築し、社会全体の幸福度を底上げします。
+            <div className="lg:col-span-9">
+              <h1 className="font-serif text-5xl md:text-6xl font-bold text-ink mb-6">会社概要</h1>
+              <p className="text-warm text-xl leading-relaxed max-w-2xl">
+                テクノロジーの力で企業の課題を解決し、<br />
+                AIと自動化で日本のビジネスを次のステージへ。
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* CEO Message Section */}
-      <section className="py-24 bg-gradient-to-br from-gray-50 to-gray-100">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div className="order-2 lg:order-1">
-              <h2 className="text-3xl font-bold text-gray-900 mb-6">代表者メッセージ</h2>
-              <div className="space-y-4 text-gray-600 leading-relaxed">
+      {/* Philosophy */}
+      <section className="py-32 border-b border-subtle">
+        <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-subtle">
+            {[
+              {
+                label: '企業理念',
+                title: 'テクノロジーで、人の可能性を解放する',
+                body: '人がやるべきでない仕事から人を解放し、創造的な仕事に集中できる世界を実現する。それが私たちの原点です。',
+              },
+              {
+                label: 'ミッション',
+                title: 'AI導入のハードルをゼロにする',
+                body: 'AIは使いたいが何から始めればいいかわからない。そんな企業に寄り添い、最適なAI活用を実現するパートナーであり続けます。',
+              },
+              {
+                label: 'ビジョン',
+                title: 'すべての企業にAIの恩恵を届ける',
+                body: '大企業だけでなく、中小企業やスタートアップまで。あらゆる規模の企業がAIの力を活用できる社会を目指します。',
+              },
+            ].map((item, i) => (
+              <div key={i} className="bg-cream p-8 md:p-12">
+                <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">{item.label}</span>
+                <h3 className="font-serif text-xl font-bold text-ink mt-4 mb-4">{item.title}</h3>
+                <p className="text-warm text-sm leading-relaxed">{item.body}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CEO Message */}
+      <section className="py-32 border-b border-subtle">
+        <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
+            <div className="lg:col-span-3">
+              <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">Message</span>
+            </div>
+            <div className="lg:col-span-5">
+              <h2 className="font-serif text-3xl md:text-4xl font-bold text-ink mb-10">代表者メッセージ</h2>
+              <div className="space-y-5 text-warm leading-relaxed">
                 <p>
-                  私たちの周りには、解決されぬまま放置されている「困りごと」がたくさんあります。
-                  「勉強が遅れていて不安だけど、塾に行く余裕も時間もない」
-                  「仕事が忙しくて家事が回らない、でも頼れる人が近くにいない」
+                  AIの進化は、ビジネスのあり方を根本から変えつつあります。
+                  しかし、多くの企業にとって「AIをどう使えばいいのか」は依然として大きな課題です。
                 </p>
                 <p>
-                  こうした切実な声に耳を傾け、ITの力で解決策を提示したい。
-                  そんな想いで立ち上げたのが、株式会社Honkomaです。
+                  私たちHonkomaは、そのギャップを埋めるために生まれました。
+                  ルーティーンワークの自動化、AIの業務導入、そしてClaude CodeやOpenClawといった最先端ツールの活用支援を通じて、
+                  企業の生産性向上と競争力強化を実現します。
                 </p>
                 <p>
-                  日本では、スポット型家庭教師マッチング「アカスタ」を通じて、教育の機会格差是正に挑みます。
-                  フィリピンでは、生活支援プラットフォーム「Helperly」を通じて、人々の暮らしにゆとりを提供します。
+                  「テクノロジーは難しい」と感じている方にこそ、私たちの価値があります。
+                  技術の専門知識がなくても、御社の課題をお聞かせいただければ、
+                  最適な解決策をわかりやすくご提案いたします。
                 </p>
-                <p>
-                  私たちは、単なるマッチングサービスの提供者ではありません。
-                  「誰かの役に立ちたい」という人と、「助けを必要としている」人をつなぐ、信頼の架け橋でありたいと考えています。
-                </p>
-                <p className="font-semibold text-gray-900">
-                  本当に困っている人の力になる。この理念を胸に、私たちは挑戦し続けます。
+                <p className="text-ink font-medium">
+                  AIと自動化の力で、御社のビジネスを次のレベルへ。<br />
+                  私たちと一緒に、新しい働き方を創造しましょう。
                 </p>
               </div>
-              <div className="mt-8">
-                <p className="text-sm text-gray-500">株式会社Honkoma</p>
-                <p className="text-lg font-semibold text-gray-900">代表取締役CEO 林拓海</p>
+              <div className="mt-10 pt-6 border-t border-subtle">
+                <p className="font-mono text-xs text-warm">株式会社Honkoma</p>
+                <p className="font-serif text-lg font-bold text-ink mt-1">代表取締役CEO 林拓海</p>
               </div>
             </div>
-            <div className="order-1 lg:order-2 flex justify-center">
-              <div className="w-80 h-80 bg-gradient-to-br from-primary-100 to-gray-200 rounded-2xl overflow-hidden shadow-xl">
+            <div className="lg:col-span-4">
+              <div className="aspect-[3/4] overflow-hidden">
                 <img
                   src="/team/hayashi_img.jpg"
                   alt="CEO 林拓海"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
                 />
               </div>
             </div>
@@ -123,83 +112,53 @@ const AboutPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Business Overview Section */}
-      <section className="py-24 bg-white">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">事業内容</h2>
-            <p className="text-lg text-gray-600">教育と生活、2つの軸で事業を展開しています。</p>
+      {/* Company Info */}
+      <section className="py-32 border-b border-subtle">
+        <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-16">
+            <div className="lg:col-span-3">
+              <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">Company</span>
+            </div>
+            <div className="lg:col-span-9">
+              <h2 className="font-serif text-3xl md:text-4xl font-bold text-ink">会社情報</h2>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="bg-blue-50 rounded-xl p-8 shadow-sm border border-blue-100">
-              <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
-                <span className="bg-blue-600 text-white p-2 rounded-lg mr-3">
-                  <Smartphone className="h-5 w-5" />
-                </span>
-                Akasta (アカスタ)
-              </h3>
-              <p className="text-gray-600 mb-6">
-                中学受験生と東大生講師をつなぐスポット家庭教師マッチングサービス。
-                従来の「高額・固定」な家庭教師とは異なり、1回単位で気軽に利用できるのが特徴です。
-              </p>
-              <ul className="space-y-2 text-sm text-gray-600">
-                <li>• 入会金・解約金なしの完全スポット利用</li>
-                <li>• 厳選された優秀な大学生講師陣</li>
-                <li>• アプリで完結する予約・決済・授業管理</li>
-              </ul>
-            </div>
-
-            <div className="bg-green-50 rounded-xl p-8 shadow-sm border border-green-100">
-              <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
-                <span className="bg-green-600 text-white p-2 rounded-lg mr-3">
-                  <Smartphone className="h-5 w-5" />
-                </span>
-                Helperly (ヘルパリー)
-              </h3>
-              <p className="text-gray-600 mb-6">
-                フィリピン・セブ島における生活支援プラットフォーム。
-                清掃、洗濯、ベビーシッターなどのサービスを、アプリを通じてオンデマンドで利用可能です。
-              </p>
-              <ul className="space-y-2 text-sm text-gray-600">
-                <li>• 清掃、家事代行、ベビーシッターに対応</li>
-                <li>• 現地居住者・長期滞在者向けサポート</li>
-                <li>• 信頼できるワーカーによる高品質なサービス</li>
-              </ul>
+          <div className="lg:ml-[25%]">
+            <div className="border-t border-subtle">
+              {companyInfo.map((item, index) => (
+                <div key={index} className="grid grid-cols-1 sm:grid-cols-12 border-b border-subtle py-5">
+                  <dt className="sm:col-span-3 font-mono text-xs tracking-wide text-warm uppercase mb-1 sm:mb-0 sm:pt-0.5">
+                    {item.label}
+                  </dt>
+                  <dd className="sm:col-span-9 text-ink text-sm leading-relaxed">
+                    {item.value}
+                  </dd>
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
-      {/* Company Info Section */}
-      <section className="py-24 bg-gradient-to-br from-primary-50 to-gray-50">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">会社情報</h2>
-          <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-            <div className="bg-gradient-to-r from-primary-600 to-primary-700 px-8 py-6">
-              <div className="flex items-center text-white">
-                <Building2 className="h-8 w-8 mr-3" />
-                <h3 className="text-xl font-semibold">株式会社Honkoma</h3>
-              </div>
-            </div>
-            <div className="p-8">
-              <dl className="space-y-6">
-                {companyInfo.map((item, index) => (
-                  <div key={index} className="flex flex-col sm:flex-row border-b border-gray-100 pb-4 last:border-0 last:pb-0">
-                    <dt className="text-sm font-semibold text-gray-900 sm:w-32 mb-1 sm:mb-0">
-                      {item.label}
-                    </dt>
-                    <dd className="text-sm text-gray-600 sm:flex-1">
-                      {item.value}
-                    </dd>
-                  </div>
-                ))}
-              </dl>
-            </div>
-          </div>
+      {/* CTA */}
+      <section className="py-32">
+        <div className="max-w-[800px] mx-auto text-center px-6 lg:px-8">
+          <h2 className="font-serif text-3xl md:text-4xl font-bold text-ink mb-6">
+            AI導入・開発のご相談
+          </h2>
+          <p className="text-warm text-lg mb-10">
+            御社の課題に合わせて、最適なソリューションをご提案します。
+          </p>
+          <Link
+            to="/contact"
+            className="group inline-flex items-center px-8 py-4 bg-ink text-cream font-medium tracking-wide hover:bg-accent transition-colors duration-300"
+          >
+            お問い合わせはこちら
+            <ArrowRight className="ml-3 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+          </Link>
         </div>
       </section>
-
     </div>
   );
 };
