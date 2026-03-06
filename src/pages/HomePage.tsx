@@ -50,13 +50,13 @@ const HomePage: React.FC = () => {
             {/* Right: Main content */}
             <div className="lg:col-span-9">
               <h1 className="font-serif text-[clamp(2.5rem,7vw,5.5rem)] font-bold leading-[1.1] tracking-tight text-ink mb-8 opacity-0 animate-fade-up-delay-1">
-                AIと自動化で、<br />
-                ビジネスを<span className="text-accent">加速</span>。
+                AIエージェントで、<br />
+                御社の業務を<span className="text-accent">自律化</span>する。
               </h1>
 
               <p className="text-lg md:text-xl text-warm leading-relaxed max-w-2xl mb-12 opacity-0 animate-fade-up-delay-2">
-                業務自動化、AI導入支援、AIエージェントの開発・派遣。<br className="hidden sm:block" />
-                御社のDX推進を、構想から実装まで伴走します。
+                ルーティーンワークの自動化からAIエージェント構築まで。<br className="hidden sm:block" />
+                honkomaは構想から実装・運用まで一気通貫で支援します。
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 opacity-0 animate-fade-up-delay-3">
@@ -169,6 +169,48 @@ const HomePage: React.FC = () => {
         </div>
       </section>
 
+      {/* ===== CASE STUDIES ===== */}
+      <section className="py-32 border-t border-subtle">
+        <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-20">
+            <div className="lg:col-span-3">
+              <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">Case Studies</span>
+            </div>
+            <div className="lg:col-span-9">
+              <h2 className="font-serif text-4xl md:text-5xl font-bold leading-tight text-ink">
+                導入事例
+              </h2>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-subtle">
+            {[
+              {
+                industry: '医療クリニック',
+                project: 'LINE問い合わせ自動化',
+                result: '月30名の新規患者獲得に貢献',
+              },
+              {
+                industry: 'IT企業',
+                project: '経費申請・請求書処理の自動化',
+                result: '月40時間の工数削減',
+              },
+              {
+                industry: 'コンサルティング会社',
+                project: '提案書自動生成',
+                result: '営業リードタイム50%短縮',
+              },
+            ].map((caseItem, i) => (
+              <div key={i} className="bg-cream p-8 md:p-10">
+                <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">{caseItem.industry}</span>
+                <h3 className="font-serif text-xl font-bold text-ink mt-4 mb-3">{caseItem.project}</h3>
+                <p className="text-accent font-bold text-lg">{caseItem.result}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ===== PRICING HIGHLIGHT ===== */}
       <section className="py-24 bg-ink">
         <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
@@ -236,6 +278,38 @@ const HomePage: React.FC = () => {
                 <span className="font-mono text-4xl font-light text-subtle">{item.step}</span>
                 <h3 className="font-serif text-xl font-bold text-ink mt-6 mb-3">{item.title}</h3>
                 <p className="text-warm text-sm leading-relaxed">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ===== FAQ ===== */}
+      <section className="py-32 border-t border-subtle">
+        <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-16">
+            <div className="lg:col-span-3">
+              <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">FAQ</span>
+            </div>
+            <div className="lg:col-span-9">
+              <h2 className="font-serif text-3xl md:text-4xl font-bold text-ink">よくあるご質問</h2>
+            </div>
+          </div>
+
+          <div className="lg:ml-[25%]">
+            {[
+              { q: 'どのような企業が対象ですか？', a: '業種問わず、繰り返し業務が多い企業様すべてが対象です。' },
+              { q: '最初にどのくらいの費用がかかりますか？', a: 'まず無料相談でお話をお聞きします。導入プランは月額30万円〜でご提案しています。' },
+              { q: '効果が出なかった場合は？', a: '成果報酬型プランもご用意しています。' },
+              { q: '小規模な会社でも対応できますか？', a: '2名体制のクリニックから100名規模まで対応実績があります。' },
+              { q: '導入までどのくらいかかりますか？', a: '最短2週間で初期版をリリースできます。' },
+            ].map((item, index) => (
+              <div key={index} className="border-b border-subtle py-8">
+                <h3 className="font-serif text-lg font-bold text-ink mb-3 flex items-start gap-4">
+                  <span className="font-mono text-sm text-accent mt-0.5">Q</span>
+                  {item.q}
+                </h3>
+                <p className="text-warm leading-relaxed ml-8">{item.a}</p>
               </div>
             ))}
           </div>
