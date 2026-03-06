@@ -24,7 +24,7 @@ const Header: React.FC = () => {
             <img
               className="h-24 w-auto"
               src="/honkoma-logo-transparent--1--2.png"
-              alt="Honkoma"
+              alt="honkoma"
             />
           </Link>
 

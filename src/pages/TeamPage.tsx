@@ -4,7 +4,7 @@ import { Linkedin, Twitter, Mail, ArrowRight, ArrowUpRight } from 'lucide-react'
 
 const TeamPage: React.FC = () => {
   React.useEffect(() => {
-    document.title = 'メンバー紹介 | Honkoma';
+    document.title = 'メンバー紹介 | honkoma';
   }, []);
 
   const teamMembers = [
@@ -14,7 +14,7 @@ const TeamPage: React.FC = () => {
       position: '代表取締役CEO',
       image: '/team/hayashi_img.jpg',
       bio: '西大和学園高等学校卒業後、東京大学文科一類に入学。現在は農学部農業資源経済学専修に所属。在学中よりFintechスタートアップでビジネスディベロップメントとして法人営業に従事し、ビジネスと技術の橋渡し役として活躍。現在は事業会社のM&Aチームにも参画し、事業開発と経営戦略の両面から企業価値創造に取り組む。',
-      message: 'AI時代の到来とともに、企業が直面する「何から始めればいいかわからない」という課題は急速に拡大しています。私たちHonkomaは、その最前線に立ち、業務自動化やAI導入を通じて企業の変革を支援します。テクノロジーの力で、すべての企業がAIの恩恵を受けられる世界を目指して挑戦し続けます。',
+      message: 'AI時代の到来とともに、企業が直面する「何から始めればいいかわからない」という課題は急速に拡大しています。私たちhonkomaは、その最前線に立ち、業務自動化やAI導入を通じて企業の変革を支援します。テクノロジーの力で、すべての企業がAIの恩恵を受けられる世界を目指して挑戦し続けます。',
       social: {
         email: 'quickclip@ltdhonkoma.com',
         linkedin: '',

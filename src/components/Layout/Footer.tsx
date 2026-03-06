@@ -13,14 +13,14 @@ const Footer: React.FC = () => {
             <img
               className="h-20 w-auto filter brightness-0 invert mb-6"
               src="/honkoma-logo-transparent--1--2.png"
-              alt="Honkoma"
+              alt="honkoma"
             />
             <p className="text-sm leading-relaxed mb-6 max-w-xs">
               AIと自動化の力で、<br />
               ビジネスを次のステージへ。
             </p>
             <p className="font-mono text-xs text-cream/40">
-              株式会社Honkoma
+              株式会社honkoma
             </p>
           </div>
 
@@ -48,9 +48,10 @@ const Footer: React.FC = () => {
           <div className="md:col-span-4">
             <h3 className="font-mono text-xs tracking-widest uppercase text-cream/40 mb-6">Services</h3>
             <ul className="space-y-3">
-              <li><Link to="/product#automation" className="text-sm hover:text-cream transition-colors">ルーティーンワーク自動化</Link></li>
-              <li><Link to="/product#ai-consulting" className="text-sm hover:text-cream transition-colors">AI導入支援</Link></li>
-              <li><Link to="/product#ai-tools" className="text-sm hover:text-cream transition-colors">AIツール導入支援</Link></li>
+              <li><Link to="/product#standard" className="text-sm hover:text-cream transition-colors">スタンダードプラン</Link></li>
+              <li><Link to="/product#enterprise" className="text-sm hover:text-cream transition-colors">エンタープライズ</Link></li>
+              <li><Link to="/product#advisory" className="text-sm hover:text-cream transition-colors">顧問相談</Link></li>
+              <li><Link to="/product#ai-agent" className="text-sm hover:text-cream transition-colors">AIエージェント派遣</Link></li>
             </ul>
             <div className="mt-8">
               <Link to="/privacy" className="text-xs text-cream/40 hover:text-cream/70 transition-colors">
@@ -63,7 +64,7 @@ const Footer: React.FC = () => {
         {/* Bottom */}
         <div className="border-t border-cream/10 mt-16 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="font-mono text-xs text-cream/30">
-            &copy; {currentYear} Honkoma Inc.
+            &copy; {currentYear} honkoma Inc.
           </p>
           <p className="font-mono text-xs text-cream/30">
             AI導入・業務自動化・開発支援

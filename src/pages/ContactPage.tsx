@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { Mail, Clock, Send, CheckCircle, AlertCircle, MessageSquare } from 'lucide-react';
+import { Mail, Clock, Send, CheckCircle, AlertCircle, MessageSquare, Phone } from 'lucide-react';
 
 const ContactPage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
   React.useEffect(() => {
-    document.title = 'お問い合わせ | Honkoma';
+    document.title = 'お問い合わせ | honkoma';
   }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -52,7 +52,7 @@ const ContactPage: React.FC = () => {
   const inquiryTypes = [
     'AI導入に関するご相談',
     'ルーティーンワーク自動化のご相談',
-    'AIツール（Claude Code・OpenClaw等）導入のご相談',
+    'AIエージェント派遣のご相談',
     'ソフトウェア開発のご依頼',
     '事業提携・パートナーシップについて',
     'その他',
@@ -84,7 +84,7 @@ const ContactPage: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-subtle">
             {[
               { icon: <Mail className="h-4 w-4" />, label: 'メールアドレス', value: 'quickclip@ltdhonkoma.com', sub: '24時間受付' },
-              { icon: <Clock className="h-4 w-4" />, label: '営業時間', value: '平日 9:00-18:00', sub: '土日祝日を除く' },
+              { icon: <Phone className="h-4 w-4" />, label: '電話番号', value: '080-8526-6978', sub: '平日 9:00-18:00' },
               { icon: <MessageSquare className="h-4 w-4" />, label: '初回相談', value: '無料', sub: 'オンライン対応可' },
             ].map((item, i) => (
               <div key={i} className="bg-cream p-8 md:p-10">
@@ -248,7 +248,7 @@ const ContactPage: React.FC = () => {
                   {[
                     '日常業務の自動化で工数を削減したい',
                     'AIを使いたいが何から始めたらいいかわからない',
-                    'Claude CodeやOpenClawを社内に導入したい',
+                    'AIエージェントを業務に活用したい',
                     '開発プロジェクトを依頼したい',
                   ].map((item, i) => (
                     <li key={i} className="flex items-start gap-3">

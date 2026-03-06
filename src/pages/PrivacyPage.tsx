@@ -3,7 +3,7 @@ import { Shield, Mail, Eye, Lock } from 'lucide-react';
 
 const PrivacyPage: React.FC = () => {
   React.useEffect(() => {
-    document.title = 'プライバシーポリシー | Honkoma';
+    document.title = 'プライバシーポリシー | honkoma';
   }, []);
 
   const lastUpdated = '2024年4月1日';
@@ -20,7 +20,7 @@ const PrivacyPage: React.FC = () => {
             プライバシーポリシー
           </h1>
           <p className="text-xl text-gray-600 leading-relaxed">
-            株式会社Honkomaは、お客様の個人情報の保護を重要な責務と考え、<br />
+            株式会社honkomaは、お客様の個人情報の保護を重要な責務と考え、<br />
             以下の方針に基づいて個人情報を適切に取り扱います。
           </p>
           <p className="text-sm text-gray-500 mt-6">
@@ -42,7 +42,7 @@ const PrivacyPage: React.FC = () => {
               </h2>
               <div className="bg-gray-50 rounded-xl p-6">
                 <p className="text-gray-700 leading-relaxed mb-0">
-                  株式会社Honkoma（以下「当社」といいます。）は、当社が提供するサービスをご利用いただくお客様（以下「利用者」といいます。）の個人情報を適切に保護することが、当社の社会的責務であると考えております。当社は、個人情報の保護に関する法律、関連する政令・省令・ガイドライン等を遵守し、利用者の個人情報を適切に取り扱います。
+                  株式会社honkoma（以下「当社」といいます。）は、当社が提供するサービスをご利用いただくお客様（以下「利用者」といいます。）の個人情報を適切に保護することが、当社の社会的責務であると考えております。当社は、個人情報の保護に関する法律、関連する政令・省令・ガイドライン等を遵守し、利用者の個人情報を適切に取り扱います。
                 </p>
               </div>
             </div>
@@ -231,9 +231,10 @@ const PrivacyPage: React.FC = () => {
                       個人情報の取り扱いに関するご質問、開示・訂正・削除等のご請求は、以下の窓口までお問い合わせください。
                     </p>
                     <div className="space-y-2 text-sm text-gray-600">
-                      <p><strong>会社名：</strong>株式会社Honkoma</p>
-                      <p><strong>所在地：</strong>〒150-0000 東京都渋谷区（詳細は後日公開）</p>
-                      <p><strong>メール：</strong>privacy@honkoma.co.jp</p>
+                      <p><strong>会社名：</strong>株式会社honkoma</p>
+                      <p><strong>所在地：</strong>〒113-0021 東京都文京区本駒込1-20-16 モンテベルデ本駒込102</p>
+                      <p><strong>電話番号：</strong>080-8526-6978</p>
+                      <p><strong>メール：</strong>quickclip@ltdhonkoma.com</p>
                       <p><strong>受付時間：</strong>平日 9:00-18:00（土日祝日を除く）</p>
                     </div>
                   </div>
@@ -263,7 +264,7 @@ const PrivacyPage: React.FC = () => {
             <div className="border-t border-gray-200 pt-8">
               <div className="text-center">
                 <p className="text-gray-600 mb-2">本プライバシーポリシーは、{lastUpdated}から施行いたします。</p>
-                <p className="text-sm text-gray-500">株式会社Honkoma</p>
+                <p className="text-sm text-gray-500">株式会社honkoma</p>
               </div>
             </div>
           </div>
