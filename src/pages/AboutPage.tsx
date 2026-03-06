@@ -4,13 +4,17 @@ import { ArrowRight } from 'lucide-react';
 
 const AboutPage: React.FC = () => {
   React.useEffect(() => {
-    document.title = '会社概要 | Honkoma';
+    document.title = '会社概要 | honkoma';
   }, []);
 
   const companyInfo = [
-    { label: '商号', value: '株式会社Honkoma' },
+    { label: '商号', value: '株式会社honkoma' },
     { label: '設立年月日', value: '2025年7月' },
-    { label: '事業内容', value: 'ルーティーンワークの自動化支援、AI導入支援、AIツール（Claude Code・OpenClaw等）の導入支援、ソフトウェア開発' },
+    { label: '所在地', value: '〒113-0021 東京都文京区本駒込1-20-16 モンテベルデ本駒込102' },
+    { label: '電話番号', value: '080-8526-6978' },
+    { label: 'メール', value: 'quickclip@ltdhonkoma.com' },
+    { label: '資本金', value: '500,000円' },
+    { label: '事業内容', value: 'AI導入支援、業務自動化支援、AIエージェント開発・派遣、ソフトウェア開発' },
     { label: '従業員数', value: '2名（創業メンバー）' },
   ];
 
@@ -80,8 +84,8 @@ const AboutPage: React.FC = () => {
                   しかし、多くの企業にとって「AIをどう使えばいいのか」は依然として大きな課題です。
                 </p>
                 <p>
-                  私たちHonkomaは、そのギャップを埋めるために生まれました。
-                  ルーティーンワークの自動化、AIの業務導入、そしてClaude CodeやOpenClawといった最先端ツールの活用支援を通じて、
+                  私たちhonkomaは、そのギャップを埋めるために生まれました。
+                  業務自動化、AI導入支援、AIエージェントの開発・派遣を通じて、
                   企業の生産性向上と競争力強化を実現します。
                 </p>
                 <p>
@@ -95,7 +99,7 @@ const AboutPage: React.FC = () => {
                 </p>
               </div>
               <div className="mt-10 pt-6 border-t border-subtle">
-                <p className="font-mono text-xs text-warm">株式会社Honkoma</p>
+                <p className="font-mono text-xs text-warm">株式会社honkoma</p>
                 <p className="font-serif text-lg font-bold text-ink mt-1">代表取締役CEO 林拓海</p>
               </div>
             </div>

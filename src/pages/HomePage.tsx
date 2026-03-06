@@ -4,24 +4,24 @@ import { ArrowRight, ArrowUpRight } from 'lucide-react';
 
 const HomePage: React.FC = () => {
   React.useEffect(() => {
-    document.title = 'Honkoma | AI導入・業務自動化・開発支援';
+    document.title = 'honkoma | AI導入・業務自動化・開発支援';
   }, []);
 
   const services = [
     {
       num: '01',
-      title: 'ルーティーンワーク自動化',
-      description: '日々の繰り返し業務をRPA・スクリプト・AIで自動化。人がやるべき仕事に集中できる環境を構築します。',
+      title: 'AI導入・業務自動化支援',
+      description: '御社の業務フローを分析し、最適なAIソリューションを設計・実装。ルーティーンワークの自動化で生産性を向上させます。',
     },
     {
       num: '02',
-      title: 'AI導入支援',
-      description: '御社の業務フローを分析し、最適なAIソリューションを設計・実装。導入後の運用支援まで一気通貫でサポート。',
+      title: 'AIエージェント派遣',
+      description: '御社の業務に特化したAIエージェントを開発・提供。人手不足の解消と業務効率化を同時に実現します。',
     },
     {
       num: '03',
-      title: 'AIツール導入支援',
-      description: 'Claude Code、OpenClawなど最新AIツールの選定から導入・活用研修まで。チーム全体の生産性を飛躍的に向上。',
+      title: '顧問・スポット相談',
+      description: 'AI活用の戦略立案から技術相談まで。月額顧問契約またはスポットでの時間単位相談に対応します。',
     },
   ];
 
@@ -55,8 +55,7 @@ const HomePage: React.FC = () => {
               </h1>
 
               <p className="text-lg md:text-xl text-warm leading-relaxed max-w-2xl mb-12 opacity-0 animate-fade-up-delay-2">
-                ルーティーンワークの自動化、AI導入支援、<br className="hidden sm:block" />
-                Claude CodeやOpenClawなど最新AIツールの導入支援。<br className="hidden sm:block" />
+                業務自動化、AI導入支援、AIエージェントの開発・派遣。<br className="hidden sm:block" />
                 御社のDX推進を、構想から実装まで伴走します。
               </p>
 
@@ -72,7 +71,7 @@ const HomePage: React.FC = () => {
                   to="/product"
                   className="inline-flex items-center justify-center px-8 py-4 border border-ink text-ink text-base font-medium tracking-wide hover:bg-ink hover:text-cream transition-all duration-300"
                 >
-                  サービス詳細
+                  サービス・料金
                 </Link>
               </div>
             </div>
@@ -170,91 +169,44 @@ const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* ===== STATS ===== */}
+      {/* ===== PRICING HIGHLIGHT ===== */}
       <section className="py-24 bg-ink">
         <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-16">
+            <div className="lg:col-span-3">
+              <span className="font-mono text-xs tracking-[0.2em] uppercase text-cream/40">Pricing</span>
+            </div>
+            <div className="lg:col-span-9">
+              <h2 className="font-serif text-4xl md:text-5xl font-bold leading-tight text-cream">
+                目的に合わせた<br />料金プラン
+              </h2>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-px">
             {[
-              { value: '80%', sub: '最大', label: '業務時間削減' },
-              { value: '98%', sub: '', label: '導入後の満足度' },
-              { value: '全業種', sub: '', label: '対応可能業種' },
-            ].map((stat, i) => (
+              { price: '月15万円〜', label: '顧問相談', desc: 'AI活用の戦略相談・技術アドバイス' },
+              { price: '月30万円', label: 'スタンダード', desc: '初期セットアップ+継続的な保守運用' },
+              { price: '3.5万円/時間', label: 'スポット', desc: '必要な時だけ、時間単位でご相談' },
+            ].map((plan, i) => (
               <div key={i} className="text-center py-12 md:py-16">
-                <div className="font-serif text-5xl md:text-6xl font-bold text-cream mb-2">
-                  {stat.sub && <span className="text-lg font-mono font-normal text-cream/40 mr-1">{stat.sub}</span>}
-                  {stat.value}
+                <div className="font-serif text-4xl md:text-5xl font-bold text-cream mb-2">
+                  {plan.price}
                 </div>
-                <div className="font-mono text-xs tracking-widest uppercase text-cream/40 mt-3">{stat.label}</div>
+                <div className="font-mono text-xs tracking-widest uppercase text-cream/40 mt-3">{plan.label}</div>
+                <p className="text-cream/50 text-sm mt-3">{plan.desc}</p>
               </div>
             ))}
           </div>
-        </div>
-      </section>
 
-      {/* ===== AI TOOLS ===== */}
-      <section className="py-32 border-t border-subtle">
-        <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-20">
-            <div className="lg:col-span-3">
-              <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">Tools</span>
-            </div>
-            <div className="lg:col-span-9">
-              <h2 className="font-serif text-4xl md:text-5xl font-bold leading-tight text-ink">
-                最新AIツールを、<br />御社の武器に。
-              </h2>
-              <p className="mt-6 text-warm text-lg max-w-xl">
-                Claude Code、OpenClawをはじめ、急速に進化するAIツール。
-                選定・導入・活用研修まで、御社のチームに合わせてサポートします。
-              </p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-subtle">
-            {/* Claude Code */}
-            <div className="bg-ink p-10 md:p-14">
-              <span className="font-mono text-xs tracking-[0.2em] uppercase text-cream/40">AI Coding Tool</span>
-              <h3 className="font-serif text-3xl font-bold text-cream mt-4 mb-5">Claude Code</h3>
-              <p className="text-cream/50 leading-relaxed mb-8">
-                Anthropic社のAIコーディングツール。コードの自動生成・レビュー・デバッグをAIがサポートし、開発速度を劇的に向上。
-              </p>
-              <ul className="space-y-3 font-mono text-sm text-cream/60">
-                <li className="flex items-center gap-3">
-                  <span className="w-1 h-1 bg-accent rounded-full flex-shrink-0"></span>
-                  コード生成・リファクタリング
-                </li>
-                <li className="flex items-center gap-3">
-                  <span className="w-1 h-1 bg-accent rounded-full flex-shrink-0"></span>
-                  自然言語での開発指示
-                </li>
-                <li className="flex items-center gap-3">
-                  <span className="w-1 h-1 bg-accent rounded-full flex-shrink-0"></span>
-                  既存コードベースの理解・修正
-                </li>
-              </ul>
-            </div>
-
-            {/* OpenClaw */}
-            <div className="bg-ink p-10 md:p-14">
-              <span className="font-mono text-xs tracking-[0.2em] uppercase text-cream/40">AI Automation Tool</span>
-              <h3 className="font-serif text-3xl font-bold text-cream mt-4 mb-5">OpenClaw</h3>
-              <p className="text-cream/50 leading-relaxed mb-8">
-                業務プロセスをAIで自動化するツール。ノーコードで複雑なワークフローを構築し、チーム全体の生産性を向上。
-              </p>
-              <ul className="space-y-3 font-mono text-sm text-cream/60">
-                <li className="flex items-center gap-3">
-                  <span className="w-1 h-1 bg-accent rounded-full flex-shrink-0"></span>
-                  ワークフロー自動化
-                </li>
-                <li className="flex items-center gap-3">
-                  <span className="w-1 h-1 bg-accent rounded-full flex-shrink-0"></span>
-                  AIエージェントの構築
-                </li>
-                <li className="flex items-center gap-3">
-                  <span className="w-1 h-1 bg-accent rounded-full flex-shrink-0"></span>
-                  既存ツールとの連携
-                </li>
-              </ul>
-            </div>
+          <div className="text-center mt-12">
+            <Link
+              to="/product"
+              className="group inline-flex items-center px-8 py-4 border border-cream/20 text-cream text-sm font-medium tracking-wide hover:bg-cream hover:text-ink transition-all duration-500"
+            >
+              料金プラン詳細を見る
+              <ArrowRight className="ml-3 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+            </Link>
           </div>
         </div>
       </section>
