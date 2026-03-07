@@ -26,12 +26,21 @@ const ContactPage: React.FC = () => {
     };
 
     try {
+      // GASに送信（スプレッドシート記録）
       await fetch('https://script.google.com/macros/s/AKfycbxVMYEL9aJS124xpDj-bpynGYH_QbyEsb0yGqUznlTALT6OreAjCSS7oth4f7ETDciQ/exec', {
         method: 'POST',
         mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
+
+      // Telegram通知（山田に即時通知）
+      fetch('https://lineworks-bot-production-faa2.up.railway.app/webhook-contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      }).catch(() => {});
+
       setSubmitStatus('success');
       e.currentTarget.reset();
       if (window.gtag) {
