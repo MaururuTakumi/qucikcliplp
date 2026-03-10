@@ -34,8 +34,8 @@ const ContactPage: React.FC = () => {
         body: JSON.stringify(data),
       });
 
-      // Telegram通知（山田に即時通知）
-      fetch('https://lineworks-bot-production-faa2.up.railway.app/webhook-contact', {
+      // Telegram通知（即時通知）
+      fetch('https://mwnmobsfwkflcgorzsan.supabase.co/functions/v1/webhook-contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
