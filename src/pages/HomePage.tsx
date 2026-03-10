@@ -34,6 +34,13 @@ const HomePage: React.FC = () => {
     '社内ナレッジのAI活用',
   ];
 
+  const productHighlights = [
+    'Googleマップや各種媒体の口コミを週次で収集',
+    'ポジティブ/ネガティブ傾向と頻出キーワードを整理',
+    '競合比較・改善示唆・次アクションまでレポート化',
+    'Mac miniや実行環境はhonkoma側で保有・運用',
+  ];
+
   return (
     <div className="bg-cream">
       {/* ===== HERO ===== */}
@@ -163,6 +170,85 @@ const HomePage: React.FC = () => {
                     <ArrowUpRight className="h-4 w-4 text-warm opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>
                 ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== PRODUCT LP ===== */}
+      <section className="py-32 border-t border-subtle bg-accent-light/30">
+        <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+            <div className="lg:col-span-4">
+              <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">New Product</span>
+              <h2 className="font-serif text-4xl md:text-5xl font-bold leading-tight text-ink mt-4 mb-6">
+                週次口コミ<br />インサイトレポート
+              </h2>
+              <p className="text-warm text-lg leading-relaxed mb-8">
+                クライアントはURLや見たい観点を送るだけ。honkoma側で口コミを収集・整理し、
+                毎週「経営判断に使えるレポート」として納品します。
+              </p>
+              <div className="space-y-4 mb-10">
+                {productHighlights.map((item, index) => (
+                  <div key={index} className="flex items-start gap-3">
+                    <span className="mt-2 w-1.5 h-1.5 rounded-full bg-accent flex-shrink-0"></span>
+                    <span className="text-ink text-sm md:text-base leading-relaxed">{item}</span>
+                  </div>
+                ))}
+              </div>
+              <Link
+                to="/product#review-report"
+                className="group inline-flex items-center px-8 py-4 bg-ink text-cream text-sm font-medium tracking-wide hover:bg-accent transition-colors duration-300"
+              >
+                プロダクト詳細を見る
+                <ArrowRight className="ml-3 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </div>
+
+            <div className="lg:col-span-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-subtle mb-8">
+                <div className="bg-cream p-8 md:p-10">
+                  <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">What you get</span>
+                  <h3 className="font-serif text-2xl font-bold text-ink mt-4 mb-4">毎週納品される内容</h3>
+                  <div className="space-y-3 text-warm text-sm leading-relaxed">
+                    <p>・今週の新規口コミまとめ</p>
+                    <p>・評価変動と頻出キーワード</p>
+                    <p>・ポジ/ネガ傾向の要約</p>
+                    <p>・競合比較と改善示唆</p>
+                    <p>・優先して対応すべき口コミ</p>
+                    <p>・次週のアクション提案</p>
+                  </div>
+                </div>
+                <div className="bg-cream p-8 md:p-10">
+                  <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">For teams like</span>
+                  <h3 className="font-serif text-2xl font-bold text-ink mt-4 mb-4">相性のいい業種</h3>
+                  <div className="space-y-3 text-warm text-sm leading-relaxed">
+                    <p>・クリニック / 医療機関</p>
+                    <p>・飲食 / 店舗ビジネス</p>
+                    <p>・美容 / サロン</p>
+                    <p>・スクール / コーチング</p>
+                    <p>・人材 / 採用サービス</p>
+                    <p>・高単価商材の営業組織</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-ink text-cream p-8 md:p-10">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-end">
+                  <div className="md:col-span-2">
+                    <span className="font-mono text-xs tracking-[0.2em] uppercase text-cream/40">Positioning</span>
+                    <h3 className="font-serif text-3xl font-bold mt-3 mb-4">ただの集計ではなく、意思決定レポート。</h3>
+                    <p className="text-cream/70 leading-relaxed">
+                      口コミを一覧化するだけでなく、「今何が起きているか」「何を直すべきか」まで整理して返すことで、
+                      現場改善・CS・営業施策にそのまま使える状態で納品します。
+                    </p>
+                  </div>
+                  <div>
+                    <div className="font-serif text-4xl font-bold">月額5万円〜</div>
+                    <p className="text-cream/50 text-sm mt-2">対象媒体数・競合比較・納品頻度で個別見積</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

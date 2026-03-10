@@ -267,6 +267,79 @@ const ProductPage: React.FC = () => {
         </div>
       </section>
 
+      {/* Plan 6: Weekly Review Report */}
+      <section id="review-report" className="py-32 border-b border-subtle bg-accent-light/30">
+        <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
+            <div className="lg:col-span-3">
+              <span className="font-mono text-5xl font-light text-subtle">06</span>
+            </div>
+            <div className="lg:col-span-9">
+              <div className="flex flex-col sm:flex-row sm:items-end gap-4 mb-6">
+                <h2 className="font-serif text-3xl md:text-4xl font-bold text-ink">
+                  週次口コミインサイトレポート
+                </h2>
+                <span className="font-serif text-2xl text-accent font-bold">月5万円〜</span>
+              </div>
+              <p className="font-serif text-xl text-accent mb-6">
+                口コミを集めるだけで終わらせず、改善示唆まで毎週納品。
+              </p>
+              <p className="text-warm leading-relaxed text-lg mb-10 max-w-3xl">
+                Googleマップや各種レビュー媒体、SNS上の顧客の声をhonkoma側で収集・整理し、
+                毎週「経営判断に使えるレポート」として納品するサービスです。
+                クライアント側でMac miniや自動化環境を持つ必要はなく、URLや見たい観点を共有いただければ運用可能です。
+              </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-px bg-subtle mb-10">
+                <div className="bg-cream p-6">
+                  <h4 className="font-serif font-bold text-ink mb-2">データ収集</h4>
+                  <p className="text-warm text-sm leading-relaxed">口コミ媒体・競合・指定キーワードを継続ウォッチ。収集基盤はhonkoma側で保有します。</p>
+                </div>
+                <div className="bg-cream p-6">
+                  <h4 className="font-serif font-bold text-ink mb-2">週次レポート</h4>
+                  <p className="text-warm text-sm leading-relaxed">新規口コミ、ポジ/ネガ傾向、頻出トピック、競合比較、次アクションを整理して納品します。</p>
+                </div>
+                <div className="bg-cream p-6">
+                  <h4 className="font-serif font-bold text-ink mb-2">改善示唆</h4>
+                  <p className="text-warm text-sm leading-relaxed">CS・店舗運営・営業導線の改善提案まで含め、単なる集計ではなく意思決定材料として使えます。</p>
+                </div>
+              </div>
+
+              <div className="border-t border-subtle pt-8 mb-10">
+                <h4 className="font-mono text-xs tracking-[0.2em] uppercase text-warm mb-5">毎週の納品イメージ</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {[
+                    '今週の新規口コミまとめ',
+                    '評価変動と頻出キーワード',
+                    'ポジティブ/ネガティブ傾向',
+                    '競合比較',
+                    '優先対応が必要な口コミ',
+                    '次週アクション提案',
+                  ].map((item, i) => (
+                    <div key={i} className="flex items-center gap-2">
+                      <span className="w-1 h-1 bg-accent rounded-full flex-shrink-0"></span>
+                      <span className="text-sm text-ink">{item}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="border-t border-subtle pt-8">
+                <h4 className="font-mono text-xs tracking-[0.2em] uppercase text-warm mb-5">向いている企業</h4>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {['クリニック', '飲食店', '美容サロン', 'スクール', '人材会社', '店舗型サービス'].map((item, i) => (
+                    <div key={i} className="flex items-center gap-2">
+                      <span className="w-1 h-1 bg-accent rounded-full flex-shrink-0"></span>
+                      <span className="text-sm text-ink">{item}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* FAQ */}
       <section id="faq" className="py-32 border-b border-subtle">
         <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
