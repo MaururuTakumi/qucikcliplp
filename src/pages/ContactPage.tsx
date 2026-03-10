@@ -34,13 +34,7 @@ const ContactPage: React.FC = () => {
         body: JSON.stringify(data),
       });
 
-      // Telegram通知（即時通知）
-      fetch('https://mwnmobsfwkflcgorzsan.supabase.co/functions/v1/webhook-contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      }).catch(() => {});
-
+      // GAS側でスプレッドシート記録 + Telegram即時通知をまとめて処理
       setSubmitStatus('success');
       e.currentTarget.reset();
       if (window.gtag) {
