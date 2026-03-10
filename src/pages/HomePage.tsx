@@ -285,10 +285,10 @@ const HomePage: React.FC = () => {
             </div>
             <div className="lg:col-span-9">
               <h2 className="font-serif text-4xl md:text-5xl font-bold leading-tight text-ink mb-5">
-                導入事例
+                お客様の声
               </h2>
               <p className="text-warm text-lg leading-relaxed">
-                業種・規模を問わず、実際の業務課題を解決した事例をご紹介します。
+                AIエージェント派遣・業務自動化を導入いただいた企業様の声をご紹介します。
               </p>
             </div>
           </div>
@@ -296,31 +296,39 @@ const HomePage: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-subtle">
             {[
               {
+                company: 'A社 代表取締役様',
                 industry: '医療クリニック',
-                project: 'LINE問い合わせ自動化',
-                result: '月30名の新規患者獲得に貢献',
-                detail: '受付への電話問い合わせをLINEチャットボットで一次対応。予約誘導まで自動化。',
+                quote: '受付の電話が目に見えて減りました。スタッフが「余裕ができた」と言ってくれたのが一番嬉しかったですね。',
               },
               {
-                industry: 'IT企業',
-                project: '経費・請求処理の自動化',
-                result: '月40時間の工数削減',
-                detail: '手入力だった経費精算・請求書処理をAIで自動分類・入力。担当者の負担を大幅軽減。',
+                company: 'B社 経営企画部 部長様',
+                industry: 'ITサービス',
+                quote: '月40時間の工数削減。経理チームが「この仕事、楽しくなった」と言い始めたんです。',
               },
               {
-                industry: 'コンサルティング会社',
-                project: '提案書自動生成',
-                result: '営業リードタイム50%短縮',
-                detail: '商談ログとテンプレートからAIが提案書のドラフトを自動生成。確認・修正のみで完成。',
+                company: 'C社 営業本部 本部長様',
+                industry: 'コンサルティング',
+                quote: '提案書作成が半分以下の時間に。営業チームの商談件数が1.5倍になりました。',
               },
-            ].map((caseItem, i) => (
+            ].map((item, i) => (
               <div key={i} className="bg-cream p-8 md:p-10">
-                <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">{caseItem.industry}</span>
-                <h3 className="font-serif text-xl font-bold text-ink mt-4 mb-2">{caseItem.project}</h3>
-                <p className="text-accent font-bold text-lg mb-4">{caseItem.result}</p>
-                <p className="text-warm text-sm leading-relaxed">{caseItem.detail}</p>
+                <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">{item.industry}</span>
+                <p className="font-serif text-lg text-ink mt-4 mb-4 leading-relaxed">
+                  "{item.quote}"
+                </p>
+                <p className="text-warm text-sm font-medium">--- {item.company}</p>
               </div>
             ))}
+          </div>
+
+          <div className="mt-12 text-center">
+            <Link
+              to="/case-studies"
+              className="group inline-flex items-center px-8 py-4 border border-ink text-ink text-base font-medium tracking-wide hover:bg-ink hover:text-cream transition-all duration-300"
+            >
+              導入事例をもっと見る
+              <ArrowRight className="ml-3 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+            </Link>
           </div>
         </div>
       </section>

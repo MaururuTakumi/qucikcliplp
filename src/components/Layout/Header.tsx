@@ -10,6 +10,7 @@ const Header: React.FC = () => {
     { name: 'ホーム', href: '/' },
     { name: '会社概要', href: '/about' },
     { name: 'サービス', href: '/product' },
+    { name: '導入事例', href: '/case-studies' },
     { name: 'メンバー', href: '/team' },
   ];
 
