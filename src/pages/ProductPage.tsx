@@ -279,7 +279,7 @@ const ProductPage: React.FC = () => {
                 <h2 className="font-serif text-3xl md:text-4xl font-bold text-ink">
                   週次口コミインサイトレポート
                 </h2>
-                <span className="font-serif text-2xl text-accent font-bold">月5万円〜</span>
+                <span className="font-serif text-2xl text-accent font-bold">初期5万円 + 月1.5万円〜</span>
               </div>
               <p className="font-serif text-xl text-accent mb-6">
                 口コミを集めるだけで終わらせず、改善示唆まで毎週納品。
@@ -287,17 +287,18 @@ const ProductPage: React.FC = () => {
               <p className="text-warm leading-relaxed text-lg mb-10 max-w-3xl">
                 Googleマップや各種レビュー媒体、SNS上の顧客の声をhonkoma側で収集・整理し、
                 毎週「経営判断に使えるレポート」として納品するサービスです。
+                初期セットアップで対象媒体・競合・レポートフォーマットを設計し、その後は月額で継続運用します。
                 クライアント側でMac miniや自動化環境を持つ必要はなく、URLや見たい観点を共有いただければ運用可能です。
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-px bg-subtle mb-10">
                 <div className="bg-cream p-6">
-                  <h4 className="font-serif font-bold text-ink mb-2">データ収集</h4>
-                  <p className="text-warm text-sm leading-relaxed">口コミ媒体・競合・指定キーワードを継続ウォッチ。収集基盤はhonkoma側で保有します。</p>
+                  <h4 className="font-serif font-bold text-ink mb-2">初期セットアップ</h4>
+                  <p className="text-warm text-sm leading-relaxed">対象媒体・競合・見たい観点・納品フォーマットを設計。初期費用5万円で立ち上げます。</p>
                 </div>
                 <div className="bg-cream p-6">
-                  <h4 className="font-serif font-bold text-ink mb-2">週次レポート</h4>
-                  <p className="text-warm text-sm leading-relaxed">新規口コミ、ポジ/ネガ傾向、頻出トピック、競合比較、次アクションを整理して納品します。</p>
+                  <h4 className="font-serif font-bold text-ink mb-2">週次レポート運用</h4>
+                  <p className="text-warm text-sm leading-relaxed">新規口コミ、ポジ/ネガ傾向、頻出トピック、競合比較、次アクションを月1.5万円〜で継続納品します。</p>
                 </div>
                 <div className="bg-cream p-6">
                   <h4 className="font-serif font-bold text-ink mb-2">改善示唆</h4>

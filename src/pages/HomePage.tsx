@@ -245,7 +245,7 @@ const HomePage: React.FC = () => {
                     </p>
                   </div>
                   <div>
-                    <div className="font-serif text-4xl font-bold">月額5万円〜</div>
+                    <div className="font-serif text-4xl font-bold">初期5万円 + 月1.5万円〜</div>
                     <p className="text-cream/50 text-sm mt-2">対象媒体数・競合比較・納品頻度で個別見積</p>
                   </div>
                 </div>
