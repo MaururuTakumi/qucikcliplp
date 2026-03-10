@@ -9,7 +9,7 @@ const ProductPage: React.FC = () => {
 
   return (
     <div className="bg-cream">
-      {/* Hero */}
+      {/* ===== HERO ===== */}
       <section className="py-24 md:py-32 border-b border-subtle">
         <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -17,22 +17,217 @@ const ProductPage: React.FC = () => {
               <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">Services & Pricing</span>
             </div>
             <div className="lg:col-span-9">
-              <h1 className="font-serif text-5xl md:text-6xl font-bold text-ink mb-6">AIエージェント派遣・サービス一覧</h1>
+              <h1 className="font-serif text-5xl md:text-6xl font-bold text-ink mb-6">
+                AIエージェント派遣・サービス一覧
+              </h1>
               <p className="text-warm text-xl leading-relaxed max-w-2xl">
                 御社の課題や規模に合わせて、最適なAIエージェントを設計・派遣します。<br />
-                すべてのプランで初回相談は無料です。
+                初回相談は無料です。まずはお気軽にご連絡ください。
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Plan 1: Standard */}
-      <section id="standard" className="py-32 border-b border-subtle">
+      {/* ===== TRUST / WHY HONKOMA ===== */}
+      <section className="py-16 border-b border-subtle bg-accent-light/10">
+        <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            <div className="lg:col-span-3">
+              <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">Why honkoma</span>
+            </div>
+            <div className="lg:col-span-9">
+              <p className="text-ink text-lg leading-relaxed max-w-3xl">
+                honkomaはツールを提案するだけでなく、
+                <strong>実際の業務を担うAIエージェントを設計・実装・運用</strong>まで一気通貫で支援します。
+                「AIを入れたが使われない」ではなく、現場で動き続けるエージェントを届けることが私たちのゴールです。
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+                {[
+                  { label: '最短2週間', desc: '初期版のリリース目安' },
+                  { label: '実務を持つ設計', desc: 'ツール提案でなく運用まで伴走' },
+                  { label: '初回相談無料', desc: '内容・規模を問わず対応' },
+                ].map((item, i) => (
+                  <div key={i} className="border-l-2 border-accent pl-4">
+                    <div className="font-serif text-xl font-bold text-ink">{item.label}</div>
+                    <div className="font-mono text-xs text-warm mt-1 tracking-wide">{item.desc}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== PLAN 01: AIエージェント派遣（メインサービス）===== */}
+      <section id="ai-agent" className="py-32 border-b border-subtle">
         <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
             <div className="lg:col-span-3">
               <span className="font-mono text-5xl font-light text-subtle">01</span>
+              <div className="mt-4">
+                <span className="inline-block font-mono text-xs tracking-widest uppercase text-accent border border-accent px-2 py-1">
+                  主力サービス
+                </span>
+              </div>
+            </div>
+            <div className="lg:col-span-9">
+              <div className="flex flex-col sm:flex-row sm:items-end gap-4 mb-6">
+                <h2 className="font-serif text-3xl md:text-4xl font-bold text-ink">
+                  AIエージェント派遣
+                </h2>
+                <span className="font-serif text-2xl text-accent font-bold">初期15万円 + 月5万円〜 + AI利用料</span>
+              </div>
+              <p className="font-serif text-xl text-accent mb-6">
+                御社の業務を担うAIエージェントを、設計から運用まで一気通貫で提供。
+              </p>
+              <p className="text-warm leading-relaxed text-lg mb-10 max-w-2xl">
+                「人を採る前に、AIエージェントを1人増やす」。
+                御社の業務に特化したAIエージェントを開発し、継続的に運用します。
+                口コミ分析、問い合わせ対応、レポート自動生成、AI秘書など、
+                実際の業務を持つエージェントを月額で派遣するのがhonkomaの中心サービスです。
+              </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-px bg-subtle mb-10">
+                <div className="bg-cream p-6">
+                  <h4 className="font-serif font-bold text-ink mb-2">初期設計・開発</h4>
+                  <p className="text-warm text-sm leading-relaxed">業務ヒアリングから要件定義・AIエージェントの設計・実装まで。初期費用15万円（規模により変動）。</p>
+                </div>
+                <div className="bg-cream p-6">
+                  <h4 className="font-serif font-bold text-ink mb-2">月額運用・改善</h4>
+                  <p className="text-warm text-sm leading-relaxed">エージェントの保守・改善・運用サポート。月額5万円〜。稼働状況を定期レポートでお知らせします。</p>
+                </div>
+                <div className="bg-cream p-6">
+                  <h4 className="font-serif font-bold text-ink mb-2">AI利用料（実費）</h4>
+                  <p className="text-warm text-sm leading-relaxed">AI APIの使用量に応じた従量課金。月数千円〜数万円程度が一般的。毎月利用状況をレポート。</p>
+                </div>
+              </div>
+
+              <div className="border-t border-subtle pt-8">
+                <h4 className="font-mono text-xs tracking-[0.2em] uppercase text-warm mb-5">AIエージェントの活用例</h4>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {[
+                    '口コミ収集・週次レポート',
+                    '問い合わせ一次対応',
+                    'ドキュメント自動生成',
+                    '社内FAQ・ナレッジ対応',
+                    'メール下書き・日程調整',
+                    '営業補助・商談ログ整理',
+                  ].map((item, i) => (
+                    <div key={i} className="flex items-center gap-2">
+                      <span className="w-1 h-1 bg-accent rounded-full flex-shrink-0"></span>
+                      <span className="text-sm text-ink">{item}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== PLAN 02: 週次口コミインサイトレポート ===== */}
+      <section id="review-report" className="py-32 border-b border-subtle bg-accent-light/20">
+        <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
+            <div className="lg:col-span-3">
+              <span className="font-mono text-5xl font-light text-subtle">02</span>
+              <div className="mt-4">
+                <span className="inline-block font-mono text-xs tracking-widest uppercase text-warm border border-subtle px-2 py-1">
+                  エージェント活用例
+                </span>
+              </div>
+            </div>
+            <div className="lg:col-span-9">
+              <div className="flex flex-col sm:flex-row sm:items-end gap-4 mb-6">
+                <h2 className="font-serif text-3xl md:text-4xl font-bold text-ink">
+                  週次口コミインサイトレポート
+                </h2>
+                <span className="font-serif text-2xl text-accent font-bold">初期5万円 + 月1.5万円〜</span>
+              </div>
+              <p className="font-serif text-xl text-accent mb-6">
+                口コミを集めるだけで終わらせず、改善示唆まで毎週納品。
+              </p>
+              <p className="text-warm leading-relaxed text-lg mb-10 max-w-3xl">
+                Googleマップや各種レビュー媒体、SNS上の顧客の声をhonkoma側で収集・整理し、
+                毎週「経営判断に使えるレポート」として納品するサービスです。
+                初期セットアップで対象媒体・競合・レポートフォーマットを設計し、その後は月額で継続運用します。
+                クライアント側でシステムや自動化環境を持つ必要はなく、
+                URLや見たい観点を共有いただければ運用可能です。
+              </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-px bg-subtle mb-10">
+                <div className="bg-cream p-6">
+                  <h4 className="font-serif font-bold text-ink mb-2">初期セットアップ</h4>
+                  <p className="text-warm text-sm leading-relaxed">対象媒体・競合・見たい観点・納品フォーマットを設計。初期費用5万円で立ち上げます。</p>
+                </div>
+                <div className="bg-cream p-6">
+                  <h4 className="font-serif font-bold text-ink mb-2">週次レポート運用</h4>
+                  <p className="text-warm text-sm leading-relaxed">新規口コミ・ポジ/ネガ傾向・頻出トピック・競合比較・次アクションを月1.5万円〜で継続納品。</p>
+                </div>
+                <div className="bg-cream p-6">
+                  <h4 className="font-serif font-bold text-ink mb-2">意思決定まで支援</h4>
+                  <p className="text-warm text-sm leading-relaxed">CS・店舗運営・営業導線の改善提案まで含め、単なる集計ではなく意思決定材料として使えます。</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 border-t border-subtle pt-8 mb-8">
+                <div>
+                  <h4 className="font-mono text-xs tracking-[0.2em] uppercase text-warm mb-5">毎週の納品イメージ</h4>
+                  <div className="space-y-2">
+                    {[
+                      '今週の新規口コミまとめ',
+                      '評価変動と頻出キーワード',
+                      'ポジティブ/ネガティブ傾向',
+                      '競合比較',
+                      '優先対応が必要な口コミ',
+                      '次週アクション提案',
+                    ].map((item, i) => (
+                      <div key={i} className="flex items-center gap-2">
+                        <span className="w-1 h-1 bg-accent rounded-full flex-shrink-0"></span>
+                        <span className="text-sm text-ink">{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <h4 className="font-mono text-xs tracking-[0.2em] uppercase text-warm mb-5">向いている企業</h4>
+                  <div className="space-y-2">
+                    {[
+                      'クリニック / 医療機関',
+                      '飲食店 / 店舗ビジネス',
+                      '美容サロン',
+                      'スクール / コーチング',
+                      '人材会社 / 採用サービス',
+                      '高単価商材の営業組織',
+                    ].map((item, i) => (
+                      <div key={i} className="flex items-center gap-2">
+                        <span className="w-1 h-1 bg-accent rounded-full flex-shrink-0"></span>
+                        <span className="text-sm text-ink">{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-ink text-cream p-8">
+                <h3 className="font-serif text-xl font-bold mb-2">ただの集計ではなく、意思決定レポート。</h3>
+                <p className="text-cream/60 text-sm leading-relaxed">
+                  「今何が起きているか」「何を直すべきか」まで整理して返すことで、
+                  現場改善・CS・営業施策にそのまま使える状態で納品します。
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== PLAN 03: スタンダード ===== */}
+      <section id="standard" className="py-32 border-b border-subtle">
+        <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
+            <div className="lg:col-span-3">
+              <span className="font-mono text-5xl font-light text-subtle">03</span>
             </div>
             <div className="lg:col-span-9">
               <div className="flex flex-col sm:flex-row sm:items-end gap-4 mb-6">
@@ -77,68 +272,19 @@ const ProductPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Plan 2: Enterprise */}
-      <section id="enterprise" className="py-32 border-b border-subtle">
-        <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
-            <div className="lg:col-span-3">
-              <span className="font-mono text-5xl font-light text-subtle">02</span>
-            </div>
-            <div className="lg:col-span-9">
-              <div className="flex flex-col sm:flex-row sm:items-end gap-4 mb-6">
-                <h2 className="font-serif text-3xl md:text-4xl font-bold text-ink">
-                  エンタープライズ
-                </h2>
-                <span className="font-serif text-2xl text-accent font-bold">月100〜200万円</span>
-              </div>
-              <p className="font-serif text-xl text-accent mb-6">
-                大規模なAI導入・業務改革を、専任チームが伴走。
-              </p>
-              <p className="text-warm leading-relaxed text-lg mb-10 max-w-2xl">
-                全社的なAI導入や複数部門にまたがる業務自動化など、大規模プロジェクトに対応。
-                専任チームが御社に深く入り込み、戦略策定から実装・運用まで一気通貫でサポートします。
-              </p>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-subtle mb-10">
-                <div className="bg-cream p-6">
-                  <h4 className="font-serif font-bold text-ink mb-2">専任チームによる伴走</h4>
-                  <p className="text-warm text-sm leading-relaxed">御社専属のプロジェクトチームを編成。深い業務理解に基づいた最適なソリューションを提供。</p>
-                </div>
-                <div className="bg-cream p-6">
-                  <h4 className="font-serif font-bold text-ink mb-2">全社規模の導入支援</h4>
-                  <p className="text-warm text-sm leading-relaxed">複数部門へのAI導入、全社的な業務改革、社員向け研修まで包括的に対応。</p>
-                </div>
-              </div>
-
-              <div className="border-t border-subtle pt-8">
-                <h4 className="font-mono text-xs tracking-[0.2em] uppercase text-warm mb-5">含まれるサービス</h4>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {['全社AI戦略策定', '複数部門の業務分析', 'カスタムAI開発', '社員向け研修', '専任PM配置', '優先サポート'].map((item, i) => (
-                    <div key={i} className="flex items-center gap-2">
-                      <span className="w-1 h-1 bg-accent rounded-full flex-shrink-0"></span>
-                      <span className="text-sm text-ink">{item}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Plan 3: Advisory */}
+      {/* ===== PLAN 04: 顧問相談 ===== */}
       <section id="advisory" className="py-32 border-b border-subtle">
         <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
             <div className="lg:col-span-3">
-              <span className="font-mono text-5xl font-light text-subtle">03</span>
+              <span className="font-mono text-5xl font-light text-subtle">04</span>
             </div>
             <div className="lg:col-span-9">
               <div className="flex flex-col sm:flex-row sm:items-end gap-4 mb-6">
                 <h2 className="font-serif text-3xl md:text-4xl font-bold text-ink">
                   顧問相談
                 </h2>
-                <span className="font-serif text-2xl text-accent font-bold">月15万円</span>
+                <span className="font-serif text-2xl text-accent font-bold">月15万円〜</span>
               </div>
               <p className="font-serif text-xl text-accent mb-6">
                 AI活用の戦略パートナーとして、継続的にアドバイス。
@@ -155,7 +301,7 @@ const ProductPage: React.FC = () => {
                 </div>
                 <div className="bg-cream p-6">
                   <h4 className="font-serif font-bold text-ink mb-2">随時相談対応</h4>
-                  <p className="text-warm text-sm leading-relaxed">チャット・メールでいつでもAIに関する相談が可能。技術選定や導入判断をサポート。</p>
+                  <p className="text-warm text-sm leading-relaxed">チャット・メールでいつでも相談可能。技術選定や導入判断をサポートします。</p>
                 </div>
               </div>
 
@@ -175,12 +321,12 @@ const ProductPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Plan 4: Spot */}
+      {/* ===== PLAN 05: スポット相談 ===== */}
       <section id="spot" className="py-32 border-b border-subtle">
         <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
             <div className="lg:col-span-3">
-              <span className="font-mono text-5xl font-light text-subtle">04</span>
+              <span className="font-mono text-5xl font-light text-subtle">05</span>
             </div>
             <div className="lg:col-span-9">
               <div className="flex flex-col sm:flex-row sm:items-end gap-4 mb-6">
@@ -213,159 +359,10 @@ const ProductPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Plan 5: AI Agent */}
-      <section id="ai-agent" className="py-32 border-b border-subtle">
+      {/* ===== FAQ ===== */}
+      <section id="faq" className="py-28 border-b border-subtle">
         <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
-            <div className="lg:col-span-3">
-              <span className="font-mono text-5xl font-light text-subtle">05</span>
-            </div>
-            <div className="lg:col-span-9">
-              <div className="flex flex-col sm:flex-row sm:items-end gap-4 mb-6">
-                <h2 className="font-serif text-3xl md:text-4xl font-bold text-ink">
-                  AIエージェント派遣
-                </h2>
-                <span className="font-serif text-2xl text-accent font-bold">初期15万円+月5万円+AI利用料</span>
-              </div>
-              <p className="font-serif text-xl text-accent mb-6">
-                御社専用のAIエージェントを開発・運用。
-              </p>
-              <p className="text-warm leading-relaxed text-lg mb-10 max-w-2xl">
-                御社の業務に特化したAIエージェントを開発し、継続的に運用します。
-                カスタマーサポート、データ処理、ドキュメント作成など、
-                様々な業務をAIエージェントが代行。人手不足の解消と業務効率化を実現します。
-              </p>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-px bg-subtle mb-10">
-                <div className="bg-cream p-6">
-                  <h4 className="font-serif font-bold text-ink mb-2">初期開発</h4>
-                  <p className="text-warm text-sm leading-relaxed">御社の業務に合わせたAIエージェントの設計・開発。初期費用15万円。</p>
-                </div>
-                <div className="bg-cream p-6">
-                  <h4 className="font-serif font-bold text-ink mb-2">月額運用</h4>
-                  <p className="text-warm text-sm leading-relaxed">AIエージェントの保守・改善・運用サポート。月額5万円。</p>
-                </div>
-                <div className="bg-cream p-6">
-                  <h4 className="font-serif font-bold text-ink mb-2">AI利用料</h4>
-                  <p className="text-warm text-sm leading-relaxed">AI APIの実際の使用量に応じた従量課金。利用状況を毎月レポート。</p>
-                </div>
-              </div>
-
-              <div className="border-t border-subtle pt-8">
-                <h4 className="font-mono text-xs tracking-[0.2em] uppercase text-warm mb-5">AIエージェントの活用例</h4>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {['カスタマーサポート', 'データ入力・処理', 'ドキュメント自動作成', '社内FAQ対応', 'メール自動対応', 'レポート自動生成'].map((item, i) => (
-                    <div key={i} className="flex items-center gap-2">
-                      <span className="w-1 h-1 bg-accent rounded-full flex-shrink-0"></span>
-                      <span className="text-sm text-ink">{item}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* AI Agent Dispatch Positioning */}
-      <section className="py-24 border-b border-subtle bg-accent-light/20">
-        <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-            <div className="lg:col-span-3">
-              <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">AI Agent Dispatch</span>
-            </div>
-            <div className="lg:col-span-9">
-              <h2 className="font-serif text-3xl md:text-4xl font-bold text-ink mb-6">
-                honkomaは、御社専用のAIエージェントを設計して派遣します。
-              </h2>
-              <p className="text-warm text-lg leading-relaxed max-w-3xl mb-8">
-                口コミ分析、問い合わせ対応、レポート作成、AI秘書、営業補助など、
-                実際の業務を持つAIエージェントを御社向けに設計・実装・運用します。
-                下記はその代表的なメニューです。
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Plan 6: Weekly Review Report */}
-      <section id="review-report" className="py-32 border-b border-subtle bg-accent-light/30">
-        <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
-            <div className="lg:col-span-3">
-              <span className="font-mono text-5xl font-light text-subtle">06</span>
-            </div>
-            <div className="lg:col-span-9">
-              <div className="flex flex-col sm:flex-row sm:items-end gap-4 mb-6">
-                <h2 className="font-serif text-3xl md:text-4xl font-bold text-ink">
-                  週次口コミインサイトレポート
-                </h2>
-                <span className="font-serif text-2xl text-accent font-bold">初期5万円 + 月1.5万円〜</span>
-              </div>
-              <p className="font-serif text-xl text-accent mb-6">
-                口コミを集めるだけで終わらせず、改善示唆まで毎週納品。
-              </p>
-              <p className="text-warm leading-relaxed text-lg mb-10 max-w-3xl">
-                Googleマップや各種レビュー媒体、SNS上の顧客の声をhonkoma側で収集・整理し、
-                毎週「経営判断に使えるレポート」として納品するサービスです。
-                初期セットアップで対象媒体・競合・レポートフォーマットを設計し、その後は月額で継続運用します。
-                クライアント側でMac miniや自動化環境を持つ必要はなく、URLや見たい観点を共有いただければ運用可能です。
-              </p>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-px bg-subtle mb-10">
-                <div className="bg-cream p-6">
-                  <h4 className="font-serif font-bold text-ink mb-2">初期セットアップ</h4>
-                  <p className="text-warm text-sm leading-relaxed">対象媒体・競合・見たい観点・納品フォーマットを設計。初期費用5万円で立ち上げます。</p>
-                </div>
-                <div className="bg-cream p-6">
-                  <h4 className="font-serif font-bold text-ink mb-2">週次レポート運用</h4>
-                  <p className="text-warm text-sm leading-relaxed">新規口コミ、ポジ/ネガ傾向、頻出トピック、競合比較、次アクションを月1.5万円〜で継続納品します。</p>
-                </div>
-                <div className="bg-cream p-6">
-                  <h4 className="font-serif font-bold text-ink mb-2">改善示唆</h4>
-                  <p className="text-warm text-sm leading-relaxed">CS・店舗運営・営業導線の改善提案まで含め、単なる集計ではなく意思決定材料として使えます。</p>
-                </div>
-              </div>
-
-              <div className="border-t border-subtle pt-8 mb-10">
-                <h4 className="font-mono text-xs tracking-[0.2em] uppercase text-warm mb-5">毎週の納品イメージ</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {[
-                    '今週の新規口コミまとめ',
-                    '評価変動と頻出キーワード',
-                    'ポジティブ/ネガティブ傾向',
-                    '競合比較',
-                    '優先対応が必要な口コミ',
-                    '次週アクション提案',
-                  ].map((item, i) => (
-                    <div key={i} className="flex items-center gap-2">
-                      <span className="w-1 h-1 bg-accent rounded-full flex-shrink-0"></span>
-                      <span className="text-sm text-ink">{item}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="border-t border-subtle pt-8">
-                <h4 className="font-mono text-xs tracking-[0.2em] uppercase text-warm mb-5">向いている企業</h4>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {['クリニック', '飲食店', '美容サロン', 'スクール', '人材会社', '店舗型サービス'].map((item, i) => (
-                    <div key={i} className="flex items-center gap-2">
-                      <span className="w-1 h-1 bg-accent rounded-full flex-shrink-0"></span>
-                      <span className="text-sm text-ink">{item}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* FAQ */}
-      <section id="faq" className="py-32 border-b border-subtle">
-        <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-16">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-14">
             <div className="lg:col-span-3">
               <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">FAQ</span>
             </div>
@@ -376,15 +373,15 @@ const ProductPage: React.FC = () => {
 
           <div className="lg:ml-[25%]">
             {[
-              { q: 'AIの知識がない状態でも相談できますか？', a: 'もちろんです。専門知識は不要です。御社の業務課題をお聞かせいただければ、最適なソリューションをわかりやすくご提案いたします。' },
-              { q: '小規模な企業でも依頼できますか？', a: 'はい。規模に関わらず対応しています。小規模だからこそ効果を実感しやすい自動化施策も多くあります。' },
+              { q: 'AIの知識がない状態でも相談できますか？', a: 'もちろんです。専門知識は不要です。御社の業務課題をお聞きした上で、最適なソリューションをわかりやすくご提案いたします。' },
+              { q: '小規模な企業でも依頼できますか？', a: 'はい。規模に関わらず対応しています。2名体制のクリニックから100名規模の企業まで実績があります。' },
               { q: 'どのプランが自社に合っているかわかりません。', a: '初回相談は無料ですので、まずはお気軽にご相談ください。御社の状況をお伺いした上で、最適なプランをご提案します。' },
-              { q: '導入までどのくらいの期間がかかりますか？', a: 'スポット相談は即日対応可能です。スタンダードプランは1〜2週間、エンタープライズは1〜3ヶ月が目安です。' },
+              { q: '導入までどのくらいの期間がかかりますか？', a: 'AIエージェント派遣・スポット相談は最短2週間で稼働可能です。スタンダードプランは1〜2ヶ月が目安です。' },
               { q: 'AIエージェント派遣のAI利用料はどのくらいですか？', a: 'AI APIの使用量に応じた従量課金となります。利用規模にもよりますが、月数千円〜数万円程度が一般的です。毎月の利用状況をレポートでお知らせします。' },
             ].map((item, index) => (
               <div key={index} className="border-b border-subtle py-8">
                 <h3 className="font-serif text-lg font-bold text-ink mb-3 flex items-start gap-4">
-                  <span className="font-mono text-sm text-accent mt-0.5">Q</span>
+                  <span className="font-mono text-sm text-accent mt-0.5 flex-shrink-0">Q</span>
                   {item.q}
                 </h3>
                 <p className="text-warm leading-relaxed ml-8">{item.a}</p>
@@ -394,13 +391,14 @@ const ProductPage: React.FC = () => {
         </div>
       </section>
 
-      {/* CTA */}
+      {/* ===== CTA ===== */}
       <section className="py-32 bg-ink">
         <div className="max-w-[800px] mx-auto text-center px-6 lg:px-8">
           <h2 className="font-serif text-4xl md:text-5xl font-bold text-cream mb-6">
             まずは無料相談から。
           </h2>
-          <p className="text-cream/50 text-lg mb-12">
+          <p className="text-cream/50 text-lg mb-12 leading-relaxed">
+            「何から始めたらいいかわからない」でも大丈夫。<br />
             御社の課題に合わせて、最適なプランをご提案します。
           </p>
           <Link
@@ -410,6 +408,9 @@ const ProductPage: React.FC = () => {
             無料相談を申し込む
             <ArrowRight className="ml-4 h-5 w-5 group-hover:translate-x-1 transition-transform" />
           </Link>
+          <p className="font-mono text-xs text-cream/30 mt-8 tracking-wide">
+            初回相談は無料です。
+          </p>
         </div>
       </section>
     </div>
