@@ -17,9 +17,9 @@ const ProductPage: React.FC = () => {
               <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">Services & Pricing</span>
             </div>
             <div className="lg:col-span-9">
-              <h1 className="font-serif text-5xl md:text-6xl font-bold text-ink mb-6">サービス・料金</h1>
+              <h1 className="font-serif text-5xl md:text-6xl font-bold text-ink mb-6">AIエージェント派遣・サービス一覧</h1>
               <p className="text-warm text-xl leading-relaxed max-w-2xl">
-                御社の課題や規模に合わせて、最適なプランをお選びいただけます。<br />
+                御社の課題や規模に合わせて、最適なAIエージェントを設計・派遣します。<br />
                 すべてのプランで初回相談は無料です。
               </p>
             </div>
@@ -262,6 +262,27 @@ const ProductPage: React.FC = () => {
                   ))}
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* AI Agent Dispatch Positioning */}
+      <section className="py-24 border-b border-subtle bg-accent-light/20">
+        <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+            <div className="lg:col-span-3">
+              <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">AI Agent Dispatch</span>
+            </div>
+            <div className="lg:col-span-9">
+              <h2 className="font-serif text-3xl md:text-4xl font-bold text-ink mb-6">
+                honkomaは、御社専用のAIエージェントを設計して派遣します。
+              </h2>
+              <p className="text-warm text-lg leading-relaxed max-w-3xl mb-8">
+                口コミ分析、問い合わせ対応、レポート作成、AI秘書、営業補助など、
+                実際の業務を持つAIエージェントを御社向けに設計・実装・運用します。
+                下記はその代表的なメニューです。
+              </p>
             </div>
           </div>
         </div>

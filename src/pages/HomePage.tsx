@@ -57,13 +57,13 @@ const HomePage: React.FC = () => {
             {/* Right: Main content */}
             <div className="lg:col-span-9">
               <h1 className="font-serif text-[clamp(2.5rem,7vw,5.5rem)] font-bold leading-[1.1] tracking-tight text-ink mb-8 opacity-0 animate-fade-up-delay-1">
-                AIエージェントで、<br />
-                御社の業務を<span className="text-accent">自律化</span>する。
+                AIエージェントを、<br />
+                御社に<span className="text-accent">派遣</span>する。
               </h1>
 
               <p className="text-lg md:text-xl text-warm leading-relaxed max-w-2xl mb-12 opacity-0 animate-fade-up-delay-2">
-                ルーティーンワークの自動化からAIエージェント構築まで。<br className="hidden sm:block" />
-                honkomaは構想から実装・運用まで一気通貫で支援します。
+                口コミ分析、LINE返信補助、営業支援、AI秘書まで。<br className="hidden sm:block" />
+                honkomaは御社専用のAIエージェントを設計し、実装・運用まで一気通貫で支援します。
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 opacity-0 animate-fade-up-delay-3">
@@ -89,6 +89,39 @@ const HomePage: React.FC = () => {
         </div>
       </section>
 
+      {/* ===== AGENT POSITIONING ===== */}
+      <section className="py-24 border-t border-subtle bg-accent-light/20">
+        <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+            <div className="lg:col-span-3">
+              <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">Why honkoma</span>
+            </div>
+            <div className="lg:col-span-9">
+              <h2 className="font-serif text-3xl md:text-4xl font-bold leading-tight text-ink mb-6">
+                人を採る前に、AIエージェントを1人増やす。
+              </h2>
+              <p className="text-warm text-lg leading-relaxed max-w-3xl mb-10">
+                honkomaが提供するのは、単なるツール導入ではありません。
+                御社の業務を持ち、毎週のレポート作成・問い合わせ整理・顧客対応補助まで担う
+                「実務を持つAIエージェント」を派遣するサービスです。
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-subtle">
+                {[
+                  { title: 'AI秘書', desc: 'メール下書き、日程調整、社内外の進行管理を補助。' },
+                  { title: '口コミ分析エージェント', desc: 'レビュー収集から改善示唆まで週次でレポート化。' },
+                  { title: '営業支援エージェント', desc: '商談ログ整理、提案補助、次アクションの提示まで対応。' },
+                ].map((item, i) => (
+                  <div key={i} className="bg-cream p-8">
+                    <h3 className="font-serif text-2xl font-bold text-ink mb-3">{item.title}</h3>
+                    <p className="text-warm text-sm leading-relaxed">{item.desc}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ===== SERVICES ===== */}
       <section className="py-32 border-t border-subtle">
         <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
@@ -99,11 +132,11 @@ const HomePage: React.FC = () => {
             </div>
             <div className="lg:col-span-9">
               <h2 className="font-serif text-4xl md:text-5xl font-bold leading-tight text-ink">
-                3つの柱で、<br />御社のDXを推進
+                AIエージェント派遣を軸に、<br />御社の実務を前に進める
               </h2>
               <p className="mt-6 text-warm text-lg max-w-xl">
                 業務分析から導入・運用まで、ワンストップでサポート。<br />
-                御社に最適なAI活用戦略をご提案します。
+                御社に必要なAIエージェントを設計し、実務に入るところまで伴走します。
               </p>
             </div>
           </div>
@@ -181,13 +214,14 @@ const HomePage: React.FC = () => {
         <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
             <div className="lg:col-span-4">
-              <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">New Product</span>
+              <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">Agent Use Case</span>
               <h2 className="font-serif text-4xl md:text-5xl font-bold leading-tight text-ink mt-4 mb-6">
-                週次口コミ<br />インサイトレポート
+                AIエージェント派遣の一例、<br />週次口コミインサイトレポート
               </h2>
               <p className="text-warm text-lg leading-relaxed mb-8">
-                クライアントはURLや見たい観点を送るだけ。honkoma側で口コミを収集・整理し、
-                毎週「経営判断に使えるレポート」として納品します。
+                クライアントはURLや見たい観点を送るだけ。
+                honkoma側で口コミを収集・整理し、毎週「経営判断に使えるレポート」として納品します。
+                これはAIエージェント派遣の具体的な活用例のひとつです。
               </p>
               <div className="space-y-4 mb-10">
                 {productHighlights.map((item, index) => (
