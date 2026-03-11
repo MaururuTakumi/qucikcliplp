@@ -17,12 +17,14 @@ const ProductPage: React.FC = () => {
               <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">Services & Pricing</span>
             </div>
             <div className="lg:col-span-9">
-              <h1 className="font-serif text-5xl md:text-6xl font-bold text-ink mb-6">
-                AIエージェント派遣・サービス一覧
+              <h1 className="font-serif text-5xl md:text-6xl font-bold text-ink mb-6 leading-tight">
+                あなた専属のAI秘書、<br />
+                <span className="text-accent">月5万円</span>から。
               </h1>
               <p className="text-warm text-xl leading-relaxed max-w-2xl">
-                御社の課題や規模に合わせて、最適なAIエージェントを設計・派遣します。<br />
-                初回相談は無料です。まずはお気軽にご連絡ください。
+                メール対応、日程調整、口コミ分析、レポート作成——<br />
+                「人を雇う前に、AIを1人増やす」という選択肢。<br />
+                初回相談は無料です。
               </p>
             </div>
           </div>
@@ -38,9 +40,10 @@ const ProductPage: React.FC = () => {
             </div>
             <div className="lg:col-span-9">
               <p className="text-ink text-lg leading-relaxed max-w-3xl">
-                honkomaはツールを提案するだけでなく、
-                <strong>実際の業務を担うAIエージェントを設計・実装・運用</strong>まで一気通貫で支援します。
-                「AIを入れたが使われない」ではなく、現場で動き続けるエージェントを届けることが私たちのゴールです。
+                honkomaが届けるのはツールではなく、
+                <strong>御社の業務を実際に担うAI秘書</strong>です。
+                設計・構築・運用まで一気通貫。「AIを入れたが使われない」ではなく、
+                毎日の業務で動き続ける存在を届けます。
               </p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
                 {[
@@ -74,18 +77,19 @@ const ProductPage: React.FC = () => {
             <div className="lg:col-span-9">
               <div className="flex flex-col sm:flex-row sm:items-end gap-4 mb-6">
                 <h2 className="font-serif text-3xl md:text-4xl font-bold text-ink">
-                  AIエージェント派遣
+                  AI秘書派遣
                 </h2>
                 <span className="font-serif text-2xl text-accent font-bold">初期15万円 + 月5万円〜 + AI利用料</span>
               </div>
               <p className="font-serif text-xl text-accent mb-6">
-                御社の業務を担うAIエージェントを、設計から運用まで一気通貫で提供。
+                24時間365日、文句も言わず働き続ける——あなた専属のAI秘書。
               </p>
               <p className="text-warm leading-relaxed text-lg mb-10 max-w-2xl">
-                「人を採る前に、AIエージェントを1人増やす」。
-                御社の業務に特化したAIエージェントを開発し、継続的に運用します。
-                口コミ分析、問い合わせ対応、レポート自動生成、AI秘書など、
-                実際の業務を持つエージェントを月額で派遣するのがhonkomaの中心サービスです。
+                人を1人雇えば月30万円。AI秘書なら月5万円から。
+                口コミ分析、問い合わせ対応、レポート自動生成、メール下書き、日程調整——
+                御社の業務に特化したAI秘書を構築し、継続的に運用します。
+                海外ではAIエージェントが年間3,000万円分の業務を週末1回で代替した事例も。
+                同じ仕組みを、日本の中小企業にも。
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-px bg-subtle mb-10">
@@ -104,7 +108,7 @@ const ProductPage: React.FC = () => {
               </div>
 
               <div className="border-t border-subtle pt-8">
-                <h4 className="font-mono text-xs tracking-[0.2em] uppercase text-warm mb-5">AIエージェントの活用例</h4>
+                <h4 className="font-mono text-xs tracking-[0.2em] uppercase text-warm mb-5">AI秘書ができること</h4>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   {[
                     '口コミ収集・週次レポート',
@@ -376,8 +380,8 @@ const ProductPage: React.FC = () => {
               { q: 'AIの知識がない状態でも相談できますか？', a: 'もちろんです。専門知識は不要です。御社の業務課題をお聞きした上で、最適なソリューションをわかりやすくご提案いたします。' },
               { q: '小規模な企業でも依頼できますか？', a: 'はい。規模に関わらず対応しています。2名体制のクリニックから100名規模の企業まで実績があります。' },
               { q: 'どのプランが自社に合っているかわかりません。', a: '初回相談は無料ですので、まずはお気軽にご相談ください。御社の状況をお伺いした上で、最適なプランをご提案します。' },
-              { q: '導入までどのくらいの期間がかかりますか？', a: 'AIエージェント派遣・スポット相談は最短2週間で稼働可能です。スタンダードプランは1〜2ヶ月が目安です。' },
-              { q: 'AIエージェント派遣のAI利用料はどのくらいですか？', a: 'AI APIの使用量に応じた従量課金となります。利用規模にもよりますが、月数千円〜数万円程度が一般的です。毎月の利用状況をレポートでお知らせします。' },
+              { q: '導入までどのくらいの期間がかかりますか？', a: 'AI秘書・スポット相談は最短2週間で稼働可能です。スタンダードプランは1〜2ヶ月が目安です。' },
+              { q: 'AI秘書のAI利用料はどのくらいですか？', a: 'AI APIの使用量に応じた従量課金となります。利用規模にもよりますが、月数千円〜数万円程度が一般的です。毎月の利用状況をレポートでお知らせします。' },
             ].map((item, index) => (
               <div key={index} className="border-b border-subtle py-8">
                 <h3 className="font-serif text-lg font-bold text-ink mb-3 flex items-start gap-4">

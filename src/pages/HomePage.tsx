@@ -4,14 +4,14 @@ import { ArrowRight, ArrowUpRight } from 'lucide-react';
 
 const HomePage: React.FC = () => {
   React.useEffect(() => {
-    document.title = 'honkoma | AIエージェント派遣・業務自動化支援';
+    document.title = 'honkoma | あなた専属のAI秘書、月5万円から';
   }, []);
 
   const services = [
     {
       num: '01',
-      title: 'AIエージェント派遣',
-      description: '御社の業務に特化したAIエージェントを設計・実装・運用。口コミ分析、問い合わせ対応、レポート生成など、実務を持つエージェントを月額で派遣します。',
+      title: 'AI秘書派遣',
+      description: '御社の業務に特化したAI秘書を設計・構築・運用。メール対応、口コミ分析、レポート生成、日程調整——月5万円から、あなた専属の秘書を。',
     },
     {
       num: '02',
@@ -140,7 +140,7 @@ const HomePage: React.FC = () => {
             </div>
             <div className="lg:col-span-9">
               <h2 className="font-serif text-4xl md:text-5xl font-bold leading-tight text-ink">
-                AIエージェント派遣を軸に、<br />御社の実務を前に進める
+                AI秘書が、<br />御社の実務を回す
               </h2>
               <p className="mt-5 text-warm text-lg max-w-xl leading-relaxed">
                 業務分析から導入・運用まで、ワンストップでサポート。
@@ -179,12 +179,12 @@ const HomePage: React.FC = () => {
             <div className="lg:col-span-4">
               <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">Agent in Action</span>
               <h2 className="font-serif text-3xl md:text-4xl font-bold leading-tight text-ink mt-4 mb-5">
-                AIエージェント派遣の活用例：<br />週次口コミインサイトレポート
+                AI秘書の活用例：<br />週次口コミインサイトレポート
               </h2>
               <p className="text-warm text-base leading-relaxed mb-8">
                 URLや見たい観点を送るだけ。
                 honkoma側で口コミを収集・分析し、毎週「経営判断に使えるレポート」として納品します。
-                これはAIエージェント派遣の代表的なユースケースのひとつです。
+                これはAI秘書の代表的なユースケースのひとつです。
               </p>
               <Link
                 to="/product#review-report"
@@ -288,7 +288,7 @@ const HomePage: React.FC = () => {
                 お客様の声
               </h2>
               <p className="text-warm text-lg leading-relaxed">
-                AIエージェント派遣・業務自動化を導入いただいた企業様の声をご紹介します。
+                AI秘書・業務自動化を導入いただいた企業様の声をご紹介します。
               </p>
             </div>
           </div>
@@ -352,7 +352,7 @@ const HomePage: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-cream/10">
             {[
-              { price: '月5万円〜', label: 'AIエージェント派遣', desc: '初期設計+月額運用で実務エージェントを派遣' },
+              { price: '月5万円〜', label: 'AI秘書派遣', desc: 'あなた専属のAI秘書を設計・構築・運用' },
               { price: '月30万円', label: 'スタンダード', desc: '初期セットアップ+継続的な保守運用' },
               { price: '月15万円〜', label: '顧問相談', desc: 'AI活用の戦略相談・技術アドバイス' },
             ].map((plan, i) => (
@@ -393,7 +393,7 @@ const HomePage: React.FC = () => {
           <div className="lg:ml-[25%]">
             {[
               { q: 'どのような企業が対象ですか？', a: '業種・規模を問わず、繰り返し業務が多い企業様が対象です。2名体制のクリニックから100名規模の企業まで対応実績があります。' },
-              { q: '最初にどのくらいの費用がかかりますか？', a: '初回相談は無料です。AIエージェント派遣は初期費用+月額運用費、スタンダードプランは月額30万円〜でご提案しています。' },
+              { q: '最初にどのくらいの費用がかかりますか？', a: '初回相談は無料です。AI秘書は初期15万円+月額5万円〜、スタンダードプランは月額30万円〜でご提案しています。' },
               { q: 'AIの知識がない状態でも相談できますか？', a: 'もちろんです。御社の業務課題をお聞きした上で、最適なソリューションをわかりやすくご提案します。専門知識は一切不要です。' },
               { q: '導入までどのくらいかかりますか？', a: '最短2週間で初期版をリリースできます。スタンダードプランは1〜2ヶ月が目安です。' },
               { q: '効果が出なかった場合は？', a: '成果報酬型プランもご用意しています。まずご相談ください。' },
