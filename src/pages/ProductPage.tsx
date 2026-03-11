@@ -337,7 +337,7 @@ const ProductPage: React.FC = () => {
                 <h2 className="font-serif text-3xl md:text-4xl font-bold text-ink">
                   スポット相談
                 </h2>
-                <span className="font-serif text-2xl text-accent font-bold">3.5万円/時間</span>
+                <span className="font-serif text-2xl text-accent font-bold">3.5〜5万円/時間</span>
               </div>
               <p className="font-serif text-xl text-accent mb-6">
                 必要な時だけ、ピンポイントで専門家に相談。
