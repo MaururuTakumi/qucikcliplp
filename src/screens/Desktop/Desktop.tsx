@@ -6,6 +6,7 @@ import { IntroductionSection } from "./sections/IntroductionSection/Introduction
 import { StepsSection } from "./sections/StepsSection/StepsSection";
 import { UseCaseSection } from "./sections/UseCaseSection/UseCaseSection";
 import { ThreeStepsSection } from "./sections/ThreeStepsSection/ThreeStepsSection";
+import { ClientLogosSection } from "./sections/ClientLogosSection";
 import { supabase } from "../../lib/supabase";
 
 // Global gtag function declaration for TypeScript
@@ -118,6 +119,9 @@ export const Desktop = (): JSX.Element => {
         <section id="hero" aria-label="メインビジュアル">
           <CallToActionSection />
         </section>
+
+        {/* Client Logos / 導入実績 */}
+        <ClientLogosSection />
 
         {/* Use Cases Section */}
         <section id="usecase" aria-label="ユースケース紹介">
