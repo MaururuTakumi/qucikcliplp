@@ -10,6 +10,7 @@ import TeamPage from "./pages/TeamPage";
 import ContactPage from "./pages/ContactPage";
 import PrivacyPage from "./pages/PrivacyPage";
 import CaseStudiesPage from "./pages/CaseStudiesPage";
+import ReviewAIPage from "./pages/ReviewAIPage";
 createRoot(document.getElementById("app") as HTMLElement).render(
   <StrictMode>
     <HelmetProvider>
@@ -21,6 +22,7 @@ createRoot(document.getElementById("app") as HTMLElement).render(
             <Route path="/product" element={<ProductPage />} />
             <Route path="/team" element={<TeamPage />} />
             <Route path="/case-studies" element={<CaseStudiesPage />} />
+            <Route path="/review-ai" element={<ReviewAIPage />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/privacy" element={<PrivacyPage />} />
           </Routes>
