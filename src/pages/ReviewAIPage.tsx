@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
-import { ArrowRight, Clock, MessageSquareWarning, BarChart3, FileText, Star, CheckCircle, AlertCircle, Send, Search, Globe, Bot, Bell, TrendingUp, Mail } from 'lucide-react';
+import {
+  ArrowRight, Star, CheckCircle, AlertCircle, Send, Search, Bot, Bell,
+  TrendingUp, Mail, Shield, BarChart3, Zap, Eye, Lightbulb, Clock,
+} from 'lucide-react';
 
 const ReviewAIPage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
   React.useEffect(() => {
-    document.title = '口コミAI | honkoma';
+    document.title = '口コミAIエージェント | honkoma';
   }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -50,95 +53,202 @@ const ReviewAIPage: React.FC = () => {
     }
   };
 
-  const problems = [
-    { icon: <Clock className="h-5 w-5" />, text: '複数サイトの口コミチェックに毎日30分以上' },
-    { icon: <MessageSquareWarning className="h-5 w-5" />, text: 'ネガティブな口コミへの返信が追いつかない' },
-    { icon: <BarChart3 className="h-5 w-5" />, text: '競合ホテルとの評価差が気になるが分析できていない' },
-    { icon: <FileText className="h-5 w-5" />, text: '四半期レポートに口コミデータを入れたいが工数が足りない' },
-  ];
-
-  const comparisonItems = [
-    { label: '月額費用', honkoma: '5万円〜', competitor: '推定5〜30万円', manual: '0円(人件費別)' },
-    { label: '対応サイト数', honkoma: '5+', competitor: '31', manual: '-' },
-    { label: 'AI分析', honkoma: '◎ QSCA自動判定', competitor: '○ AI分析β版', manual: '×' },
-    { label: '口コミ返信代行', honkoma: '◎ AI下書き+承認制', competitor: '△ ツール提供', manual: '× 手動' },
-    { label: '競合分析', honkoma: '◎ 自動', competitor: '○ エンタープライズのみ', manual: '×' },
-    { label: 'レポート配信', honkoma: '◎ 週次/月次自動配信', competitor: '△ ダッシュボード閲覧', manual: '×' },
-    { label: '導入形態', honkoma: '全部おまかせ(AI秘書型)', competitor: 'SaaSツール(自分で操作)', manual: '-' },
-    { label: '多言語対応', honkoma: '◎ 英/中/韓自動翻訳分析', competitor: '△ オプション', manual: '×' },
-    { label: '初期費用', honkoma: '5〜10万円', competitor: '要問合せ', manual: '0円' },
-    { label: '最適企業規模', honkoma: '1〜30店舗', competitor: '10〜500店舗', manual: '-' },
-  ];
-
-  const steps = [
+  const achievements = [
     {
-      num: '01',
-      title: '口コミ自動収集',
+      metric: '8,000件以上',
+      description: 'Booking.com・Googleマップ・TripAdvisorなど複数サイトから口コミを自動収集',
+    },
+    {
+      metric: '6施設分',
+      description: '口コミデータをAIが自動分析し、QSCA評価レポートを毎週配信',
+    },
+    {
+      metric: '平均2分',
+      description: 'ネガティブ口コミの検知から返信下書き生成まで完了',
+    },
+    {
+      metric: '毎日30分 → 週1回',
+      description: '導入前: 毎日30分以上の口コミチェック → 導入後: 週1回のレポート確認のみ',
+    },
+  ];
+
+  const saasItems = [
+    '自分でダッシュボードを見に行く（Pull型）',
+    '分析結果を自分で読み解く',
+    '返信文を自分で考えて書く',
+    '投稿を自分で作成する',
+    '判断と実行はすべて人間',
+  ];
+
+  const agentItems = [
+    '必要な情報だけ届く（Push型）',
+    'AIが根本原因まで特定して提案',
+    '返信下書きが自動で届く（承認するだけ）',
+    '投稿もAIが自動生成',
+    '人間は「承認ボタン」を押すだけ',
+  ];
+
+  const features = [
+    {
       icon: <Search className="h-6 w-6" />,
-      description: 'Booking.com、Googleマップ、TripAdvisor、Agoda、一休、じゃらんなど主要サイトから口コミを自動収集。手作業は一切不要です。',
-      sites: ['Booking.com', 'Google', 'TripAdvisor', 'Agoda', '一休', 'じゃらん'],
+      title: '口コミ自動収集',
+      description: 'Booking.com, Google, TripAdvisor, Agoda, 一休, じゃらんから24時間自動監視。新着口コミを見逃しません。',
     },
     {
-      num: '02',
-      title: 'AI分析',
+      icon: <BarChart3 className="h-6 w-6" />,
+      title: 'AI分析レポート',
+      description: 'QSCA（品質・接客・清潔さ・雰囲気）を自動判定。週次/月次でLINE・Slackに配信します。',
+    },
+    {
+      icon: <Bell className="h-6 w-6" />,
+      title: 'ネガティブアラート',
+      description: '低評価口コミを即検知→原因分析→改善提案まで自動で通知。初動の遅れを防ぎます。',
+    },
+    {
       icon: <Bot className="h-6 w-6" />,
-      description: 'AIが口コミを自動分類・分析。QSCA（品質・サービス・清潔さ・アメニティ）判定、競合比較、時系列トレンド、ネガティブアラートを生成します。',
-      features: ['QSCA判定', '競合比較', '時系列トレンド', 'ネガティブアラート'],
+      title: '返信下書き自動生成',
+      description: '過去の高評価返信パターンを学習。トーンも施設に合わせてパーソナライズ。承認するだけ。',
     },
     {
-      num: '03',
-      title: 'レポート配信',
-      icon: <Mail className="h-6 w-6" />,
-      description: '週次・月次の分析レポートをLINE、Slack、メールでお届け。ダッシュボードにログインする手間もありません。',
-      channels: ['LINE', 'Slack', 'メール'],
+      icon: <Eye className="h-6 w-6" />,
+      title: '競合モニタリング',
+      description: 'エリア内の競合施設の口コミを自動追跡。「競合が朝食を改善した」等の変化を先回りで通知。',
+    },
+    {
+      icon: <Lightbulb className="h-6 w-6" />,
+      title: '商品企画の示唆',
+      description: '「"ワーケーション"関連口コミが3倍に。新プラン検討の余地あり」等、事業提案まで。',
     },
   ];
 
-  const plans = [
+  const comparisonRows = [
     {
-      name: 'ライト',
-      price: '月5万円',
-      stores: '1〜3店舗',
-      features: ['口コミ自動収集', '週次レポート', '返信下書き'],
-      recommended: false,
+      label: '月額費用',
+      honkoma: '5万円',
+      compA: '推定10〜30万円',
+      compB: '推定5〜20万円',
+      manual: '0円(人件費別)',
+      bold: false,
     },
     {
-      name: 'スタンダード',
-      price: '月10万円',
-      stores: '4〜10店舗',
-      features: ['ライトの全機能', '競合分析', 'ネガティブアラート', 'GBP投稿代行'],
-      recommended: true,
+      label: '初期費用',
+      honkoma: '15万円',
+      compA: '要問合せ(推定20〜50万円)',
+      compB: '要問合せ',
+      manual: '0円',
+      bold: false,
     },
     {
-      name: 'プレミアム',
-      price: '月15〜20万円',
-      stores: '11〜30店舗',
-      features: ['スタンダードの全機能', '月次コンサルティング', 'カスタム分析'],
-      recommended: false,
+      label: '年間コスト目安',
+      honkoma: '75万円',
+      compA: '推定150〜400万円',
+      compB: '推定80〜300万円',
+      manual: '人件費年200万円〜',
+      bold: true,
     },
+    {
+      label: '導入形態',
+      honkoma: 'AIエージェント型(全自動)',
+      compA: 'SaaSツール(自分で操作)',
+      compB: 'SaaSツール(自分で操作)',
+      manual: '手動',
+      bold: false,
+    },
+    {
+      label: '口コミ収集',
+      honkoma: '全自動(24時間)',
+      compA: '自動(API連携)',
+      compB: '自動(API連携)',
+      manual: '手動',
+      bold: false,
+    },
+    {
+      label: '分析',
+      honkoma: 'AIが判断+提案まで',
+      compA: 'ダッシュボード(読み解きは人間)',
+      compB: 'ダッシュボード(読み解きは人間)',
+      manual: '×',
+      bold: false,
+    },
+    {
+      label: '返信',
+      honkoma: 'AI下書き自動生成',
+      compA: 'テンプレート提供',
+      compB: 'テンプレート提供',
+      manual: '手動',
+      bold: false,
+    },
+    {
+      label: '競合分析',
+      honkoma: '自動(変化を先回りで通知)',
+      compA: 'エンタープライズプランのみ',
+      compB: 'オプション',
+      manual: '×',
+      bold: false,
+    },
+    {
+      label: 'レポート',
+      honkoma: 'Push型(LINE/Slackに届く)',
+      compA: 'Pull型(ログインして閲覧)',
+      compB: 'Pull型(ログインして閲覧)',
+      manual: '×',
+      bold: false,
+    },
+    {
+      label: '多言語',
+      honkoma: '自動翻訳分析',
+      compA: 'オプション',
+      compB: '非対応',
+      manual: '×',
+      bold: false,
+    },
+    {
+      label: '人的工数',
+      honkoma: '承認ボタンのみ',
+      compA: 'ダッシュボード操作+判断',
+      compB: 'ダッシュボード操作+判断',
+      manual: '全て手動',
+      bold: false,
+    },
+  ];
+
+  const setupIncludes = [
+    'AIエージェントのパーソナライズ設定',
+    '対象サイトの初期データ収集',
+    '返信トーンの調整・学習',
+    '競合施設の設定',
+  ];
+
+  const monthlyIncludes = [
+    '口コミ自動収集（対象サイト全て）',
+    'AI分析レポート（週次/月次）',
+    '返信下書き自動生成',
+    'ネガティブアラート',
+    '競合モニタリング',
+    'LINE/Slack/メール配信',
   ];
 
   return (
     <div className="bg-cream">
-      {/* ===== HERO ===== */}
+      {/* ===== 1. HERO ===== */}
       <section className="min-h-[90vh] flex items-center relative">
         <div className="max-w-[1200px] mx-auto px-6 lg:px-8 w-full py-24 md:py-32">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-end">
             <div className="lg:col-span-3 opacity-0 animate-fade-up">
               <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">
-                Review AI
+                Review AI Agent
               </span>
             </div>
 
             <div className="lg:col-span-9">
-              <h1 className="font-serif text-[clamp(2.5rem,7vw,5.5rem)] font-bold leading-[1.1] tracking-tight text-ink mb-8 opacity-0 animate-fade-up-delay-1">
-                口コミを、<br />
-                <span className="text-accent">売上</span>に変える。<br />
-                AIが自動で。
+              <h1 className="font-serif text-[clamp(2.5rem,7vw,5rem)] font-bold leading-[1.1] tracking-tight text-ink mb-8 opacity-0 animate-fade-up-delay-1">
+                口コミ対応、<br />
+                もうあなたが<br className="sm:hidden" />
+                やる必要は<span className="text-accent">ありません。</span>
               </h1>
 
               <p className="text-lg md:text-xl text-warm leading-relaxed max-w-2xl mb-12 opacity-0 animate-fade-up-delay-2">
-                Booking.com・Googleマップ・TripAdvisor——散らばる口コミを自動収集し、AI分析レポートをお届け。ツールを渡すのではなく、全部やります。
+                AIエージェントが24時間365日、口コミの収集・分析・返信下書き・レポート作成をすべて自動で行います。あなたは"承認ボタン"を押すだけ。
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 opacity-0 animate-fade-up-delay-3">
@@ -146,7 +256,7 @@ const ReviewAIPage: React.FC = () => {
                   href="#free-diagnosis"
                   className="group inline-flex items-center justify-center px-8 py-4 bg-ink text-cream text-base font-medium tracking-wide hover:bg-accent transition-colors duration-300"
                 >
-                  まずは無料で口コミ診断
+                  まずは無料で診断する
                   <ArrowRight className="ml-3 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                 </a>
               </div>
@@ -157,32 +267,120 @@ const ReviewAIPage: React.FC = () => {
         </div>
       </section>
 
-      {/* ===== 課題セクション ===== */}
+      {/* ===== 2. 導入実績 ===== */}
       <section className="py-28 border-b border-subtle">
         <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-16">
             <div className="lg:col-span-3">
-              <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">Problems</span>
+              <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">Track Record</span>
             </div>
             <div className="lg:col-span-9">
               <h2 className="font-serif text-3xl md:text-4xl font-bold leading-tight text-ink">
-                こんなお悩み、ありませんか？
+                すでに導入済みの宿泊施設での実績
               </h2>
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-subtle lg:ml-[25%]">
-            {problems.map((item, i) => (
-              <div key={i} className="bg-cream p-8 md:p-10 flex items-start gap-4">
-                <span className="text-accent flex-shrink-0 mt-0.5">{item.icon}</span>
-                <p className="font-serif text-lg text-ink leading-relaxed">{item.text}</p>
+            {achievements.map((item, i) => (
+              <div key={i} className="bg-cream p-8 md:p-10">
+                <div className="font-serif text-3xl md:text-4xl font-bold text-accent mb-4">
+                  {item.metric}
+                </div>
+                <p className="text-warm text-sm leading-relaxed">
+                  {item.description}
+                </p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ===== 競合比較表 ===== */}
+      {/* ===== 3. SaaSとの違い ===== */}
+      <section className="py-28 border-b border-subtle bg-accent-light/20">
+        <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-16">
+            <div className="lg:col-span-3">
+              <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">Difference</span>
+            </div>
+            <div className="lg:col-span-9">
+              <h2 className="font-serif text-3xl md:text-4xl font-bold leading-tight text-ink">
+                SaaSツールは"道具を渡す"。<br />
+                honkomaは<span className="text-accent">"全部やる"</span>。
+              </h2>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-subtle lg:ml-[25%]">
+            {/* 左: SaaS */}
+            <div className="bg-cream p-8 md:p-10">
+              <div className="flex items-center gap-2 mb-6">
+                <Clock className="h-4 w-4 text-warm" />
+                <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">
+                  従来のSaaSツール
+                </span>
+              </div>
+              <ul className="space-y-4">
+                {saasItems.map((item, i) => (
+                  <li key={i} className="flex items-start gap-3">
+                    <span className="w-1.5 h-1.5 bg-warm/40 rounded-full flex-shrink-0 mt-2"></span>
+                    <span className="text-warm text-sm leading-relaxed">{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* 右: honkoma */}
+            <div className="bg-accent-light p-8 md:p-10 border-l-2 border-accent">
+              <div className="flex items-center gap-2 mb-6">
+                <Zap className="h-4 w-4 text-accent" />
+                <span className="font-mono text-xs tracking-[0.2em] uppercase text-accent">
+                  honkoma口コミAIエージェント
+                </span>
+              </div>
+              <ul className="space-y-4">
+                {agentItems.map((item, i) => (
+                  <li key={i} className="flex items-start gap-3">
+                    <span className="w-1.5 h-1.5 bg-accent rounded-full flex-shrink-0 mt-2"></span>
+                    <span className="text-ink text-sm leading-relaxed font-medium">{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== 4. AIがやってくれること（6カード） ===== */}
+      <section className="py-28 border-b border-subtle">
+        <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-16">
+            <div className="lg:col-span-3">
+              <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">Features</span>
+            </div>
+            <div className="lg:col-span-9">
+              <h2 className="font-serif text-3xl md:text-4xl font-bold leading-tight text-ink">
+                具体的にAIがやってくれること
+              </h2>
+              <p className="mt-4 text-warm text-lg leading-relaxed">
+                あなたは承認ボタンを押すだけ。残りはすべてAIエージェントが実行します。
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-subtle lg:ml-[25%]">
+            {features.map((feature, i) => (
+              <div key={i} className="bg-cream p-8 md:p-10">
+                <span className="text-accent mb-4 block">{feature.icon}</span>
+                <h3 className="font-serif text-xl font-bold text-ink mb-3">{feature.title}</h3>
+                <p className="text-warm text-sm leading-relaxed">{feature.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ===== 5. 他社比較表 ===== */}
       <section className="py-28 border-b border-subtle">
         <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-16">
@@ -197,86 +395,61 @@ const ReviewAIPage: React.FC = () => {
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[700px]">
+            <table className="w-full min-w-[800px]">
               <thead>
                 <tr className="border-b-2 border-ink">
-                  <th className="py-4 px-4 text-left font-mono text-xs tracking-[0.2em] uppercase text-warm w-[20%]"></th>
-                  <th className="py-4 px-4 text-left w-[30%] bg-accent-light border-x border-accent/20">
-                    <div className="font-serif text-lg font-bold text-accent">honkoma口コミAI</div>
-                    <div className="font-mono text-xs text-warm">AI秘書型</div>
+                  <th className="py-4 px-4 text-left font-mono text-xs tracking-[0.2em] uppercase text-warm w-[14%]">
+                    項目
                   </th>
-                  <th className="py-4 px-4 text-left w-[25%]">
-                    <div className="font-serif text-lg font-bold text-ink">口コミコム(A社)</div>
+                  <th className="py-4 px-4 text-left w-[22%] bg-accent-light border-x border-accent/20">
+                    <div className="font-serif text-lg font-bold text-accent">honkoma口コミAI</div>
+                    <div className="font-mono text-xs text-warm">AIエージェント型</div>
+                  </th>
+                  <th className="py-4 px-4 text-left w-[22%]">
+                    <div className="font-serif text-base font-bold text-ink">口コミ管理SaaS A社</div>
                     <div className="font-mono text-xs text-warm">SaaSツール</div>
                   </th>
-                  <th className="py-4 px-4 text-left w-[25%]">
-                    <div className="font-serif text-lg font-bold text-ink">手動運用</div>
+                  <th className="py-4 px-4 text-left w-[22%]">
+                    <div className="font-serif text-base font-bold text-ink">口コミ管理SaaS B社</div>
+                    <div className="font-mono text-xs text-warm">SaaSツール</div>
+                  </th>
+                  <th className="py-4 px-4 text-left w-[20%]">
+                    <div className="font-serif text-base font-bold text-ink">手動運用</div>
                     <div className="font-mono text-xs text-warm">自社対応</div>
                   </th>
                 </tr>
               </thead>
               <tbody>
-                {comparisonItems.map((item, i) => (
-                  <tr key={i} className="border-b border-subtle">
-                    <td className="py-4 px-4 font-mono text-xs tracking-wide text-warm">{item.label}</td>
-                    <td className="py-4 px-4 text-sm text-ink font-medium bg-accent-light border-x border-accent/20">{item.honkoma}</td>
-                    <td className="py-4 px-4 text-sm text-warm">{item.competitor}</td>
-                    <td className="py-4 px-4 text-sm text-warm">{item.manual}</td>
+                {comparisonRows.map((row, i) => (
+                  <tr key={i} className={`border-b border-subtle ${row.bold ? 'bg-cream' : ''}`}>
+                    <td className={`py-4 px-4 font-mono text-xs tracking-wide text-warm ${row.bold ? 'font-bold text-ink' : ''}`}>
+                      {row.label}
+                    </td>
+                    <td className={`py-4 px-4 text-sm bg-accent-light border-x border-accent/20 ${row.bold ? 'font-serif font-bold text-accent text-lg' : 'text-ink font-medium'}`}>
+                      {row.honkoma}
+                    </td>
+                    <td className={`py-4 px-4 text-sm ${row.bold ? 'font-bold text-ink' : 'text-warm'}`}>
+                      {row.compA}
+                    </td>
+                    <td className={`py-4 px-4 text-sm ${row.bold ? 'font-bold text-ink' : 'text-warm'}`}>
+                      {row.compB}
+                    </td>
+                    <td className={`py-4 px-4 text-sm ${row.bold ? 'font-bold text-ink' : 'text-warm'}`}>
+                      {row.manual}
+                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
 
-          <div className="mt-6 bg-accent-light border border-accent/20 p-6">
-            <p className="text-sm text-ink leading-relaxed">
-              <span className="font-serif font-bold">honkomaはツールを渡すのではなく、全部やって報告だけお届けするAI秘書型サービスです。</span>
-              <span className="text-warm">ダッシュボードにログインする必要はありません。レポートがLINE・Slack・メールで届きます。</span>
-            </p>
-          </div>
+          <p className="mt-6 font-mono text-xs text-warm">
+            ※他社料金は公開情報および見積もり実績に基づく推定値です
+          </p>
         </div>
       </section>
 
-      {/* ===== サービス内容 3ステップ ===== */}
-      <section className="py-28 border-b border-subtle bg-accent-light/20">
-        <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-16">
-            <div className="lg:col-span-3">
-              <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">How it works</span>
-            </div>
-            <div className="lg:col-span-9">
-              <h2 className="font-serif text-3xl md:text-4xl font-bold leading-tight text-ink">
-                3ステップで完結
-              </h2>
-              <p className="mt-4 text-warm text-lg leading-relaxed">
-                お客様がやることは「申し込むだけ」。あとは全部おまかせください。
-              </p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-subtle">
-            {steps.map((step) => (
-              <div key={step.num} className="bg-cream p-8 md:p-10">
-                <div className="flex items-center gap-3 mb-6">
-                  <span className="font-mono text-4xl font-light text-subtle">{step.num}</span>
-                  <span className="text-accent">{step.icon}</span>
-                </div>
-                <h3 className="font-serif text-xl font-bold text-ink mb-3">{step.title}</h3>
-                <p className="text-warm text-sm leading-relaxed mb-6">{step.description}</p>
-                <div className="flex flex-wrap gap-2">
-                  {(step.sites || step.features || step.channels || []).map((tag, i) => (
-                    <span key={i} className="font-mono text-xs px-2 py-1 border border-subtle text-warm">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ===== レポートサンプル ===== */}
+      {/* ===== 6. 月次レポートサンプル ===== */}
       <section className="py-28 border-b border-subtle">
         <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-16">
@@ -317,9 +490,9 @@ const ReviewAIPage: React.FC = () => {
                   <div className="space-y-2">
                     {[
                       { label: 'Q (品質)', score: '8.7', trend: '▲', color: 'text-accent' },
-                      { label: 'S (サービス)', score: '8.2', trend: '→', color: 'text-cream/50' },
+                      { label: 'S (接客)', score: '8.2', trend: '→', color: 'text-cream/50' },
                       { label: 'C (清潔さ)', score: '7.9', trend: '▼', color: 'text-red-400' },
-                      { label: 'A (アメニティ)', score: '8.8', trend: '▲', color: 'text-accent' },
+                      { label: 'A (雰囲気)', score: '8.8', trend: '▲', color: 'text-accent' },
                     ].map((item, i) => (
                       <div key={i} className="flex items-center justify-between">
                         <span className="font-mono text-sm text-cream/60">{item.label}</span>
@@ -366,7 +539,7 @@ const ReviewAIPage: React.FC = () => {
         </div>
       </section>
 
-      {/* ===== 料金プラン ===== */}
+      {/* ===== 7. 料金 ===== */}
       <section className="py-28 bg-ink">
         <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-16">
@@ -375,50 +548,76 @@ const ReviewAIPage: React.FC = () => {
             </div>
             <div className="lg:col-span-9">
               <h2 className="font-serif text-4xl md:text-5xl font-bold leading-tight text-cream">
-                料金プラン
+                料金
               </h2>
               <p className="mt-4 text-cream/50 text-lg leading-relaxed">
-                初期費用: 5〜10万円（全プラン共通）
+                シンプルに、これだけ。
               </p>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-cream/10">
-            {plans.map((plan) => (
-              <div
-                key={plan.name}
-                className={`p-8 md:p-10 ${plan.recommended ? 'bg-accent-light/10 border border-accent/30' : 'bg-ink'}`}
-              >
-                {plan.recommended && (
-                  <span className="inline-block font-mono text-xs tracking-widest uppercase text-accent border border-accent px-2 py-1 mb-4">
-                    推奨
-                  </span>
-                )}
-                <h3 className="font-serif text-2xl font-bold text-cream mb-1">{plan.name}</h3>
-                <div className="font-serif text-4xl font-bold text-cream mb-2">{plan.price}</div>
-                <div className="font-mono text-xs text-cream/40 mb-6">{plan.stores}</div>
-
-                <div className="border-t border-cream/10 pt-6 space-y-3">
-                  {plan.features.map((feature, i) => (
+          <div className="lg:ml-[25%]">
+            <div className="border border-cream/10">
+              {/* 初期セットアップ */}
+              <div className="p-8 md:p-12 border-b border-cream/10">
+                <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-8">
+                  <div>
+                    <span className="font-mono text-xs tracking-[0.2em] uppercase text-cream/40">Initial Setup</span>
+                    <h3 className="font-serif text-2xl font-bold text-cream mt-2">初期セットアップ</h3>
+                  </div>
+                  <div className="text-right">
+                    <div className="font-serif text-4xl md:text-5xl font-bold text-cream">
+                      15<span className="text-2xl">万円</span>
+                    </div>
+                    <span className="font-mono text-xs text-cream/40">税別</span>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {setupIncludes.map((item, i) => (
                     <div key={i} className="flex items-center gap-2">
                       <span className="w-1 h-1 bg-accent rounded-full flex-shrink-0"></span>
-                      <span className="text-sm text-cream/70">{feature}</span>
+                      <span className="text-sm text-cream/70">{item}</span>
                     </div>
                   ))}
                 </div>
               </div>
-            ))}
-          </div>
 
-          <div className="mt-8 text-center">
-            <p className="font-mono text-xs text-cream/30 tracking-wide">
-              初期費用: 5〜10万円（対象サイト数・競合設定により変動）
-            </p>
+              {/* 月額 */}
+              <div className="p-8 md:p-12">
+                <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-8">
+                  <div>
+                    <span className="font-mono text-xs tracking-[0.2em] uppercase text-cream/40">Monthly</span>
+                    <h3 className="font-serif text-2xl font-bold text-cream mt-2">月額</h3>
+                  </div>
+                  <div className="text-right">
+                    <div className="font-serif text-4xl md:text-5xl font-bold text-accent">
+                      5<span className="text-2xl">万円</span>
+                    </div>
+                    <span className="font-mono text-xs text-cream/40">税別・使い放題</span>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {monthlyIncludes.map((item, i) => (
+                    <div key={i} className="flex items-center gap-2">
+                      <span className="w-1 h-1 bg-accent rounded-full flex-shrink-0"></span>
+                      <span className="text-sm text-cream/70">{item}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-8 border border-accent/30 bg-accent-light/5 p-6">
+              <p className="text-sm text-cream/70 leading-relaxed">
+                <Shield className="h-4 w-4 text-accent inline mr-2 -mt-0.5" />
+                他社で見積もりを取ると、同等の機能で<span className="text-cream font-bold">月15〜30万円</span>。honkomaは<span className="text-accent font-bold">月5万円</span>で全部やります。
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ===== 無料診断CTA ===== */}
+      {/* ===== 8. 無料診断CTA ===== */}
       <section id="free-diagnosis" className="py-32">
         <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
@@ -436,7 +635,7 @@ const ReviewAIPage: React.FC = () => {
                 <ul className="space-y-3">
                   {[
                     '現在の口コミ評価スコア',
-                    'QSCA分析（品質・サービス・清潔さ・アメニティ）',
+                    'QSCA分析（品質・接客・清潔さ・雰囲気）',
                     '頻出キーワードとネガティブ傾向',
                     'エリア内の競合比較',
                     '優先改善ポイントの提案',
