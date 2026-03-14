@@ -245,7 +245,7 @@ const ReviewAIPage: React.FC = () => {
               <h1 className="font-serif text-[clamp(2.5rem,7vw,5rem)] font-bold leading-[1.1] tracking-tight text-ink mb-8 opacity-0 animate-fade-up-delay-1">
                 口コミ対応、<br />
                 もうあなたが<br className="sm:hidden" />
-                やる必要は<span className="text-accent">ありません。</span>
+                やる必要は<span className="text-transparent bg-clip-text bg-gradient-to-r from-accent to-accent-hover">ありません。</span>
               </h1>
 
               <p className="text-lg md:text-xl text-warm leading-relaxed max-w-2xl mb-12 opacity-0 animate-fade-up-delay-2">
@@ -284,8 +284,8 @@ const ReviewAIPage: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-subtle lg:ml-[25%]">
             {achievements.map((item, i) => (
-              <div key={i} className="bg-cream p-8 md:p-10">
-                <div className="font-serif text-3xl md:text-4xl font-bold text-accent mb-4">
+              <div key={i} className="bg-cream p-8 md:p-10 hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+                <div className="font-serif text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-accent to-accent-hover mb-4">
                   {item.metric}
                 </div>
                 <p className="text-warm text-sm leading-relaxed">
@@ -297,6 +297,15 @@ const ReviewAIPage: React.FC = () => {
         </div>
       </section>
 
+      {/* Section Divider */}
+      <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
+        <div className="flex items-center gap-4 py-4">
+          <div className="flex-1 h-px bg-subtle"></div>
+          <span className="font-mono text-xs uppercase tracking-widest text-warm">Difference</span>
+          <div className="flex-1 h-px bg-subtle"></div>
+        </div>
+      </div>
+
       {/* ===== 3. SaaSとの違い ===== */}
       <section className="py-28 border-b border-subtle bg-accent-light/20">
         <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
@@ -307,7 +316,7 @@ const ReviewAIPage: React.FC = () => {
             <div className="lg:col-span-9">
               <h2 className="font-serif text-3xl md:text-4xl font-bold leading-tight text-ink">
                 SaaSツールは"道具を渡す"。<br />
-                honkomaは<span className="text-accent">"全部やる"</span>。
+                honkomaは<span className="text-transparent bg-clip-text bg-gradient-to-r from-accent to-accent-hover">"全部やる"</span>。
               </h2>
             </div>
           </div>
@@ -371,7 +380,7 @@ const ReviewAIPage: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-subtle lg:ml-[25%]">
             {features.map((feature, i) => (
-              <div key={i} className="bg-cream p-8 md:p-10">
+              <div key={i} className="bg-cream p-8 md:p-10 hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
                 <span className="text-accent mb-4 block">{feature.icon}</span>
                 <h3 className="font-serif text-xl font-bold text-ink mb-3">{feature.title}</h3>
                 <p className="text-warm text-sm leading-relaxed">{feature.description}</p>
@@ -381,7 +390,16 @@ const ReviewAIPage: React.FC = () => {
         </div>
       </section>
 
-      {/* ===== 5. 他社比較表 ===== */}
+      {/* Section Divider */}
+      <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
+        <div className="flex items-center gap-4 py-4">
+          <div className="flex-1 h-px bg-subtle"></div>
+          <span className="font-mono text-xs uppercase tracking-widest text-warm">Comparison</span>
+          <div className="flex-1 h-px bg-subtle"></div>
+        </div>
+      </div>
+
+      {/* ===== 5. 他社比較表 — Striped Table ===== */}
       <section className="py-28 border-b border-subtle">
         <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-16">
@@ -422,7 +440,12 @@ const ReviewAIPage: React.FC = () => {
               </thead>
               <tbody>
                 {comparisonRows.map((row, i) => (
-                  <tr key={i} className={`border-b border-subtle ${row.bold ? 'bg-cream' : ''}`}>
+                  <tr
+                    key={i}
+                    className={`border-b border-subtle transition-colors duration-200 hover:bg-ink/[0.03] ${
+                      i % 2 === 0 ? 'bg-cream' : 'bg-ink/[0.02]'
+                    } ${row.bold ? '!bg-accent-light/30' : ''}`}
+                  >
                     <td className={`py-4 px-4 font-mono text-xs tracking-wide text-warm ${row.bold ? 'font-bold text-ink' : ''}`}>
                       {row.label}
                     </td>
@@ -618,77 +641,44 @@ const ReviewAIPage: React.FC = () => {
         </div>
       </section>
 
-      {/* ===== 8. 無料診断CTA ===== */}
+      {/* ===== 8. 無料診断CTA — Step Form (1 Column) ===== */}
       <section id="free-diagnosis" className="py-32">
-        <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
-            <div className="lg:col-span-5">
-              <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">Free Diagnosis</span>
-              <h2 className="font-serif text-3xl md:text-4xl font-bold leading-tight text-ink mt-4 mb-6">
-                まずは無料で<br />口コミ診断してみませんか？
-              </h2>
-              <p className="text-warm text-lg leading-relaxed mb-8">
-                ホテル名・施設名を教えていただくだけで、AIが口コミを自動分析。現状の評価・改善ポイント・競合との比較をレポートにまとめてお届けします。
-              </p>
+        <div className="max-w-[700px] mx-auto px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">Free Diagnosis</span>
+            <h2 className="font-serif text-3xl md:text-4xl font-bold leading-tight text-ink mt-4 mb-4">
+              まずは無料で<br />口コミ診断してみませんか？
+            </h2>
+            <p className="text-warm text-lg leading-relaxed">
+              施設のURLを教えていただくだけ。AIが口コミを自動分析し、<br className="hidden md:block" />
+              24時間以内に診断結果をお届けします。
+            </p>
+          </div>
 
-              <div className="border border-subtle p-8">
-                <h3 className="font-serif text-lg font-bold text-ink mb-4">無料診断でわかること</h3>
-                <ul className="space-y-3">
-                  {[
-                    '現在の口コミ評価スコア',
-                    'QSCA分析（品質・接客・清潔さ・雰囲気）',
-                    '頻出キーワードとネガティブ傾向',
-                    'エリア内の競合比較',
-                    '優先改善ポイントの提案',
-                  ].map((item, i) => (
-                    <li key={i} className="flex items-start gap-3">
-                      <span className="w-1 h-1 bg-accent rounded-full flex-shrink-0 mt-2"></span>
-                      <span className="text-warm text-sm">{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+          {submitStatus === 'success' ? (
+            <div className="text-center border border-accent/30 bg-accent-light/20 p-12">
+              <CheckCircle className="h-10 w-10 text-accent mx-auto mb-6" />
+              <h3 className="font-serif text-2xl font-bold text-ink mb-3">お申し込みありがとうございます</h3>
+              <p className="text-warm mb-8">24時間以内に診断結果をお送りします。</p>
+              <Link
+                to="/contact"
+                className="group inline-flex items-center justify-center px-8 py-4 bg-ink text-cream text-base font-medium tracking-wide hover:bg-accent transition-colors duration-300"
+              >
+                <Calendar className="mr-2 h-5 w-5" />
+                今すぐ無料相談を予約する
+                <ArrowRight className="ml-3 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
+              <p className="text-warm text-xs mt-3">30秒で予約完了・オンライン無料相談</p>
             </div>
-
-            <div className="lg:col-span-7">
-              <div className="border border-subtle p-8 md:p-12">
-                <h3 className="font-serif text-2xl font-bold text-ink mb-2">無料口コミ診断フォーム</h3>
-                <p className="text-warm text-sm mb-8">
-                  必要事項をご記入の上、送信してください。24時間以内にご連絡いたします。
-                </p>
-
-                <form className="space-y-8" onSubmit={handleSubmit}>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div>
-                      <label htmlFor="company" className="block font-mono text-xs tracking-wide uppercase text-warm mb-3">
-                        会社名 <span className="text-accent">*</span>
-                      </label>
-                      <input
-                        type="text" id="company" name="company" required
-                        className="w-full px-0 py-3 bg-transparent border-0 border-b border-subtle focus:border-ink focus:ring-0 text-ink transition-colors"
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="name" className="block font-mono text-xs tracking-wide uppercase text-warm mb-3">
-                        お名前 <span className="text-accent">*</span>
-                      </label>
-                      <input
-                        type="text" id="name" name="name" required
-                        className="w-full px-0 py-3 bg-transparent border-0 border-b border-subtle focus:border-ink focus:ring-0 text-ink transition-colors"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label htmlFor="email" className="block font-mono text-xs tracking-wide uppercase text-warm mb-3">
-                      メールアドレス <span className="text-accent">*</span>
-                    </label>
-                    <input
-                      type="email" id="email" name="email" required
-                      className="w-full px-0 py-3 bg-transparent border-0 border-b border-subtle focus:border-ink focus:ring-0 text-ink transition-colors"
-                    />
-                  </div>
-
+          ) : (
+            <form className="space-y-0" onSubmit={handleSubmit}>
+              {/* Step 1 */}
+              <div className="border border-subtle p-8 md:p-10">
+                <div className="flex items-center gap-3 mb-6">
+                  <span className="w-8 h-8 bg-ink text-cream flex items-center justify-center font-mono text-sm font-bold flex-shrink-0">1</span>
+                  <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">診断したい施設</span>
+                </div>
+                <div className="space-y-6">
                   <div>
                     <label htmlFor="facilityName" className="block font-mono text-xs tracking-wide uppercase text-warm mb-3">
                       施設名 <span className="text-accent">*</span>
@@ -699,10 +689,9 @@ const ReviewAIPage: React.FC = () => {
                       className="w-full px-0 py-3 bg-transparent border-0 border-b border-subtle focus:border-ink focus:ring-0 text-ink transition-colors placeholder:text-subtle"
                     />
                   </div>
-
                   <div>
                     <label htmlFor="facilityUrl" className="block font-mono text-xs tracking-wide uppercase text-warm mb-3">
-                      施設URL（任意）
+                      施設URL（Booking.com / Googleマップ等）
                     </label>
                     <input
                       type="url" id="facilityUrl" name="facilityUrl"
@@ -710,58 +699,88 @@ const ReviewAIPage: React.FC = () => {
                       className="w-full px-0 py-3 bg-transparent border-0 border-b border-subtle focus:border-ink focus:ring-0 text-ink transition-colors placeholder:text-subtle"
                     />
                   </div>
-
-                  {submitStatus === 'success' && (
-                    <div className="text-center border border-accent/30 bg-accent-light/20 p-8">
-                      <CheckCircle className="h-8 w-8 text-accent mx-auto mb-4" />
-                      <h3 className="font-serif text-2xl font-bold text-ink mb-2">お申し込みありがとうございます</h3>
-                      <p className="text-warm text-sm mb-6">24時間以内にご連絡いたします。</p>
-                      <Link
-                        to="/contact"
-                        className="group inline-flex items-center justify-center px-8 py-4 bg-ink text-cream text-base font-medium tracking-wide hover:bg-accent transition-colors duration-300"
-                      >
-                        <Calendar className="mr-2 h-5 w-5" />
-                        今すぐ無料相談を予約する
-                        <ArrowRight className="ml-3 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                      </Link>
-                      <p className="text-warm text-xs mt-3">30秒で予約完了・オンライン無料相談</p>
-                    </div>
-                  )}
-
-                  {submitStatus === 'error' && (
-                    <div className="flex items-center gap-2 text-ink border border-accent p-4">
-                      <AlertCircle className="h-4 w-4 text-accent" />
-                      <span className="text-sm">送信に失敗しました。時間をおいて再度お試しください。</span>
-                    </div>
-                  )}
-
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="w-full bg-ink text-cream py-4 font-medium tracking-wide hover:bg-accent transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <div className="animate-spin h-4 w-4 border-2 border-cream/30 border-t-cream rounded-full"></div>
-                        送信中...
-                      </>
-                    ) : (
-                      <>
-                        <Send className="h-4 w-4" />
-                        無料診断を申し込む
-                      </>
-                    )}
-                  </button>
-
-                  <p className="text-xs text-warm text-center">
-                    送信いただいた個人情報は、当社の
-                    <a href="/privacy" className="text-accent hover:underline">プライバシーポリシー</a>
-                    に基づいて適切に管理いたします。
-                  </p>
-                </form>
+                </div>
               </div>
-            </div>
-          </div>
+
+              {/* Step 2 */}
+              <div className="border border-t-0 border-subtle p-8 md:p-10">
+                <div className="flex items-center gap-3 mb-6">
+                  <span className="w-8 h-8 bg-ink text-cream flex items-center justify-center font-mono text-sm font-bold flex-shrink-0">2</span>
+                  <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">お客様情報</span>
+                </div>
+                <div className="space-y-6">
+                  <div>
+                    <label htmlFor="company" className="block font-mono text-xs tracking-wide uppercase text-warm mb-3">
+                      会社名 <span className="text-accent">*</span>
+                    </label>
+                    <input
+                      type="text" id="company" name="company" required
+                      className="w-full px-0 py-3 bg-transparent border-0 border-b border-subtle focus:border-ink focus:ring-0 text-ink transition-colors"
+                    />
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label htmlFor="name" className="block font-mono text-xs tracking-wide uppercase text-warm mb-3">
+                        お名前 <span className="text-accent">*</span>
+                      </label>
+                      <input
+                        type="text" id="name" name="name" required
+                        className="w-full px-0 py-3 bg-transparent border-0 border-b border-subtle focus:border-ink focus:ring-0 text-ink transition-colors"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="email" className="block font-mono text-xs tracking-wide uppercase text-warm mb-3">
+                        メールアドレス <span className="text-accent">*</span>
+                      </label>
+                      <input
+                        type="email" id="email" name="email" required
+                        className="w-full px-0 py-3 bg-transparent border-0 border-b border-subtle focus:border-ink focus:ring-0 text-ink transition-colors"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Step 3 — Submit */}
+              <div className="border border-t-0 border-subtle p-8 md:p-10 bg-ink/[0.02]">
+                <div className="flex items-center gap-3 mb-6">
+                  <span className="w-8 h-8 bg-accent text-cream flex items-center justify-center font-mono text-sm font-bold flex-shrink-0">3</span>
+                  <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">送信</span>
+                </div>
+
+                {submitStatus === 'error' && (
+                  <div className="flex items-center gap-2 text-ink border border-accent p-4 mb-6">
+                    <AlertCircle className="h-4 w-4 text-accent" />
+                    <span className="text-sm">送信に失敗しました。時間をおいて再度お試しください。</span>
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full bg-ink text-cream py-4 font-medium tracking-wide hover:bg-accent transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <div className="animate-spin h-4 w-4 border-2 border-cream/30 border-t-cream rounded-full"></div>
+                      送信中...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="h-4 w-4" />
+                      無料診断を申し込む
+                    </>
+                  )}
+                </button>
+
+                <p className="text-xs text-warm text-center mt-4">
+                  送信いただいた個人情報は、当社の
+                  <Link to="/privacy" className="text-accent hover:underline">プライバシーポリシー</Link>
+                  に基づいて適切に管理いたします。
+                </p>
+              </div>
+            </form>
+          )}
         </div>
       </section>
     </div>

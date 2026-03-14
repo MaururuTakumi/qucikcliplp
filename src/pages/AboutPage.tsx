@@ -7,6 +7,13 @@ const AboutPage: React.FC = () => {
     document.title = '会社概要 | honkoma';
   }, []);
 
+  const metrics = [
+    { value: '200件+', label: '累計お問い合わせ' },
+    { value: '15社+', label: '導入・商談実績' },
+    { value: '最短2週間', label: '初期版リリース' },
+    { value: '98%', label: 'クライアント継続率' },
+  ];
+
   const companyInfo = [
     { label: '商号', value: '株式会社honkoma' },
     { label: '設立年月日', value: '2025年7月' },
@@ -59,7 +66,7 @@ const AboutPage: React.FC = () => {
                 body: '大企業だけでなく、中小企業やスタートアップまで。あらゆる規模の企業がAIの力を活用できる社会を目指します。',
               },
             ].map((item, i) => (
-              <div key={i} className="bg-cream p-8 md:p-12">
+              <div key={i} className="bg-cream p-8 md:p-12 hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
                 <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">{item.label}</span>
                 <h3 className="font-serif text-xl font-bold text-ink mt-4 mb-4">{item.title}</h3>
                 <p className="text-warm text-sm leading-relaxed">{item.body}</p>
@@ -69,7 +76,34 @@ const AboutPage: React.FC = () => {
         </div>
       </section>
 
-      {/* CEO Message */}
+      {/* Metric Counter — Dark Section */}
+      <section className="py-28 bg-ink text-cream">
+        <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-cream/10">
+            {metrics.map((item, i) => (
+              <div key={i} className="bg-ink p-8 md:p-10 text-center">
+                <div className="font-serif text-5xl font-bold mb-3">
+                  {item.value}
+                </div>
+                <p className="font-mono text-xs tracking-widest uppercase text-cream/40">
+                  {item.label}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Section Divider */}
+      <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
+        <div className="flex items-center gap-4 py-4">
+          <div className="flex-1 h-px bg-subtle"></div>
+          <span className="font-mono text-xs uppercase tracking-widest text-warm">Message</span>
+          <div className="flex-1 h-px bg-subtle"></div>
+        </div>
+      </div>
+
+      {/* CEO Message — Blockquote Pullquote */}
       <section className="py-32 border-b border-subtle">
         <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
@@ -78,27 +112,37 @@ const AboutPage: React.FC = () => {
             </div>
             <div className="lg:col-span-5">
               <h2 className="font-serif text-3xl md:text-4xl font-bold text-ink mb-10">代表者メッセージ</h2>
-              <div className="space-y-5 text-warm leading-relaxed">
-                <p>
-                  AIの進化は、ビジネスのあり方を根本から変えつつあります。
-                  しかし、多くの企業にとって「AIをどう使えばいいのか」は依然として大きな課題です。
-                </p>
-                <p>
-                  私たちhonkomaは、そのギャップを埋めるために生まれました。
-                  業務自動化、AI導入支援、AIエージェントの開発・派遣を通じて、
-                  企業の生産性向上と競争力強化を実現します。
-                </p>
-                <p>
-                  「テクノロジーは難しい」と感じている方にこそ、私たちの価値があります。
-                  技術の専門知識がなくても、御社の課題をお聞かせいただければ、
-                  最適な解決策をわかりやすくご提案いたします。
-                </p>
-                <p className="text-ink font-medium">
-                  AIと自動化の力で、御社のビジネスを次のレベルへ。<br />
-                  私たちと一緒に、新しい働き方を創造しましょう。
-                </p>
+              <div className="relative">
+                {/* Decorative opening quote */}
+                <span className="absolute -top-8 -left-4 font-serif text-8xl md:text-9xl text-accent/15 leading-none select-none pointer-events-none" aria-hidden="true">
+                  &ldquo;
+                </span>
+                <div className="space-y-5 text-warm leading-relaxed relative z-10">
+                  <p>
+                    AIの進化は、ビジネスのあり方を根本から変えつつあります。
+                    しかし、多くの企業にとって「AIをどう使えばいいのか」は依然として大きな課題です。
+                  </p>
+                  <p>
+                    私たちhonkomaは、そのギャップを埋めるために生まれました。
+                    業務自動化、AI導入支援、AIエージェントの開発・派遣を通じて、
+                    企業の生産性向上と競争力強化を実現します。
+                  </p>
+                  <p>
+                    「テクノロジーは難しい」と感じている方にこそ、私たちの価値があります。
+                    技術の専門知識がなくても、御社の課題をお聞かせいただければ、
+                    最適な解決策をわかりやすくご提案いたします。
+                  </p>
+                  <p className="text-ink font-medium">
+                    AIと自動化の力で、御社のビジネスを次のレベルへ。<br />
+                    私たちと一緒に、新しい働き方を創造しましょう。
+                  </p>
+                </div>
+                {/* Decorative closing quote */}
+                <span className="absolute -bottom-12 right-0 font-serif text-8xl md:text-9xl text-accent/15 leading-none select-none pointer-events-none" aria-hidden="true">
+                  &rdquo;
+                </span>
               </div>
-              <div className="mt-10 pt-6 border-t border-subtle">
+              <div className="mt-14 pt-6 border-t border-subtle">
                 <p className="font-mono text-xs text-warm">株式会社honkoma</p>
                 <p className="font-serif text-lg font-bold text-ink mt-1">代表取締役CEO 林拓海</p>
               </div>
@@ -116,7 +160,16 @@ const AboutPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Company Info */}
+      {/* Section Divider */}
+      <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
+        <div className="flex items-center gap-4 py-4">
+          <div className="flex-1 h-px bg-subtle"></div>
+          <span className="font-mono text-xs uppercase tracking-widest text-warm">Company</span>
+          <div className="flex-1 h-px bg-subtle"></div>
+        </div>
+      </div>
+
+      {/* Company Info — Hover Table */}
       <section className="py-32 border-b border-subtle">
         <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-16">
@@ -131,7 +184,10 @@ const AboutPage: React.FC = () => {
           <div className="lg:ml-[25%]">
             <div className="border-t border-subtle">
               {companyInfo.map((item, index) => (
-                <div key={index} className="grid grid-cols-1 sm:grid-cols-12 border-b border-subtle py-5">
+                <div
+                  key={index}
+                  className="grid grid-cols-1 sm:grid-cols-12 border-b border-subtle py-5 px-4 -mx-4 hover:bg-accent-light/30 transition-colors cursor-default"
+                >
                   <dt className="sm:col-span-3 font-mono text-xs tracking-wide text-warm uppercase mb-1 sm:mb-0 sm:pt-0.5">
                     {item.label}
                   </dt>
