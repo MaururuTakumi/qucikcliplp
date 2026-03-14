@@ -296,27 +296,41 @@ const HomePage: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-subtle">
             {[
               {
-                company: 'A社 代表取締役様',
                 industry: '医療クリニック',
-                quote: '受付の電話が目に見えて減りました。スタッフが「余裕ができた」と言ってくれたのが一番嬉しかったですね。',
+                metric: '月40h削減',
+                badge: '従業員10名規模',
+                quote: '受付の電話が目に見えて減り、スタッフが患者対応に集中できるようになりました。',
+                role: '代表取締役',
               },
               {
-                company: 'B社 経営企画部 部長様',
                 industry: 'ITサービス',
-                quote: '月40時間の工数削減。経理チームが「この仕事、楽しくなった」と言い始めたんです。',
+                metric: '経理工数半減',
+                badge: '従業員30名規模',
+                quote: '月末の残業がほぼゼロに。経理チームが改善提案に時間を使えるようになりました。',
+                role: '経営企画部 部長',
               },
               {
-                company: 'C社 営業本部 本部長様',
-                industry: 'コンサルティング',
-                quote: '提案書作成が半分以下の時間に。営業チームの商談件数が1.5倍になりました。',
+                industry: '営業組織',
+                metric: '商談件数1.5倍',
+                badge: '従業員20名規模',
+                quote: '提案書作成が半分以下の時間に。若手の提案品質まで底上げされました。',
+                role: '営業本部 本部長',
               },
             ].map((item, i) => (
               <div key={i} className="bg-cream p-8 md:p-10">
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="inline-block px-2.5 py-1 text-xs font-mono font-bold tracking-wide text-accent bg-accent-light/40 rounded-full">
+                    {item.metric}
+                  </span>
+                  <span className="inline-block px-2.5 py-1 text-xs font-mono tracking-wide text-warm bg-ink/5 rounded-full">
+                    {item.badge}
+                  </span>
+                </div>
                 <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">{item.industry}</span>
-                <p className="font-serif text-lg text-ink mt-4 mb-4 leading-relaxed">
+                <p className="font-serif text-lg text-ink mt-3 mb-4 leading-relaxed">
                   "{item.quote}"
                 </p>
-                <p className="text-warm text-sm font-medium">--- {item.company}</p>
+                <p className="text-warm text-sm font-medium">--- {item.role}</p>
               </div>
             ))}
           </div>
