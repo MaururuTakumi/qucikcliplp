@@ -5,6 +5,8 @@ import { ArrowRight } from 'lucide-react';
 const caseStudies = [
   {
     id: 1,
+    company: '株式会社BuySell Technologies',
+    logo: '/assets/clients/buysell-technologies.svg',
     badges: ['東証グロース上場', 'リユース事業', '従業員1,500名+', '導入3ヶ月'],
     metrics: [
       { value: '大幅削減', label: '人事労務工数' },
@@ -14,11 +16,11 @@ const caseStudies = [
     before:
       '人事労務部門の業務負荷が高く、定型作業に現場が逼迫。経営層のAI活用も進んでおらず、全社的なDX推進に課題を抱えていた。',
     action:
-      '(1) 人事労務領域の定型業務をAIで自動化し、現場の負荷を軽減。(2) 社長・役員クラスへのClaude Code導入支援を通じ、経営層から率先してAI活用を実践する体制を構築。',
+      '(1) 人事労務領域の定型業務をAIで自動化し、逼迫していた現場の負荷を軽減。\n(2) 社長・役員クラスへのClaude Codeハンズオン研修を実施。経営幹部が自らAIを活用する体制を構築し、全社的なAI活用の起点を作った。',
     result:
-      '人事労務の定型作業工数を大幅に削減し、チームが本来注力すべき採用・育成業務に集中できる環境を実現。経営層がAIを日常的に活用するようになり、全社的な「AI Ready」な組織への進化を加速。',
+      '人事労務の定型作業工数を大幅に削減。経営幹部がClaude Codeを日常的に活用するようになり、「まず上が使う」文化が全社に波及。AI Readyな組織への進化を加速させた。',
     quote:
-      'honkomaさんには、単なるツール導入ではなく、経営層から現場まで一貫したAI活用の設計をしていただきました。上場企業として求められるスピード感にも的確に応えていただいています。',
+      'AIネイティブなhonkomaの皆さんのおかげで、まず経営幹部が率先してAIを活用する環境ができました。Claude Codeのハンズオン研修を通じて、役員自身が業務にAIを使いこなせるようになったのは大きな変化です。人事労務の自動化と合わせて、組織全体のAI活用が一気に加速しました。',
     role: '株式会社BuySell Technologies / 経営企画部門',
   },
   {
@@ -121,6 +123,12 @@ const CaseStudiesPage: React.FC = () => {
                 </span>
               </div>
               <div className="lg:col-span-9">
+                {/* Company Logo */}
+                {'logo' in cs && cs.logo && (
+                  <div className="mb-4">
+                    <img src={cs.logo} alt={('company' in cs && cs.company) || ''} className="h-8 object-contain" />
+                  </div>
+                )}
                 {/* Proof Badges */}
                 <div className="flex flex-wrap gap-2 mb-6">
                   {cs.badges.map((badge, i) => (
