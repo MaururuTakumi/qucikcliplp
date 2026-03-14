@@ -296,6 +296,13 @@ const HomePage: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-subtle">
             {[
               {
+                industry: 'リユース・リサイクル事業',
+                metric: '上場企業',
+                badge: '工数大幅削減',
+                quote: '経営層から現場まで、一貫したAI活用の設計をしていただきました。上場企業に求められるスピード感にも的確に応えていただいています。',
+                role: '株式会社BuySell Technologies / 経営企画部門',
+              },
+              {
                 industry: '医療クリニック',
                 metric: '月40h削減',
                 badge: '従業員10名規模',
@@ -308,13 +315,6 @@ const HomePage: React.FC = () => {
                 badge: '従業員30名規模',
                 quote: '月末の残業がほぼゼロに。経理チームが改善提案に時間を使えるようになりました。',
                 role: '経営企画部 部長',
-              },
-              {
-                industry: '営業組織',
-                metric: '商談件数1.5倍',
-                badge: '従業員20名規模',
-                quote: '提案書作成が半分以下の時間に。若手の提案品質まで底上げされました。',
-                role: '営業本部 本部長',
               },
             ].map((item, i) => (
               <div key={i} className="bg-cream p-8 md:p-10">
