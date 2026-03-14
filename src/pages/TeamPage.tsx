@@ -125,6 +125,72 @@ const TeamPage: React.FC = () => {
         </section>
       ))}
 
+      {/* Feature Grid */}
+      <section className="py-32 border-b border-subtle">
+        <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="font-serif text-3xl md:text-4xl font-bold text-ink mb-4">
+              小さなチームで、大きな成果を。
+            </h2>
+            <p className="text-warm text-lg">
+              2名体制だからこそのスピードと一貫性。
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              {
+                emoji: '🎯',
+                title: '代表が直接対応',
+                description: '大企業のたらい回しはありません。相談から運用まで、代表が責任を持って対応します。',
+              },
+              {
+                emoji: '⚡',
+                title: '設計から実装まで一気通貫',
+                description: '伝言ゲームなし。要件を聞いたその人が設計し、実装します。',
+              },
+              {
+                emoji: '🚀',
+                title: '意思決定が速い',
+                description: '相談から稼働まで最短2週間。大企業では3ヶ月かかる案件も、すぐに動きます。',
+              },
+            ].map((item, i) => (
+              <div
+                key={i}
+                className="border border-subtle p-8 hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
+              >
+                <span className="text-3xl">{item.emoji}</span>
+                <h3 className="font-serif text-xl font-bold text-ink mt-4 mb-3">{item.title}</h3>
+                <p className="text-warm leading-relaxed">{item.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Tech Stack */}
+      <section className="py-32 border-b border-subtle">
+        <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="font-serif text-3xl md:text-4xl font-bold text-ink mb-4">
+              最新のAI技術を、実務に活かす
+            </h2>
+          </div>
+          <div className="flex flex-wrap justify-center gap-3">
+            {[
+              'Claude Code', 'OpenClaw', 'Python', 'TypeScript', 'React', 'Node.js',
+              'Notion API', 'freee API', 'Playwright', 'LINE WORKS API', 'Google Apps Script', 'Netlify',
+            ].map((tech) => (
+              <span
+                key={tech}
+                className="px-4 py-2 border border-subtle text-sm font-mono text-warm hover:bg-accent-light hover:text-accent transition-colors rounded-full"
+              >
+                {tech}
+              </span>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Team Message */}
       <section className="py-32 bg-ink">
         <div className="max-w-[800px] mx-auto px-6 lg:px-8">
