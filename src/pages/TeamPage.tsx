@@ -157,15 +157,13 @@ const TeamPage: React.FC = () => {
           <p className="text-warm text-lg mb-10">
             AI導入・業務自動化・開発に関するご相談を承っています。
           </p>
-          <a
-            href="https://cal.com/takumi-honkoma-mljb0f/honkoma-meeting?overlayCalendar=true"
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            to="/contact"
             className="group inline-flex items-center px-8 py-4 bg-ink text-cream font-medium tracking-wide hover:bg-accent transition-colors duration-300"
           >
             無料相談を予約する
             <ArrowRight className="ml-3 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-          </a>
+          </Link>
         </div>
       </section>
     </div>

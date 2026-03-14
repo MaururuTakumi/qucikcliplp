@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
   ArrowRight, Star, CheckCircle, AlertCircle, Send, Search, Bot, Bell,
   TrendingUp, Mail, Shield, BarChart3, Zap, Eye, Lightbulb, Clock, Calendar,
@@ -715,16 +716,14 @@ const ReviewAIPage: React.FC = () => {
                       <CheckCircle className="h-8 w-8 text-accent mx-auto mb-4" />
                       <h3 className="font-serif text-2xl font-bold text-ink mb-2">お申し込みありがとうございます</h3>
                       <p className="text-warm text-sm mb-6">24時間以内にご連絡いたします。</p>
-                      <a
-                        href="https://cal.com/takumi-honkoma-mljb0f/honkoma-meeting?overlayCalendar=true"
-                        target="_blank"
-                        rel="noopener noreferrer"
+                      <Link
+                        to="/contact"
                         className="group inline-flex items-center justify-center px-8 py-4 bg-ink text-cream text-base font-medium tracking-wide hover:bg-accent transition-colors duration-300"
                       >
                         <Calendar className="mr-2 h-5 w-5" />
                         今すぐ無料相談を予約する
                         <ArrowRight className="ml-3 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                      </a>
+                      </Link>
                       <p className="text-warm text-xs mt-3">30秒で予約完了・オンライン無料相談</p>
                     </div>
                   )}

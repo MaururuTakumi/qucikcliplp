@@ -405,15 +405,13 @@ const ProductPage: React.FC = () => {
             「何から始めたらいいかわからない」でも大丈夫。<br />
             御社の課題に合わせて、最適なプランをご提案します。
           </p>
-          <a
-            href="https://cal.com/takumi-honkoma-mljb0f/honkoma-meeting?overlayCalendar=true"
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            to="/contact"
             className="group inline-flex items-center px-10 py-5 border border-cream/20 text-cream text-lg font-serif font-medium hover:bg-cream hover:text-ink transition-all duration-500"
           >
             無料相談を申し込む
             <ArrowRight className="ml-4 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-          </a>
+          </Link>
           <p className="font-mono text-xs text-cream/30 mt-8 tracking-wide">
             初回相談は無料です。
           </p>
