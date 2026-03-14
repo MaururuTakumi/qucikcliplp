@@ -2,6 +2,38 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, ArrowUpRight } from 'lucide-react';
 
+function useScrollReveal() {
+  const ref = React.useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = React.useState(false);
+  React.useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setIsVisible(true); },
+      { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, []);
+  return { ref, isVisible };
+}
+
+function AnimatedNumber({ target, suffix = "" }: { target: number; suffix?: string }) {
+  const [count, setCount] = React.useState(0);
+  const { ref, isVisible } = useScrollReveal();
+  React.useEffect(() => {
+    if (!isVisible) return;
+    let start = 0;
+    const duration = 1500;
+    const step = (timestamp: number) => {
+      start = start || timestamp;
+      const progress = Math.min((timestamp - start) / duration, 1);
+      setCount(Math.floor(progress * target));
+      if (progress < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }, [isVisible, target]);
+  return <span ref={ref}>{count}{suffix}</span>;
+}
+
 const HomePage: React.FC = () => {
   React.useEffect(() => {
     document.title = 'honkoma | あなた専属のAI秘書、月5万円から';
@@ -38,25 +70,53 @@ const HomePage: React.FC = () => {
     { step: '04', title: '運用支援', desc: '導入後の運用サポート・改善提案を継続。チームへの研修も実施します。' },
   ];
 
+  const trustedByReveal = useScrollReveal();
+  const trustBarReveal = useScrollReveal();
+  const positioningReveal = useScrollReveal();
+  const servicesReveal = useScrollReveal();
+  const useCaseReveal = useScrollReveal();
+  const processReveal = useScrollReveal();
+  const caseStudiesReveal = useScrollReveal();
+  const pricingReveal = useScrollReveal();
+  const faqReveal = useScrollReveal();
+  const bottomCtaReveal = useScrollReveal();
+
+  const serviceCardReveals = [useScrollReveal(), useScrollReveal(), useScrollReveal()];
+
+  const scrollClass = (isVisible: boolean) =>
+    `transition-all duration-700 ease-out ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`;
+
   return (
     <div className="bg-cream">
       {/* ===== HERO ===== */}
-      <section className="min-h-[90vh] flex items-center relative">
-        <div className="max-w-[1200px] mx-auto px-6 lg:px-8 w-full py-24 md:py-32">
+      <section
+        className="min-h-[90vh] flex items-center relative"
+        style={{
+          background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
+        }}
+      >
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px)',
+            backgroundSize: '24px 24px',
+          }}
+        />
+        <div className="max-w-[1200px] mx-auto px-6 lg:px-8 w-full py-24 md:py-32 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-end">
             <div className="lg:col-span-3 opacity-0 animate-fade-up">
-              <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">
+              <span className="font-mono text-xs tracking-[0.2em] uppercase text-cream/60">
                 AI Agent Dispatch
               </span>
             </div>
 
             <div className="lg:col-span-9">
-              <h1 className="font-serif text-[clamp(2.5rem,7vw,5.5rem)] font-bold leading-[1.1] tracking-tight text-ink mb-8 opacity-0 animate-fade-up-delay-1">
+              <h1 className="font-serif text-[clamp(2.5rem,7vw,5.5rem)] font-bold leading-[1.1] tracking-tight text-cream mb-8 opacity-0 animate-fade-up-delay-1">
                 AIエージェントを、<br />
-                御社に<span className="text-accent">派遣</span>する。
+                御社に<span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-orange-600">派遣する。</span>
               </h1>
 
-              <p className="text-lg md:text-xl text-warm leading-relaxed max-w-2xl mb-12 opacity-0 animate-fade-up-delay-2">
+              <p className="text-lg md:text-xl text-cream/70 leading-relaxed max-w-2xl mb-12 opacity-0 animate-fade-up-delay-2">
                 口コミ分析、LINE返信補助、営業支援、AI秘書まで。<br className="hidden sm:block" />
                 honkomaは御社専用のAIエージェントを設計し、<br className="hidden sm:block" />
                 実装・運用まで一気通貫で支援します。
@@ -65,14 +125,14 @@ const HomePage: React.FC = () => {
               <div className="flex flex-col sm:flex-row gap-4 opacity-0 animate-fade-up-delay-3">
                 <Link
                   to="/contact"
-                  className="group inline-flex items-center justify-center px-8 py-4 bg-ink text-cream text-base font-medium tracking-wide hover:bg-accent transition-colors duration-300"
+                  className="group inline-flex items-center justify-center px-8 py-4 bg-accent text-white text-base font-medium tracking-wide hover:bg-accent-hover transition-colors duration-300"
                 >
                   まず無料で相談する
                   <ArrowRight className="ml-3 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                 </Link>
                 <Link
                   to="/product"
-                  className="inline-flex items-center justify-center px-8 py-4 border border-ink text-ink text-base font-medium tracking-wide hover:bg-ink hover:text-cream transition-all duration-300"
+                  className="inline-flex items-center justify-center px-8 py-4 border border-cream/30 text-cream text-base font-medium tracking-wide hover:bg-cream/10 transition-all duration-300"
                 >
                   サービス・料金を見る
                 </Link>
@@ -80,12 +140,37 @@ const HomePage: React.FC = () => {
             </div>
           </div>
 
-          <div className="mt-20 h-px bg-subtle w-0 animate-draw-line"></div>
+          <div className="mt-20 h-px bg-cream/20 w-0 animate-draw-line"></div>
         </div>
       </section>
 
+      {/* ===== TRUSTED BY ===== */}
+      <div
+        ref={trustedByReveal.ref}
+        className={`bg-cream py-8 border-b border-subtle ${scrollClass(trustedByReveal.isVisible)}`}
+      >
+        <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
+          <div className="flex flex-col sm:flex-row gap-6 sm:gap-12 items-center justify-center">
+            <span className="font-mono text-xs text-warm tracking-widest uppercase">Trusted by</span>
+            <div className="flex gap-12 items-center justify-center">
+              <div className="flex items-center gap-3">
+                <img
+                  src="/assets/clients/buysell-technologies.svg"
+                  alt="BuySell Technologies"
+                  className="h-6 opacity-60 hover:opacity-100 transition-opacity"
+                />
+                <span className="font-mono text-xs text-warm tracking-wide">東証グロース上場企業が採用</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* ===== TRUST BAR ===== */}
-      <section className="border-t border-b border-subtle py-10 bg-cream">
+      <div
+        ref={trustBarReveal.ref}
+        className={`border-b border-subtle py-10 bg-cream ${scrollClass(trustBarReveal.isVisible)}`}
+      >
         <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-subtle text-center">
             {[
@@ -100,10 +185,13 @@ const HomePage: React.FC = () => {
             ))}
           </div>
         </div>
-      </section>
+      </div>
 
       {/* ===== POSITIONING ===== */}
-      <section className="py-28 border-b border-subtle">
+      <section
+        ref={positioningReveal.ref}
+        className={`py-28 border-b border-subtle ${scrollClass(positioningReveal.isVisible)}`}
+      >
         <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
             <div className="lg:col-span-3">
@@ -120,7 +208,7 @@ const HomePage: React.FC = () => {
               </p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-subtle">
                 {agentExamples.map((item, i) => (
-                  <div key={i} className="bg-cream p-8">
+                  <div key={i} className="bg-cream p-8 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
                     <h3 className="font-serif text-xl font-bold text-ink mb-3">{item.title}</h3>
                     <p className="text-warm text-sm leading-relaxed">{item.desc}</p>
                   </div>
@@ -132,7 +220,10 @@ const HomePage: React.FC = () => {
       </section>
 
       {/* ===== SERVICES ===== */}
-      <section className="py-28 border-b border-subtle">
+      <section
+        ref={servicesReveal.ref}
+        className={`py-28 border-b border-subtle ${scrollClass(servicesReveal.isVisible)}`}
+      >
         <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-16">
             <div className="lg:col-span-3">
@@ -149,31 +240,40 @@ const HomePage: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-subtle">
-            {services.map((service) => (
-              <Link
-                to="/product"
+            {services.map((service, i) => (
+              <div
                 key={service.num}
-                className="group bg-cream p-8 md:p-10 hover:bg-accent-light transition-colors duration-500"
+                ref={serviceCardReveals[i].ref}
+                className={`transition-all duration-700 ease-out ${serviceCardReveals[i].isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+                style={{ transitionDelay: `${i * 150}ms` }}
               >
-                <span className="font-mono text-sm text-warm">{service.num}</span>
-                <h3 className="font-serif text-xl font-bold text-ink mt-4 mb-3">
-                  {service.title}
-                </h3>
-                <p className="text-warm text-sm leading-relaxed mb-8">
-                  {service.description}
-                </p>
-                <span className="inline-flex items-center text-xs font-mono tracking-wide text-accent group-hover:text-accent-hover transition-colors">
-                  詳しく見る
-                  <ArrowUpRight className="ml-1 h-3 w-3" />
-                </span>
-              </Link>
+                <Link
+                  to="/product"
+                  className="group block bg-cream p-8 md:p-10 hover:bg-accent-light hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+                >
+                  <span className="font-mono text-sm text-warm">{service.num}</span>
+                  <h3 className="font-serif text-xl font-bold text-ink mt-4 mb-3">
+                    {service.title}
+                  </h3>
+                  <p className="text-warm text-sm leading-relaxed mb-8">
+                    {service.description}
+                  </p>
+                  <span className="inline-flex items-center text-xs font-mono tracking-wide text-accent group-hover:text-accent-hover transition-colors">
+                    詳しく見る
+                    <ArrowUpRight className="ml-1 h-3 w-3" />
+                  </span>
+                </Link>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
       {/* ===== FEATURED USE CASE ===== */}
-      <section className="py-28 border-b border-subtle bg-accent-light/20">
+      <section
+        ref={useCaseReveal.ref}
+        className={`py-28 border-b border-subtle bg-accent-light/20 ${scrollClass(useCaseReveal.isVisible)}`}
+      >
         <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
             <div className="lg:col-span-4">
@@ -197,7 +297,7 @@ const HomePage: React.FC = () => {
 
             <div className="lg:col-span-8">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-subtle">
-                <div className="bg-cream p-8">
+                <div className="bg-cream p-8 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
                   <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">毎週の納品内容</span>
                   <ul className="mt-5 space-y-2.5 text-sm text-warm leading-relaxed">
                     {[
@@ -215,7 +315,7 @@ const HomePage: React.FC = () => {
                     ))}
                   </ul>
                 </div>
-                <div className="bg-cream p-8">
+                <div className="bg-cream p-8 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
                   <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">相性のいい業種</span>
                   <ul className="mt-5 space-y-2.5 text-sm text-warm leading-relaxed">
                     {[
@@ -234,7 +334,7 @@ const HomePage: React.FC = () => {
                   </ul>
                 </div>
               </div>
-              <div className="bg-ink text-cream p-8 mt-px">
+              <div className="bg-ink text-cream p-8 mt-px hover:shadow-xl transition-all duration-300">
                 <h3 className="font-serif text-xl font-bold mb-3">
                   ただの集計ではなく、意思決定レポート。
                 </h3>
@@ -251,7 +351,10 @@ const HomePage: React.FC = () => {
       </section>
 
       {/* ===== PROCESS ===== */}
-      <section className="py-28 border-b border-subtle">
+      <section
+        ref={processReveal.ref}
+        className={`py-28 border-b border-subtle ${scrollClass(processReveal.isVisible)}`}
+      >
         <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-16">
             <div className="lg:col-span-3">
@@ -266,8 +369,8 @@ const HomePage: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-px bg-subtle">
             {processSteps.map((item) => (
-              <div key={item.step} className="bg-cream p-8 md:p-10">
-                <span className="font-mono text-4xl font-light text-subtle">{item.step}</span>
+              <div key={item.step} className="bg-cream p-8 md:p-10 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                <span className="text-5xl font-serif text-accent">{item.step}</span>
                 <h3 className="font-serif text-xl font-bold text-ink mt-6 mb-3">{item.title}</h3>
                 <p className="text-warm text-sm leading-relaxed">{item.desc}</p>
               </div>
@@ -277,7 +380,10 @@ const HomePage: React.FC = () => {
       </section>
 
       {/* ===== CASE STUDIES ===== */}
-      <section className="py-28 border-b border-subtle">
+      <section
+        ref={caseStudiesReveal.ref}
+        className={`py-28 border-b border-subtle ${scrollClass(caseStudiesReveal.isVisible)}`}
+      >
         <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-16">
             <div className="lg:col-span-3">
@@ -317,7 +423,7 @@ const HomePage: React.FC = () => {
                 role: '経営企画部 部長',
               },
             ].map((item, i) => (
-              <div key={i} className="bg-cream p-8 md:p-10">
+              <div key={i} className="bg-cream p-8 md:p-10 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
                 <div className="flex items-center gap-2 mb-4">
                   <span className="inline-block px-2.5 py-1 text-xs font-mono font-bold tracking-wide text-accent bg-accent-light/40 rounded-full">
                     {item.metric}
@@ -348,7 +454,10 @@ const HomePage: React.FC = () => {
       </section>
 
       {/* ===== PRICING HIGHLIGHT ===== */}
-      <section className="py-24 bg-ink">
+      <section
+        ref={pricingReveal.ref}
+        className={`py-24 bg-ink ${scrollClass(pricingReveal.isVisible)}`}
+      >
         <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-14">
             <div className="lg:col-span-3">
@@ -393,7 +502,10 @@ const HomePage: React.FC = () => {
       </section>
 
       {/* ===== FAQ ===== */}
-      <section className="py-28 border-b border-subtle">
+      <section
+        ref={faqReveal.ref}
+        className={`py-28 border-b border-subtle ${scrollClass(faqReveal.isVisible)}`}
+      >
         <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-14">
             <div className="lg:col-span-3">
@@ -425,24 +537,35 @@ const HomePage: React.FC = () => {
       </section>
 
       {/* ===== BOTTOM CTA ===== */}
-      <section className="py-32 bg-ink">
+      <section
+        ref={bottomCtaReveal.ref}
+        className={`py-32 bg-ink ${scrollClass(bottomCtaReveal.isVisible)}`}
+      >
         <div className="max-w-[800px] mx-auto text-center px-6 lg:px-8">
           <h2 className="font-serif text-4xl md:text-5xl font-bold text-cream mb-6">
             まずは、お気軽に<br />ご相談ください。
           </h2>
-          <p className="text-cream/50 text-lg mb-12 leading-relaxed">
+          <p className="text-cream/50 text-lg mb-10 leading-relaxed">
             「何から始めたらいいかわからない」でも大丈夫。<br />
             御社の状況をお聞きした上で、最適なプランをご提案します。
           </p>
-          <Link
-            to="/contact"
-            className="group inline-flex items-center px-10 py-5 border border-cream/20 text-cream text-lg font-serif font-medium hover:bg-cream hover:text-ink transition-all duration-500"
-          >
-            無料相談を申し込む
-            <ArrowRight className="ml-4 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-          </Link>
-          <p className="font-mono text-xs text-cream/30 mt-8 tracking-wide">
-            初回相談は無料です。
+
+          <span className="inline-block bg-accent/10 text-accent px-4 py-1 rounded-full text-sm font-mono mb-6">
+            今月の無料相談枠: 残りわずか
+          </span>
+
+          <div>
+            <Link
+              to="/contact"
+              className="group inline-flex items-center px-10 py-5 border border-cream/20 text-cream text-lg font-serif font-medium hover:bg-cream hover:text-ink transition-all duration-500"
+            >
+              無料相談を申し込む
+              <ArrowRight className="ml-4 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </div>
+
+          <p className="font-mono text-xs text-cream/30 mt-6 tracking-wide">
+            平均相談→導入: 2週間
           </p>
         </div>
       </section>
