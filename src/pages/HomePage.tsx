@@ -63,13 +63,15 @@ const HomePage: React.FC = () => {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 opacity-0 animate-fade-up-delay-3">
-                <Link
-                  to="/contact"
+                <a
+                  href="https://cal.com/takumi-honkoma-mljb0f/honkoma-meeting?overlayCalendar=true"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="group inline-flex items-center justify-center px-8 py-4 bg-ink text-cream text-base font-medium tracking-wide hover:bg-accent transition-colors duration-300"
                 >
                   まず無料で相談する
                   <ArrowRight className="ml-3 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                </Link>
+                </a>
                 <Link
                   to="/product"
                   className="inline-flex items-center justify-center px-8 py-4 border border-ink text-ink text-base font-medium tracking-wide hover:bg-ink hover:text-cream transition-all duration-300"
@@ -420,13 +422,15 @@ const HomePage: React.FC = () => {
             「何から始めたらいいかわからない」でも大丈夫。<br />
             御社の状況をお聞きした上で、最適なプランをご提案します。
           </p>
-          <Link
-            to="/contact"
+          <a
+            href="https://cal.com/takumi-honkoma-mljb0f/honkoma-meeting?overlayCalendar=true"
+            target="_blank"
+            rel="noopener noreferrer"
             className="group inline-flex items-center px-10 py-5 border border-cream/20 text-cream text-lg font-serif font-medium hover:bg-cream hover:text-ink transition-all duration-500"
           >
             無料相談を申し込む
             <ArrowRight className="ml-4 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-          </Link>
+          </a>
           <p className="font-mono text-xs text-cream/30 mt-8 tracking-wide">
             初回相談は無料です。
           </p>

@@ -49,9 +49,9 @@ const Footer: React.FC = () => {
             <h3 className="font-mono text-xs tracking-widest uppercase text-cream/40 mb-6">Services</h3>
             <ul className="space-y-3">
               <li><Link to="/product#standard" className="text-sm hover:text-cream transition-colors">スタンダードプラン</Link></li>
-              <li><Link to="/product#enterprise" className="text-sm hover:text-cream transition-colors">エンタープライズ</Link></li>
               <li><Link to="/product#advisory" className="text-sm hover:text-cream transition-colors">顧問相談</Link></li>
               <li><Link to="/product#ai-agent" className="text-sm hover:text-cream transition-colors">AI秘書派遣</Link></li>
+              <li><Link to="/product#spot" className="text-sm hover:text-cream transition-colors">スポット相談</Link></li>
             </ul>
             <div className="mt-8">
               <Link to="/privacy" className="text-xs text-cream/40 hover:text-cream/70 transition-colors">

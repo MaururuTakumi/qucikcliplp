@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mail, Clock, Send, CheckCircle, AlertCircle, MessageSquare, Phone } from 'lucide-react';
+import { Mail, Clock, Send, CheckCircle, AlertCircle, MessageSquare, Phone, Calendar, ArrowRight } from 'lucide-react';
 
 const ContactPage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -103,6 +103,26 @@ const ContactPage: React.FC = () => {
         </div>
       </section>
 
+      {/* Cal.com Direct Link */}
+      <section className="py-12 border-b border-subtle">
+        <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
+          <div className="text-center">
+            <p className="text-warm text-lg mb-4">すぐに相談したい方はこちら</p>
+            <a
+              href="https://cal.com/takumi-honkoma-mljb0f/honkoma-meeting?overlayCalendar=true"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group inline-flex items-center justify-center px-8 py-4 bg-ink text-cream text-base font-medium tracking-wide hover:bg-accent transition-colors duration-300"
+            >
+              <Calendar className="mr-2 h-5 w-5" />
+              オンライン無料相談を予約する
+              <ArrowRight className="ml-3 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+            </a>
+            <p className="text-warm text-xs mt-3">30秒で予約完了・オンライン無料相談</p>
+          </div>
+        </div>
+      </section>
+
       {/* Form Section */}
       <section className="py-32">
         <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
@@ -112,7 +132,7 @@ const ContactPage: React.FC = () => {
               <h2 className="font-serif text-3xl font-bold text-ink mb-2">お問い合わせフォーム</h2>
               <p className="text-warm mb-10">
                 下記フォームに必要事項をご記入の上、送信してください。<br />
-                担当者より2営業日以内にご連絡いたします。
+                担当者より24時間以内にご連絡いたします。
               </p>
 
               <form className="space-y-8" onSubmit={handleSubmit}>
@@ -185,9 +205,21 @@ const ContactPage: React.FC = () => {
                 </div>
 
                 {submitStatus === 'success' && (
-                  <div className="flex items-center gap-2 text-ink border border-subtle p-4">
-                    <CheckCircle className="h-4 w-4 text-accent" />
-                    <span className="text-sm">お問い合わせを受け付けました。担当者より連絡させていただきます。</span>
+                  <div className="text-center border border-accent/30 bg-accent-light/20 p-8">
+                    <CheckCircle className="h-8 w-8 text-accent mx-auto mb-4" />
+                    <h3 className="font-serif text-2xl font-bold text-ink mb-2">お問い合わせありがとうございます</h3>
+                    <p className="text-warm text-sm mb-6">担当者より24時間以内にご連絡いたします。</p>
+                    <a
+                      href="https://cal.com/takumi-honkoma-mljb0f/honkoma-meeting?overlayCalendar=true"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group inline-flex items-center justify-center px-8 py-4 bg-ink text-cream text-base font-medium tracking-wide hover:bg-accent transition-colors duration-300"
+                    >
+                      <Calendar className="mr-2 h-5 w-5" />
+                      今すぐ無料相談を予約する
+                      <ArrowRight className="ml-3 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                    </a>
+                    <p className="text-warm text-xs mt-3">30秒で予約完了・オンライン無料相談</p>
                   </div>
                 )}
 

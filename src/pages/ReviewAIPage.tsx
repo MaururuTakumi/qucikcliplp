@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   ArrowRight, Star, CheckCircle, AlertCircle, Send, Search, Bot, Bell,
-  TrendingUp, Mail, Shield, BarChart3, Zap, Eye, Lightbulb, Clock,
+  TrendingUp, Mail, Shield, BarChart3, Zap, Eye, Lightbulb, Clock, Calendar,
 } from 'lucide-react';
 
 const ReviewAIPage: React.FC = () => {
@@ -653,7 +653,7 @@ const ReviewAIPage: React.FC = () => {
               <div className="border border-subtle p-8 md:p-12">
                 <h3 className="font-serif text-2xl font-bold text-ink mb-2">無料口コミ診断フォーム</h3>
                 <p className="text-warm text-sm mb-8">
-                  必要事項をご記入の上、送信してください。3営業日以内に診断レポートをお届けします。
+                  必要事項をご記入の上、送信してください。24時間以内にご連絡いたします。
                 </p>
 
                 <form className="space-y-8" onSubmit={handleSubmit}>
@@ -711,9 +711,21 @@ const ReviewAIPage: React.FC = () => {
                   </div>
 
                   {submitStatus === 'success' && (
-                    <div className="flex items-center gap-2 text-ink border border-subtle p-4">
-                      <CheckCircle className="h-4 w-4 text-accent" />
-                      <span className="text-sm">お申し込みを受け付けました。3営業日以内に診断レポートをお届けします。</span>
+                    <div className="text-center border border-accent/30 bg-accent-light/20 p-8">
+                      <CheckCircle className="h-8 w-8 text-accent mx-auto mb-4" />
+                      <h3 className="font-serif text-2xl font-bold text-ink mb-2">お申し込みありがとうございます</h3>
+                      <p className="text-warm text-sm mb-6">24時間以内にご連絡いたします。</p>
+                      <a
+                        href="https://cal.com/takumi-honkoma-mljb0f/honkoma-meeting?overlayCalendar=true"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group inline-flex items-center justify-center px-8 py-4 bg-ink text-cream text-base font-medium tracking-wide hover:bg-accent transition-colors duration-300"
+                      >
+                        <Calendar className="mr-2 h-5 w-5" />
+                        今すぐ無料相談を予約する
+                        <ArrowRight className="ml-3 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                      </a>
+                      <p className="text-warm text-xs mt-3">30秒で予約完了・オンライン無料相談</p>
                     </div>
                   )}
 
