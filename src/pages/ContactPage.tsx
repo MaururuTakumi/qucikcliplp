@@ -1,65 +1,75 @@
 import React, { useState } from 'react';
-import { Mail, Clock, Send, CheckCircle, AlertCircle, MessageSquare, Phone, Calendar, ArrowRight } from 'lucide-react';
+import { Mail, Phone, MessageSquare, Calendar, ArrowRight, ArrowLeft, CheckCircle } from 'lucide-react';
+
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbxVMYEL9aJS124xpDj-bpynGYH_QbyEsb0yGqUznlTALT6OreAjCSS7oth4f7ETDciQ/exec';
+
+const inquiryOptions = [
+  { emoji: '🤖', label: 'AI秘書の導入を検討したい' },
+  { emoji: '⚡', label: '業務自動化について相談したい' },
+  { emoji: '📊', label: '口コミAI（宿泊・飲食向け）を試したい' },
+  { emoji: '💻', label: '開発を依頼したい' },
+  { emoji: '💬', label: 'その他' },
+];
+
+const employeeCountOptions = ['1〜10名', '11〜50名', '51〜100名', '100名以上'];
 
 const ContactPage: React.FC = () => {
+  const [step, setStep] = useState(1);
+  const [fadeKey, setFadeKey] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+
+  const [inquiryType, setInquiryType] = useState('');
+  const [company, setCompany] = useState('');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [employeeCount, setEmployeeCount] = useState('');
+  const [message, setMessage] = useState('');
 
   React.useEffect(() => {
     document.title = 'お問い合わせ | honkoma';
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const goToStep = (next: number) => {
+    setFadeKey((k) => k + 1);
+    setStep(next);
+  };
+
+  const handleSelectInquiry = (label: string) => {
+    setInquiryType(label);
+    goToStep(2);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setSubmitStatus('idle');
 
-    const formData = new FormData(e.currentTarget);
     const data = {
-      name: formData.get('name') as string,
-      email: formData.get('email') as string,
-      company: formData.get('company') as string,
-      department: formData.get('department') as string,
-      inquiryType: formData.get('inquiryType') as string,
-      message: formData.get('message') as string,
+      inquiryType,
+      company,
+      name,
+      email,
+      employeeCount,
+      message,
       timestamp: new Date().toISOString(),
     };
 
     try {
-      // GASに送信（スプレッドシート記録）
-      await fetch('https://script.google.com/macros/s/AKfycbxVMYEL9aJS124xpDj-bpynGYH_QbyEsb0yGqUznlTALT6OreAjCSS7oth4f7ETDciQ/exec', {
+      await fetch(GAS_URL, {
         method: 'POST',
         mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
-
-      // GAS側でスプレッドシート記録 + Telegram即時通知をまとめて処理
-      setSubmitStatus('success');
-      e.currentTarget.reset();
-      if (window.gtag) {
-        window.gtag('event', 'form_submit', { event_category: 'engagement', event_label: 'contact_form' });
-      }
     } catch (error) {
       console.error('Error submitting form:', error);
-      setSubmitStatus('success');
-      e.currentTarget.reset();
+    } finally {
+      setIsSubmitting(false);
       if (window.gtag) {
         window.gtag('event', 'form_submit', { event_category: 'engagement', event_label: 'contact_form' });
       }
-    } finally {
-      setIsSubmitting(false);
+      goToStep(3);
     }
   };
-
-  const inquiryTypes = [
-    'AI導入に関するご相談',
-    'ルーティーンワーク自動化のご相談',
-    'AI秘書派遣のご相談',
-    'ソフトウェア開発のご依頼',
-    '事業提携・パートナーシップについて',
-    'その他',
-  ];
 
   return (
     <div className="bg-cream">
@@ -103,204 +113,213 @@ const ContactPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Cal.com Direct Link */}
-      <section className="py-12 border-b border-subtle">
-        <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
-          <div className="text-center">
-            <p className="text-warm text-lg mb-4">すぐに相談したい方はこちら</p>
-            <a
-              href="https://cal.com/takumi-honkoma-mljb0f/honkoma-meeting?overlayCalendar=true"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group inline-flex items-center justify-center px-8 py-4 bg-ink text-cream text-base font-medium tracking-wide hover:bg-accent transition-colors duration-300"
-            >
-              <Calendar className="mr-2 h-5 w-5" />
-              オンライン無料相談を予約する
-              <ArrowRight className="ml-3 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-            </a>
-            <p className="text-warm text-xs mt-3">30秒で予約完了・オンライン無料相談</p>
-          </div>
-        </div>
-      </section>
-
-      {/* Form Section */}
-      <section className="py-32">
-        <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
-            {/* Form */}
-            <div className="lg:col-span-7">
-              <h2 className="font-serif text-3xl font-bold text-ink mb-2">お問い合わせフォーム</h2>
-              <p className="text-warm mb-10">
-                下記フォームに必要事項をご記入の上、送信してください。<br />
-                担当者より24時間以内にご連絡いたします。
-              </p>
-
-              <form className="space-y-8" onSubmit={handleSubmit}>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div>
-                    <label htmlFor="name" className="block font-mono text-xs tracking-wide uppercase text-warm mb-3">
-                      お名前 <span className="text-accent">*</span>
-                    </label>
-                    <input
-                      type="text" id="name" name="name" required
-                      className="w-full px-0 py-3 bg-transparent border-0 border-b border-subtle focus:border-ink focus:ring-0 text-ink transition-colors"
-                    />
+      {/* Step Form */}
+      <section className="py-20 md:py-32">
+        <div className="max-w-[720px] mx-auto px-6 lg:px-8">
+          {/* Progress Bar */}
+          <div className="flex items-center justify-center gap-3 mb-16">
+            {[1, 2, 3].map((s) => (
+              <React.Fragment key={s}>
+                <div className="flex flex-col items-center gap-2">
+                  <div
+                    className={`w-9 h-9 rounded-full flex items-center justify-center font-mono text-sm font-bold transition-colors duration-300 ${
+                      s === step
+                        ? 'bg-accent text-cream'
+                        : s < step
+                          ? 'bg-accent/20 text-accent'
+                          : 'bg-subtle text-warm'
+                    }`}
+                  >
+                    {s < step ? '✓' : s}
                   </div>
-                  <div>
-                    <label htmlFor="email" className="block font-mono text-xs tracking-wide uppercase text-warm mb-3">
-                      メールアドレス <span className="text-accent">*</span>
-                    </label>
-                    <input
-                      type="email" id="email" name="email" required
-                      className="w-full px-0 py-3 bg-transparent border-0 border-b border-subtle focus:border-ink focus:ring-0 text-ink transition-colors"
-                    />
-                  </div>
+                  <span className={`font-mono text-[10px] tracking-wide uppercase ${s === step ? 'text-accent' : 'text-warm'}`}>
+                    {s === 1 ? '相談内容' : s === 2 ? '情報入力' : '完了'}
+                  </span>
                 </div>
+                {s < 3 && (
+                  <div className={`w-12 md:w-20 h-px mb-5 transition-colors duration-300 ${s < step ? 'bg-accent' : 'bg-subtle'}`} />
+                )}
+              </React.Fragment>
+            ))}
+          </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* Step Content */}
+          <div key={fadeKey} className="animate-fade-in">
+            {/* Step 1 */}
+            {step === 1 && (
+              <div>
+                <h2 className="font-serif text-2xl md:text-3xl font-bold text-ink mb-2 text-center">
+                  ご相談内容を選択してください
+                </h2>
+                <p className="text-warm text-center mb-10">該当するものをお選びください</p>
+                <div className="grid grid-cols-1 gap-4">
+                  {inquiryOptions.map((opt) => (
+                    <button
+                      key={opt.label}
+                      type="button"
+                      onClick={() => handleSelectInquiry(opt.label)}
+                      className={`w-full text-left p-5 md:p-6 border transition-all duration-200 hover:border-accent hover:bg-accent-light/30 ${
+                        inquiryType === opt.label
+                          ? 'border-accent bg-accent-light/30'
+                          : 'border-subtle bg-cream'
+                      }`}
+                    >
+                      <span className="text-xl mr-3">{opt.emoji}</span>
+                      <span className="font-serif text-ink font-medium">{opt.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Step 2 */}
+            {step === 2 && (
+              <div>
+                <h2 className="font-serif text-2xl md:text-3xl font-bold text-ink mb-2 text-center">
+                  お客様情報をご入力ください
+                </h2>
+                <p className="text-warm text-center mb-10">
+                  <span className="inline-block border border-accent/30 bg-accent-light px-3 py-1 text-sm text-accent font-medium">
+                    {inquiryType}
+                  </span>
+                </p>
+
+                <form onSubmit={handleSubmit} className="space-y-8">
                   <div>
                     <label htmlFor="company" className="block font-mono text-xs tracking-wide uppercase text-warm mb-3">
                       会社名 <span className="text-accent">*</span>
                     </label>
                     <input
-                      type="text" id="company" name="company" required
+                      type="text" id="company" required value={company}
+                      onChange={(e) => setCompany(e.target.value)}
                       className="w-full px-0 py-3 bg-transparent border-0 border-b border-subtle focus:border-ink focus:ring-0 text-ink transition-colors"
                     />
                   </div>
+
                   <div>
-                    <label htmlFor="department" className="block font-mono text-xs tracking-wide uppercase text-warm mb-3">
-                      部署名
+                    <label htmlFor="name" className="block font-mono text-xs tracking-wide uppercase text-warm mb-3">
+                      お名前 <span className="text-accent">*</span>
                     </label>
                     <input
-                      type="text" id="department" name="department"
+                      type="text" id="name" required value={name}
+                      onChange={(e) => setName(e.target.value)}
                       className="w-full px-0 py-3 bg-transparent border-0 border-b border-subtle focus:border-ink focus:ring-0 text-ink transition-colors"
                     />
                   </div>
-                </div>
 
-                <div>
-                  <label htmlFor="inquiryType" className="block font-mono text-xs tracking-wide uppercase text-warm mb-3">
-                    お問い合わせ種別 <span className="text-accent">*</span>
-                  </label>
-                  <select
-                    id="inquiryType" name="inquiryType" required
-                    className="w-full px-0 py-3 bg-transparent border-0 border-b border-subtle focus:border-ink focus:ring-0 text-ink transition-colors appearance-none cursor-pointer"
-                  >
-                    <option value="">選択してください</option>
-                    {inquiryTypes.map((type, index) => (
-                      <option key={index} value={type}>{type}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label htmlFor="message" className="block font-mono text-xs tracking-wide uppercase text-warm mb-3">
-                    お問い合わせ内容 <span className="text-accent">*</span>
-                  </label>
-                  <textarea
-                    id="message" name="message" rows={5} required
-                    placeholder="ご相談内容の詳細をお聞かせください"
-                    className="w-full px-0 py-3 bg-transparent border-0 border-b border-subtle focus:border-ink focus:ring-0 text-ink resize-none transition-colors placeholder:text-subtle"
-                  ></textarea>
-                </div>
-
-                {submitStatus === 'success' && (
-                  <div className="text-center border border-accent/30 bg-accent-light/20 p-8">
-                    <CheckCircle className="h-8 w-8 text-accent mx-auto mb-4" />
-                    <h3 className="font-serif text-2xl font-bold text-ink mb-2">お問い合わせありがとうございます</h3>
-                    <p className="text-warm text-sm mb-6">担当者より24時間以内にご連絡いたします。</p>
-                    <a
-                      href="https://cal.com/takumi-honkoma-mljb0f/honkoma-meeting?overlayCalendar=true"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="group inline-flex items-center justify-center px-8 py-4 bg-ink text-cream text-base font-medium tracking-wide hover:bg-accent transition-colors duration-300"
-                    >
-                      <Calendar className="mr-2 h-5 w-5" />
-                      今すぐ無料相談を予約する
-                      <ArrowRight className="ml-3 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                    </a>
-                    <p className="text-warm text-xs mt-3">30秒で予約完了・オンライン無料相談</p>
+                  <div>
+                    <label htmlFor="email" className="block font-mono text-xs tracking-wide uppercase text-warm mb-3">
+                      メールアドレス <span className="text-accent">*</span>
+                    </label>
+                    <input
+                      type="email" id="email" required value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full px-0 py-3 bg-transparent border-0 border-b border-subtle focus:border-ink focus:ring-0 text-ink transition-colors"
+                    />
                   </div>
-                )}
 
-                {submitStatus === 'error' && (
-                  <div className="flex items-center gap-2 text-ink border border-accent p-4">
-                    <AlertCircle className="h-4 w-4 text-accent" />
-                    <span className="text-sm">送信に失敗しました。時間をおいて再度お試しください。</span>
-                  </div>
-                )}
-
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full bg-ink text-cream py-4 font-medium tracking-wide hover:bg-accent transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                >
-                  {isSubmitting ? (
-                    <>
-                      <div className="animate-spin h-4 w-4 border-2 border-cream/30 border-t-cream rounded-full"></div>
-                      送信中...
-                    </>
-                  ) : (
-                    <>
-                      <Send className="h-4 w-4" />
-                      送信する
-                    </>
-                  )}
-                </button>
-
-                <p className="text-xs text-warm text-center">
-                  送信いただいた個人情報は、当社の
-                  <a href="/privacy" className="text-accent hover:underline">プライバシーポリシー</a>
-                  に基づいて適切に管理いたします。
-                </p>
-              </form>
-            </div>
-
-            {/* Sidebar */}
-            <div className="lg:col-span-5 space-y-8">
-              <div className="border border-subtle p-8">
-                <h3 className="font-serif text-xl font-bold text-ink mb-6">ご相談の流れ</h3>
-                <div className="space-y-6">
-                  {[
-                    { n: '01', t: 'フォーム送信', d: '御社の状況やお悩みをお聞かせください' },
-                    { n: '02', t: '無料ヒアリング', d: 'オンラインで詳しくお話をお伺いします（約30分）' },
-                    { n: '03', t: 'ご提案', d: '御社に最適なAI活用プランをご提示します' },
-                  ].map((item) => (
-                    <div key={item.n} className="flex gap-4">
-                      <span className="font-mono text-sm text-warm w-6 flex-shrink-0">{item.n}</span>
-                      <div>
-                        <h4 className="font-serif font-bold text-ink text-sm">{item.t}</h4>
-                        <p className="text-warm text-xs mt-1">{item.d}</p>
-                      </div>
+                  <div>
+                    <label className="block font-mono text-xs tracking-wide uppercase text-warm mb-4">
+                      従業員数
+                    </label>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                      {employeeCountOptions.map((opt) => (
+                        <label
+                          key={opt}
+                          className={`flex items-center justify-center p-3 border cursor-pointer transition-all duration-200 text-sm ${
+                            employeeCount === opt
+                              ? 'border-accent bg-accent-light/30 text-accent font-medium'
+                              : 'border-subtle text-warm hover:border-accent/50'
+                          }`}
+                        >
+                          <input
+                            type="radio" name="employeeCount" value={opt}
+                            checked={employeeCount === opt}
+                            onChange={(e) => setEmployeeCount(e.target.value)}
+                            className="sr-only"
+                          />
+                          {opt}
+                        </label>
+                      ))}
                     </div>
-                  ))}
+                  </div>
+
+                  <div>
+                    <label htmlFor="message" className="block font-mono text-xs tracking-wide uppercase text-warm mb-3">
+                      どんな業務を自動化したいですか？ <span className="text-accent">*</span>
+                    </label>
+                    <textarea
+                      id="message" rows={4} required value={message}
+                      onChange={(e) => setMessage(e.target.value)}
+                      placeholder="例: 毎日の口コミチェックに1時間かかっている、営業メールの作成を効率化したい など"
+                      className="w-full px-0 py-3 bg-transparent border-0 border-b border-subtle focus:border-ink focus:ring-0 text-ink resize-none transition-colors placeholder:text-warm/50"
+                    />
+                  </div>
+
+                  <div className="flex gap-4 pt-4">
+                    <button
+                      type="button"
+                      onClick={() => goToStep(1)}
+                      className="flex items-center justify-center gap-2 px-6 py-4 border border-subtle text-warm hover:text-ink hover:border-ink transition-colors duration-200"
+                    >
+                      <ArrowLeft className="h-4 w-4" />
+                      戻る
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="flex-1 bg-ink text-cream py-4 font-medium tracking-wide hover:bg-accent transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <div className="animate-spin h-4 w-4 border-2 border-cream/30 border-t-cream rounded-full" />
+                          送信中...
+                        </>
+                      ) : (
+                        <>
+                          次へ
+                          <ArrowRight className="h-4 w-4" />
+                        </>
+                      )}
+                    </button>
+                  </div>
+
+                  <p className="text-xs text-warm text-center">
+                    送信いただいた個人情報は、当社の
+                    <a href="/privacy" className="text-accent hover:underline">プライバシーポリシー</a>
+                    に基づいて適切に管理いたします。
+                  </p>
+                </form>
+              </div>
+            )}
+
+            {/* Step 3 */}
+            {step === 3 && (
+              <div className="text-center py-8">
+                <CheckCircle className="h-16 w-16 text-accent mx-auto mb-6" />
+                <h2 className="font-serif text-3xl md:text-4xl font-bold text-ink mb-4">
+                  お問い合わせありがとうございます
+                </h2>
+                <p className="text-warm text-lg mb-10">
+                  24時間以内に担当者よりご連絡いたします。
+                </p>
+
+                <div className="border border-subtle p-8 md:p-10">
+                  <p className="text-warm mb-4">すぐにオンライン相談をご希望の方</p>
+                  <a
+                    href="https://cal.com/takumi-honkoma-mljb0f/honkoma-meeting?overlayCalendar=true"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group inline-flex items-center justify-center px-8 py-4 bg-ink text-cream text-base font-medium tracking-wide hover:bg-accent transition-colors duration-300"
+                  >
+                    <Calendar className="mr-2 h-5 w-5" />
+                    オンライン無料相談を予約する
+                    <ArrowRight className="ml-3 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  </a>
+                  <p className="text-warm text-xs mt-3">30秒で予約完了・オンライン無料相談</p>
                 </div>
               </div>
-
-              <div className="border border-subtle p-8">
-                <h3 className="font-serif text-lg font-bold text-ink mb-4">こんなご相談に対応</h3>
-                <ul className="space-y-3">
-                  {[
-                    '日常業務の自動化で工数を削減したい',
-                    'AIを使いたいが何から始めたらいいかわからない',
-                    'AIエージェントを業務に活用したい',
-                    '開発プロジェクトを依頼したい',
-                  ].map((item, i) => (
-                    <li key={i} className="flex items-start gap-3">
-                      <span className="w-1 h-1 bg-accent rounded-full flex-shrink-0 mt-2"></span>
-                      <span className="text-warm text-sm">{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="bg-accent-light border border-accent/20 p-8">
-                <h3 className="font-serif text-lg font-bold text-ink mb-2">初回相談無料</h3>
-                <p className="text-warm text-sm leading-relaxed">
-                  まずはお気軽にお問い合わせください。御社の状況をお伺いした上で、最適なプランをご提案いたします。
-                </p>
-              </div>
-            </div>
+            )}
           </div>
         </div>
       </section>
