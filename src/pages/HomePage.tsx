@@ -111,6 +111,13 @@ const HomePage: React.FC = () => {
             </div>
 
             <div className="lg:col-span-9">
+              <div className="flex items-center gap-3 mb-6 opacity-0 animate-fade-up-delay-1">
+                <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-orange-400/40 bg-orange-400/10 text-orange-300 text-xs font-mono tracking-wide">
+                  <span className="w-1.5 h-1.5 rounded-full bg-orange-400 inline-block"></span>
+                  上場企業含む 20社以上 への導入支援実績
+                </span>
+              </div>
+
               <h1 className="font-serif text-[clamp(2.5rem,7vw,5.5rem)] font-bold leading-[1.1] tracking-tight text-cream mb-8 opacity-0 animate-fade-up-delay-1">
                 AIエージェントを、<br />
                 御社に<span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-orange-600">派遣する。</span>
@@ -174,9 +181,9 @@ const HomePage: React.FC = () => {
         <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-subtle text-center">
             {[
+              { stat: '20社以上', label: '上場企業含む導入支援実績' },
               { stat: '最短2週間', label: '初期版のリリース目安' },
               { stat: '初回相談無料', label: '内容・規模問わず対応' },
-              { stat: '実務を持つ設計', label: '単なるツール提案ではなく、運用まで伴走' },
             ].map((item, i) => (
               <div key={i} className="py-6 md:py-0 md:px-8">
                 <div className="font-serif text-2xl font-bold text-ink mb-1">{item.stat}</div>
