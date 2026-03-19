@@ -8,8 +8,7 @@ const AboutPage: React.FC = () => {
   }, []);
 
   const metrics = [
-    { value: '200件+', label: '累計お問い合わせ' },
-    { value: '15社+', label: '導入・商談実績' },
+    { value: '20社以上', label: '導入・商談実績' },
     { value: '最短2週間', label: '初期版リリース' },
     { value: '98%', label: 'クライアント継続率' },
   ];
@@ -79,7 +78,7 @@ const AboutPage: React.FC = () => {
       {/* Metric Counter — Dark Section */}
       <section className="py-28 bg-ink text-cream">
         <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-cream/10">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-cream/10">
             {metrics.map((item, i) => (
               <div key={i} className="bg-ink p-8 md:p-10 text-center">
                 <div className="font-serif text-5xl font-bold mb-3">
