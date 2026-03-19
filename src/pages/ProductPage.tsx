@@ -59,7 +59,7 @@ const tabContent: Record<TabKey, {
       'QSCA月次レポート',
       '商品企画への示唆',
     ],
-    pricing: '初期セットアップ 15万円 + 月額5万円',
+    pricing: '初期セットアップ 15万円 + 月額3万円〜',
     cta: '口コミAIについて相談する',
     extraLink: { label: '口コミAI詳細ページ', to: '/review-ai' },
   },
