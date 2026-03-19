@@ -166,10 +166,9 @@ const ProductPage: React.FC = () => {
       {/* ===== 2. TRUST BAR ===== */}
       <section className="py-14 border-b border-subtle">
         <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-4">
             {[
-              { num: '200件+', desc: '累計お問い合わせ数' },
-              { num: '15社+', desc: '導入・商談実績' },
+              { num: '20社以上', desc: '導入・商談実績' },
               { num: '最短2週間', desc: '初期版リリース' },
               { num: '初回無料', desc: '相談料' },
             ].map((item, i) => (
