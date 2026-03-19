@@ -349,7 +349,7 @@ const HomePage: React.FC = () => {
                   口コミを一覧化するだけでなく、「今何が起きているか」「何を直すべきか」まで整理して返す。
                   現場改善・CS・営業施策にそのまま使える形で納品します。
                 </p>
-                <div className="font-serif text-2xl font-bold">初期5万円 + 月1.5万円〜</div>
+                <div className="font-serif text-2xl font-bold">初期15万円 + 月3万円〜</div>
                 <p className="text-cream/40 text-xs mt-1 font-mono">対象媒体数・競合比較・納品頻度で個別見積</p>
               </div>
             </div>
