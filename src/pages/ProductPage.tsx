@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Bot, Zap, BarChart3, ArrowRight, Check, X, Minus } from 'lucide-react';
+import { Bot, Zap, BarChart3, Users, ArrowRight, Check, X, Minus } from 'lucide-react';
 
-type TabKey = 'ai-secretary' | 'automation' | 'review-ai';
+type TabKey = 'ai-secretary' | 'automation' | 'review-ai' | 'ai-advisor';
 
 const tabs: { key: TabKey; label: string; icon: React.ReactNode }[] = [
   { key: 'ai-secretary', label: 'AI秘書派遣', icon: <Bot className="h-5 w-5" /> },
   { key: 'automation', label: '業務自動化支援', icon: <Zap className="h-5 w-5" /> },
   { key: 'review-ai', label: '口コミAI', icon: <BarChart3 className="h-5 w-5" /> },
+  { key: 'ai-advisor', label: 'AI顧問', icon: <Users className="h-5 w-5" /> },
 ];
 
 const tabContent: Record<TabKey, {
@@ -62,6 +63,21 @@ const tabContent: Record<TabKey, {
     pricing: '初期セットアップ 15万円 + 月額3万円〜',
     cta: '口コミAIについて相談する',
     extraLink: { label: '口コミAI詳細ページ', to: '/review-ai' },
+  },
+  'ai-advisor': {
+    oneLiner: 'AIの進化、追いかけるのをやめませんか。',
+    problem: 'AIツールは毎日増え続ける。自社に合うものがどれかわからない。始めたいけど、何から手をつければいいのか見当もつかない。',
+    solution: '毎日AIを経営に活用しているプロが、御社の横に立ちます。週次ミーティングで一緒に手を動かしながら、御社に合ったAI活用を実現します。',
+    includes: [
+      '週次ミーティング（30〜60分）',
+      'AI活用ロードマップ策定',
+      'ハンズオン導入支援（担当者と一緒に実業務で回す）',
+      '社内AI担当者の育成支援',
+      'セキュリティ・情報管理の相談対応',
+      'チャットサポート（翌営業日以内）',
+    ],
+    pricing: '月額15万円（税別・最低3ヶ月〜）',
+    cta: 'AI顧問について相談する',
   },
 };
 
@@ -391,61 +407,7 @@ const ProductPage: React.FC = () => {
         </div>
       </section>
 
-      {/* ===== 6. ADDITIONAL PLANS ===== */}
-      <section className="py-24 md:py-32 border-b border-subtle">
-        <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-14">
-            <div className="lg:col-span-3">
-              <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">Additional Plans</span>
-            </div>
-            <div className="lg:col-span-9">
-              <h2 className="font-serif text-3xl md:text-4xl font-bold text-ink">追加プラン</h2>
-            </div>
-          </div>
-
-          <div className="lg:ml-[25%]">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-subtle">
-              {/* Advisory */}
-              <div className="bg-cream p-8">
-                <div className="flex items-baseline gap-3 mb-4">
-                  <h3 className="font-serif text-2xl font-bold text-ink">顧問相談</h3>
-                  <span className="font-serif text-xl text-accent font-bold">月15万円〜</span>
-                </div>
-                <p className="text-warm leading-relaxed mb-6">
-                  AI活用の戦略相談・技術アドバイス。月2回のMTG+チャットサポート。
-                </p>
-                <Link
-                  to="/contact"
-                  className="group inline-flex items-center text-accent font-serif font-medium hover:text-accent-hover transition-colors"
-                >
-                  相談する
-                  <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </div>
-
-              {/* Spot */}
-              <div className="bg-cream p-8">
-                <div className="flex items-baseline gap-3 mb-4">
-                  <h3 className="font-serif text-2xl font-bold text-ink">スポット相談</h3>
-                  <span className="font-serif text-xl text-accent font-bold">3.5〜5万円/時間</span>
-                </div>
-                <p className="text-warm leading-relaxed mb-6">
-                  ピンポイントで相談したい方向け。時間単位でAI・自動化の専門家がお応えします。
-                </p>
-                <Link
-                  to="/contact"
-                  className="group inline-flex items-center text-accent font-serif font-medium hover:text-accent-hover transition-colors"
-                >
-                  相談する
-                  <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ===== 7. FAQ ===== */}
+      {/* ===== 6. FAQ ===== */}
       <section id="faq" className="py-28 border-b border-subtle">
         <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-14">
@@ -462,7 +424,7 @@ const ProductPage: React.FC = () => {
               { q: 'AIの知識がない状態でも相談できますか？', a: 'もちろんです。専門知識は不要です。御社の業務課題をお聞きした上で、最適なソリューションをわかりやすくご提案いたします。' },
               { q: '小規模な企業でも依頼できますか？', a: 'はい。規模に関わらず対応しています。2名体制のクリニックから100名規模の企業まで実績があります。' },
               { q: 'どのプランが自社に合っているかわかりません。', a: '初回相談は無料ですので、まずはお気軽にご相談ください。御社の状況をお伺いした上で、最適なプランをご提案します。' },
-              { q: '導入までどのくらいの期間がかかりますか？', a: 'AI秘書・スポット相談は最短2週間で稼働可能です。業務自動化支援は1〜2ヶ月が目安です。' },
+              { q: '導入までどのくらいの期間がかかりますか？', a: 'AI秘書は最短2週間で稼働可能です。業務自動化支援は1〜2ヶ月が目安です。AI顧問は初回MTG後すぐに開始できます。' },
               { q: 'AI秘書のAI利用料はどのくらいですか？', a: 'AI APIの使用量に応じた従量課金となります。利用規模にもよりますが、月数千円〜数万円程度が一般的です。毎月の利用状況をレポートでお知らせします。' },
             ].map((item, index) => (
               <div key={index} className="border-b border-subtle py-8">
