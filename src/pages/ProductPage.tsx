@@ -1,17 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { Bot, Zap, BarChart3, Users, ArrowRight, Check, X, Minus } from 'lucide-react';
 
-type TabKey = 'ai-secretary' | 'automation' | 'review-ai' | 'ai-advisor';
 
-const tabs: { key: TabKey; label: string; icon: React.ReactNode }[] = [
-  { key: 'ai-secretary', label: 'AI秘書派遣', icon: <Bot className="h-5 w-5" /> },
-  { key: 'automation', label: '業務自動化支援', icon: <Zap className="h-5 w-5" /> },
-  { key: 'review-ai', label: '口コミAI', icon: <BarChart3 className="h-5 w-5" /> },
-  { key: 'ai-advisor', label: 'AI顧問', icon: <Users className="h-5 w-5" /> },
-];
-
-const tabContent: Record<TabKey, {
+const services: {
+  label: string;
+  icon: React.ReactNode;
   oneLiner: string;
   problem: string;
   solution: string;
@@ -19,8 +13,10 @@ const tabContent: Record<TabKey, {
   pricing: string;
   cta: string;
   extraLink?: { label: string; to: string };
-}> = {
-  'ai-secretary': {
+}[] = [
+  {
+    label: 'AI秘書派遣',
+    icon: <Bot className="h-6 w-6" />,
     oneLiner: 'あなた専属のAI秘書を、月5万円から',
     problem: 'メール対応、日程調整、レポート作成…毎日繰り返す業務に時間を奪われていませんか？',
     solution: 'honkomaのAI秘書が、御社の業務を学習し、実務レベルで対応します',
@@ -34,7 +30,9 @@ const tabContent: Record<TabKey, {
     pricing: '初期セットアップ 15万円 + 月額5万円〜',
     cta: 'AI秘書について相談する',
   },
-  automation: {
+  {
+    label: '業務自動化支援',
+    icon: <Zap className="h-6 w-6" />,
     oneLiner: '御社の業務フローをAIで再設計',
     problem: '手作業のコピペ、転記、チェック作業。人がやる必要のない業務に人件費をかけていませんか？',
     solution: '業務フローを分析し、最適なAI自動化ソリューションを設計・実装します',
@@ -48,7 +46,9 @@ const tabContent: Record<TabKey, {
     pricing: '月額30万円〜（初期セットアップ込み）',
     cta: '業務自動化について相談する',
   },
-  'review-ai': {
+  {
+    label: '口コミAI',
+    icon: <BarChart3 className="h-6 w-6" />,
     oneLiner: '口コミ対応、もうあなたがやる必要はありません',
     problem: '複数サイトの口コミを毎日チェック、返信、分析…月30時間以上かかっていませんか？',
     solution: 'AIが口コミを自動収集・分析し、週次レポート+返信ドラフトまで自動生成します',
@@ -64,7 +64,9 @@ const tabContent: Record<TabKey, {
     cta: '口コミAIについて相談する',
     extraLink: { label: '口コミAI詳細ページ', to: '/review-ai' },
   },
-  'ai-advisor': {
+  {
+    label: 'AI顧問',
+    icon: <Users className="h-6 w-6" />,
     oneLiner: 'AIの進化、追いかけるのをやめませんか。',
     problem: 'AIツールは毎日増え続ける。自社に合うものがどれかわからない。始めたいけど、何から手をつければいいのか見当もつかない。',
     solution: '毎日AIを経営に活用しているプロが、御社の横に立ちます。週次ミーティングで一緒に手を動かしながら、御社に合ったAI活用を実現します。',
@@ -79,7 +81,7 @@ const tabContent: Record<TabKey, {
     pricing: '月額15万円（税別・最低3ヶ月〜）',
     cta: 'AI顧問について相談する',
   },
-};
+];
 
 const comparisonRows = [
   {
@@ -142,13 +144,9 @@ function ComparisonIcon({ type }: { type: string }) {
 }
 
 const ProductPage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<TabKey>('ai-secretary');
-
   React.useEffect(() => {
     document.title = 'サービス・料金 | honkoma';
   }, []);
-
-  const current = tabContent[activeTab];
 
   return (
     <div className="bg-cream">
@@ -197,100 +195,93 @@ const ProductPage: React.FC = () => {
         </div>
       </section>
 
-      {/* ===== 3. SERVICE TABS ===== */}
-      <section className="py-24 md:py-32 border-b border-subtle">
+      {/* ===== 3. SERVICES (vertical stack) ===== */}
+      <section className="border-b border-subtle">
         <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-12">
-            <div className="lg:col-span-3">
-              <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">Services</span>
-            </div>
-            <div className="lg:col-span-9">
-              <h2 className="font-serif text-3xl md:text-4xl font-bold text-ink">サービス概要</h2>
-            </div>
-          </div>
-
-          {/* Tab Buttons */}
-          <div className="lg:ml-[25%] mb-12">
-            <div className="flex overflow-x-auto -mx-6 px-6 lg:mx-0 lg:px-0 gap-0 border-b border-subtle">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.key}
-                  onClick={() => setActiveTab(tab.key)}
-                  className={`flex items-center gap-2 px-6 py-4 font-serif text-sm md:text-base whitespace-nowrap transition-all duration-300 border-b-2 -mb-px ${
-                    activeTab === tab.key
-                      ? 'border-accent text-ink font-bold'
-                      : 'border-transparent text-warm hover:text-ink'
-                  }`}
-                >
-                  {tab.icon}
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Tab Content */}
-          <div className="lg:ml-[25%]" key={activeTab}>
-            <div className="animate-fade-in">
-              {/* One-liner */}
-              <p className="font-serif text-2xl md:text-3xl font-bold text-ink mb-8">
-                {current.oneLiner}
-              </p>
-
-              {/* Problem / Solution */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-subtle mb-10">
-                <div className="bg-cream p-6 md:p-8">
-                  <h4 className="font-mono text-xs tracking-[0.2em] uppercase text-warm mb-3">課題</h4>
-                  <p className="text-ink leading-relaxed">{current.problem}</p>
+          {services.map((service, idx) => (
+            <div
+              key={idx}
+              className={`py-16 md:py-20 ${idx < services.length - 1 ? 'border-b border-subtle' : ''} ${idx % 2 === 1 ? 'bg-accent-light/10' : ''}`}
+            >
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                {/* Left label — only on first service */}
+                <div className="lg:col-span-3">
+                  {idx === 0 && (
+                    <>
+                      <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">Services</span>
+                      <h2 className="font-serif text-3xl md:text-4xl font-bold text-ink mt-2">サービス概要</h2>
+                    </>
+                  )}
                 </div>
-                <div className="bg-cream p-6 md:p-8">
-                  <h4 className="font-mono text-xs tracking-[0.2em] uppercase text-warm mb-3">解決</h4>
-                  <p className="text-ink leading-relaxed">{current.solution}</p>
-                </div>
-              </div>
 
-              {/* Includes */}
-              <div className="border-t border-subtle pt-8 mb-10">
-                <h4 className="font-mono text-xs tracking-[0.2em] uppercase text-warm mb-5">含まれるもの</h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {current.includes.map((item, i) => (
-                    <div key={i} className="flex items-center gap-3">
-                      <Check className="h-4 w-4 text-accent flex-shrink-0" />
-                      <span className="text-sm text-ink">{item}</span>
+                <div className="lg:col-span-9">
+                  {/* Service header */}
+                  <div className="flex items-center gap-3 mb-6">
+                    <span className="text-accent">{service.icon}</span>
+                    <h3 className="font-serif text-2xl font-bold text-ink">{service.label}</h3>
+                  </div>
+
+                  {/* One-liner */}
+                  <p className="font-serif text-xl md:text-2xl font-bold text-ink mb-8">
+                    {service.oneLiner}
+                  </p>
+
+                  {/* Problem / Solution */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-subtle mb-10">
+                    <div className="bg-cream p-6 md:p-8">
+                      <h4 className="font-mono text-xs tracking-[0.2em] uppercase text-warm mb-3">課題</h4>
+                      <p className="text-ink leading-relaxed">{service.problem}</p>
                     </div>
-                  ))}
-                </div>
-              </div>
+                    <div className="bg-cream p-6 md:p-8">
+                      <h4 className="font-mono text-xs tracking-[0.2em] uppercase text-warm mb-3">解決</h4>
+                      <p className="text-ink leading-relaxed">{service.solution}</p>
+                    </div>
+                  </div>
 
-              {/* Pricing */}
-              <div className="bg-ink text-cream p-6 md:p-8 mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div>
-                  <h4 className="font-mono text-xs tracking-[0.2em] uppercase text-cream/50 mb-2">料金</h4>
-                  <p className="font-serif text-xl md:text-2xl font-bold">{current.pricing}</p>
-                </div>
-              </div>
+                  {/* Includes */}
+                  <div className="border-t border-subtle pt-8 mb-10">
+                    <h4 className="font-mono text-xs tracking-[0.2em] uppercase text-warm mb-5">含まれるもの</h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {service.includes.map((item, i) => (
+                        <div key={i} className="flex items-center gap-3">
+                          <Check className="h-4 w-4 text-accent flex-shrink-0" />
+                          <span className="text-sm text-ink">{item}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
 
-              {/* CTA */}
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Link
-                  to="/contact"
-                  className="group inline-flex items-center px-8 py-4 bg-accent text-white font-serif font-medium hover:bg-accent-hover transition-colors duration-300"
-                >
-                  {current.cta}
-                  <ArrowRight className="ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                </Link>
-                {current.extraLink && (
-                  <Link
-                    to={current.extraLink.to}
-                    className="group inline-flex items-center px-8 py-4 border border-subtle text-ink font-serif font-medium hover:border-ink transition-colors duration-300"
-                  >
-                    {current.extraLink.label}
-                    <ArrowRight className="ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                  </Link>
-                )}
+                  {/* Pricing */}
+                  <div className="bg-ink text-cream p-6 md:p-8 mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div>
+                      <h4 className="font-mono text-xs tracking-[0.2em] uppercase text-cream/50 mb-2">料金</h4>
+                      <p className="font-serif text-xl md:text-2xl font-bold">{service.pricing}</p>
+                    </div>
+                  </div>
+
+                  {/* CTA */}
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <Link
+                      to="/contact"
+                      className="group inline-flex items-center px-8 py-4 bg-accent text-white font-serif font-medium hover:bg-accent-hover transition-colors duration-300"
+                    >
+                      {service.cta}
+                      <ArrowRight className="ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                    </Link>
+                    {service.extraLink && (
+                      <Link
+                        to={service.extraLink.to}
+                        className="group inline-flex items-center px-8 py-4 border border-subtle text-ink font-serif font-medium hover:border-ink transition-colors duration-300"
+                      >
+                        {service.extraLink.label}
+                        <ArrowRight className="ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                      </Link>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
+          ))}
         </div>
       </section>
 
