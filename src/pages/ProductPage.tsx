@@ -195,21 +195,66 @@ const ProductPage: React.FC = () => {
         </div>
       </section>
 
-      {/* ===== 3. SERVICES (vertical stack) ===== */}
+      {/* ===== 3. SERVICE CARD GRID ===== */}
+      <section className="py-24 md:py-32 border-b border-subtle">
+        <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <div className="lg:col-span-3">
+              <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">Services</span>
+              <h2 className="font-serif text-3xl md:text-4xl font-bold text-ink mt-2">サービス概要</h2>
+            </div>
+            <div className="lg:col-span-9">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {[
+                  { id: 'service-ai-secretary', title: 'AI秘書派遣', desc: 'メール・日程調整・レポート作成をAIが代行', icon: <Bot className="h-8 w-8 text-blue-500" />, gradient: 'from-blue-500/10 to-blue-600/5' },
+                  { id: 'service-automation', title: '業務自動化支援', desc: '業務フローをAIで再設計・自動化', icon: <Zap className="h-8 w-8 text-orange-500" />, gradient: 'from-orange-500/10 to-orange-600/5' },
+                  { id: 'service-review-ai', title: '口コミAI', desc: '口コミ収集・分析・返信をすべて自動化', icon: <BarChart3 className="h-8 w-8 text-green-500" />, gradient: 'from-green-500/10 to-green-600/5' },
+                  { id: 'service-ai-advisor', title: 'AI顧問', desc: 'AIの進化に追いつく必要はもうありません', icon: <Users className="h-8 w-8 text-purple-500" />, gradient: 'from-purple-500/10 to-purple-600/5' },
+                ].map((card) => (
+                  <a
+                    key={card.id}
+                    href={`#${card.id}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      document.getElementById(card.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }}
+                    className="group block bg-cream border border-subtle p-8 hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+                  >
+                    <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${card.gradient} flex items-center justify-center mb-6`}>
+                      {card.icon}
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="font-serif text-xl font-bold text-ink">{card.title}</h3>
+                        <p className="text-warm text-sm mt-1">{card.desc}</p>
+                      </div>
+                      <ArrowRight className="h-5 w-5 text-warm group-hover:text-accent group-hover:translate-x-1 transition-all flex-shrink-0 ml-4" />
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== 4. SERVICES DETAIL ===== */}
       <section className="border-b border-subtle">
         <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
-          {services.map((service, idx) => (
+          {services.map((service, idx) => {
+            const serviceIds = ['service-ai-secretary', 'service-automation', 'service-review-ai', 'service-ai-advisor'];
+            return (
             <div
               key={idx}
-              className={`py-16 md:py-20 ${idx < services.length - 1 ? 'border-b border-subtle' : ''} ${idx % 2 === 1 ? 'bg-accent-light/10' : ''}`}
+              id={serviceIds[idx]}
+              className={`py-16 md:py-20 scroll-mt-24 ${idx < services.length - 1 ? 'border-b border-subtle' : ''} ${idx % 2 === 1 ? 'bg-accent-light/10' : ''}`}
             >
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* Left label — only on first service */}
                 <div className="lg:col-span-3">
                   {idx === 0 && (
                     <>
-                      <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">Services</span>
-                      <h2 className="font-serif text-3xl md:text-4xl font-bold text-ink mt-2">サービス概要</h2>
+                      <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">Services — Detail</span>
                     </>
                   )}
                 </div>
@@ -281,11 +326,12 @@ const ProductPage: React.FC = () => {
                 </div>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       </section>
 
-      {/* ===== 4. COMPARISON TABLE ===== */}
+      {/* ===== 5. COMPARISON TABLE ===== */}
       <section className="py-24 md:py-32 border-b border-subtle">
         <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-14">
@@ -344,7 +390,7 @@ const ProductPage: React.FC = () => {
         </div>
       </section>
 
-      {/* ===== 5. BEFORE → AFTER JOURNEY ===== */}
+      {/* ===== 6. BEFORE → AFTER JOURNEY ===== */}
       <section className="py-24 md:py-32 bg-ink">
         <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-14">
@@ -398,7 +444,7 @@ const ProductPage: React.FC = () => {
         </div>
       </section>
 
-      {/* ===== 6. FAQ ===== */}
+      {/* ===== 7. FAQ ===== */}
       <section id="faq" className="py-28 border-b border-subtle">
         <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-14">
@@ -431,6 +477,7 @@ const ProductPage: React.FC = () => {
       </section>
 
       {/* ===== 8. BOTTOM CTA ===== */}
+
       <section className="py-32 bg-ink">
         <div className="max-w-[800px] mx-auto text-center px-6 lg:px-8">
           <h2 className="font-serif text-4xl md:text-5xl font-bold text-cream mb-6">
