@@ -206,10 +206,10 @@ const ProductPage: React.FC = () => {
             <div className="lg:col-span-9">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {[
-                  { id: 'service-ai-secretary', title: 'AI秘書派遣', desc: 'メール・日程調整・レポート作成をAIが代行', icon: <Bot className="h-8 w-8 text-blue-500" />, gradient: 'from-blue-500/10 to-blue-600/5' },
-                  { id: 'service-automation', title: '業務自動化支援', desc: '業務フローをAIで再設計・自動化', icon: <Zap className="h-8 w-8 text-orange-500" />, gradient: 'from-orange-500/10 to-orange-600/5' },
-                  { id: 'service-review-ai', title: '口コミAI', desc: '口コミ収集・分析・返信をすべて自動化', icon: <BarChart3 className="h-8 w-8 text-green-500" />, gradient: 'from-green-500/10 to-green-600/5' },
-                  { id: 'service-ai-advisor', title: 'AI顧問', desc: 'AIの進化に追いつく必要はもうありません', icon: <Users className="h-8 w-8 text-purple-500" />, gradient: 'from-purple-500/10 to-purple-600/5' },
+                  { id: 'service-ai-secretary', title: 'AI秘書派遣', desc: 'メール・日程調整・レポート作成をAIが代行', gradient: 'bg-gradient-to-br from-blue-600 to-blue-800', Icon: Bot },
+                  { id: 'service-automation', title: '業務自動化支援', desc: '業務フローをAIで再設計・自動化', gradient: 'bg-gradient-to-br from-orange-500 to-red-600', Icon: Zap },
+                  { id: 'service-review-ai', title: '口コミAI', desc: '口コミ収集・分析・返信をすべて自動化', gradient: 'bg-gradient-to-br from-emerald-500 to-teal-700', Icon: BarChart3 },
+                  { id: 'service-ai-advisor', title: 'AI顧問', desc: 'AIの進化に追いつく必要はもうありません', gradient: 'bg-gradient-to-br from-purple-600 to-indigo-800', Icon: Users },
                 ].map((card) => (
                   <a
                     key={card.id}
@@ -218,17 +218,28 @@ const ProductPage: React.FC = () => {
                       e.preventDefault();
                       document.getElementById(card.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     }}
-                    className="group block bg-cream border border-subtle p-8 hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+                    className={`group relative block overflow-hidden rounded-2xl ${card.gradient} p-8 min-h-[200px] md:min-h-[240px] hover:shadow-2xl hover:-translate-y-1 transition-all duration-300`}
                   >
-                    <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${card.gradient} flex items-center justify-center mb-6`}>
-                      {card.icon}
+                    {/* 右上の大きなあしらいアイコン */}
+                    <div className="absolute -top-4 -right-4 opacity-10">
+                      <card.Icon className="h-32 w-32 text-white" />
                     </div>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h3 className="font-serif text-xl font-bold text-ink">{card.title}</h3>
-                        <p className="text-warm text-sm mt-1">{card.desc}</p>
+
+                    {/* コンテンツ */}
+                    <div className="relative z-10 flex flex-col justify-between h-full">
+                      <div className="flex items-center gap-3 mb-6">
+                        <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center">
+                          <card.Icon className="h-6 w-6 text-white" />
+                        </div>
                       </div>
-                      <ArrowRight className="h-5 w-5 text-warm group-hover:text-accent group-hover:translate-x-1 transition-all flex-shrink-0 ml-4" />
+                      <div>
+                        <h3 className="font-serif text-2xl font-bold text-white mb-2">{card.title}</h3>
+                        <p className="text-white/70 text-sm">{card.desc}</p>
+                      </div>
+                      <div className="mt-4 flex items-center text-white/60 text-sm font-mono group-hover:text-white transition-colors">
+                        詳しく見る
+                        <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                      </div>
                     </div>
                   </a>
                 ))}

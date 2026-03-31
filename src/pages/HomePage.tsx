@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, ArrowUpRight } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, Bot, Zap, Users } from 'lucide-react';
 
 function useScrollReveal() {
   const ref = React.useRef<HTMLDivElement>(null);
@@ -44,16 +44,22 @@ const HomePage: React.FC = () => {
       num: '01',
       title: 'AI秘書派遣',
       description: '御社の業務に特化したAI秘書を設計・構築・運用。メール対応、口コミ分析、レポート生成、日程調整——月5万円から、あなた専属の秘書を。',
+      gradient: 'bg-gradient-to-br from-blue-600 to-blue-800',
+      Icon: Bot,
     },
     {
       num: '02',
       title: 'AI導入・業務自動化支援',
       description: '御社の業務フローを分析し、最適なAIソリューションを設計・実装。ルーティーンワークの自動化で生産性を向上させます。',
+      gradient: 'bg-gradient-to-br from-orange-500 to-red-600',
+      Icon: Zap,
     },
     {
       num: '03',
       title: 'AI顧問',
       description: 'AIの進化が速すぎてついていけない——そんな企業に、毎日AIを経営に活用しているプロが伴走。週次MTGで一緒に手を動かし、社内にAI人材を育てます。',
+      gradient: 'bg-gradient-to-br from-purple-600 to-indigo-800',
+      Icon: Users,
     },
   ];
 
@@ -246,7 +252,7 @@ const HomePage: React.FC = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-subtle">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {services.map((service, i) => (
               <div
                 key={service.num}
@@ -256,19 +262,34 @@ const HomePage: React.FC = () => {
               >
                 <Link
                   to="/product"
-                  className="group block bg-cream p-8 md:p-10 hover:bg-accent-light hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+                  className={`group relative block overflow-hidden rounded-2xl ${service.gradient} p-8 md:p-10 min-h-[220px] hover:shadow-2xl hover:-translate-y-1 transition-all duration-300`}
                 >
-                  <span className="font-mono text-sm text-warm">{service.num}</span>
-                  <h3 className="font-serif text-xl font-bold text-ink mt-4 mb-3">
-                    {service.title}
-                  </h3>
-                  <p className="text-warm text-sm leading-relaxed mb-8">
-                    {service.description}
-                  </p>
-                  <span className="inline-flex items-center text-xs font-mono tracking-wide text-accent group-hover:text-accent-hover transition-colors">
-                    詳しく見る
-                    <ArrowUpRight className="ml-1 h-3 w-3" />
-                  </span>
+                  {/* 右上の大きなあしらいアイコン */}
+                  <div className="absolute -top-4 -right-4 opacity-10">
+                    <service.Icon className="h-32 w-32 text-white" />
+                  </div>
+
+                  {/* コンテンツ */}
+                  <div className="relative z-10 flex flex-col justify-between h-full">
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center">
+                        <service.Icon className="h-6 w-6 text-white" />
+                      </div>
+                      <span className="font-mono text-sm text-white/50">{service.num}</span>
+                    </div>
+                    <div>
+                      <h3 className="font-serif text-xl font-bold text-white mb-3">
+                        {service.title}
+                      </h3>
+                      <p className="text-white/70 text-sm leading-relaxed mb-6">
+                        {service.description}
+                      </p>
+                    </div>
+                    <span className="inline-flex items-center text-xs font-mono tracking-wide text-white/60 group-hover:text-white transition-colors">
+                      詳しく見る
+                      <ArrowUpRight className="ml-1 h-3 w-3" />
+                    </span>
+                  </div>
                 </Link>
               </div>
             ))}
