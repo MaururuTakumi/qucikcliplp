@@ -206,10 +206,10 @@ const ProductPage: React.FC = () => {
             <div className="lg:col-span-9">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {[
-                  { id: 'service-ai-secretary', title: 'AI秘書派遣', desc: 'メール・日程調整・レポート作成をAIが代行', gradient: 'bg-gradient-to-br from-blue-600 to-blue-800', Icon: Bot },
-                  { id: 'service-automation', title: '業務自動化支援', desc: '業務フローをAIで再設計・自動化', gradient: 'bg-gradient-to-br from-orange-500 to-red-600', Icon: Zap },
-                  { id: 'service-review-ai', title: '口コミAI', desc: '口コミ収集・分析・返信をすべて自動化', gradient: 'bg-gradient-to-br from-emerald-500 to-teal-700', Icon: BarChart3 },
-                  { id: 'service-ai-advisor', title: 'AI顧問', desc: 'AIの進化に追いつく必要はもうありません', gradient: 'bg-gradient-to-br from-purple-600 to-indigo-800', Icon: Users },
+                  { id: 'service-ai-secretary', title: 'AI秘書派遣', desc: 'メール・日程調整・レポート作成をAIが代行', borderColor: 'border-l-blue-500', badgeBg: 'bg-blue-50', iconColor: 'text-blue-600', hoverColor: 'group-hover:text-blue-600', Icon: Bot },
+                  { id: 'service-automation', title: '業務自動化支援', desc: '業務フローをAIで再設計・自動化', borderColor: 'border-l-orange-500', badgeBg: 'bg-orange-50', iconColor: 'text-orange-600', hoverColor: 'group-hover:text-orange-600', Icon: Zap },
+                  { id: 'service-review-ai', title: '口コミAI', desc: '口コミ収集・分析・返信をすべて自動化', borderColor: 'border-l-emerald-500', badgeBg: 'bg-emerald-50', iconColor: 'text-emerald-600', hoverColor: 'group-hover:text-emerald-600', Icon: BarChart3 },
+                  { id: 'service-ai-advisor', title: 'AI顧問', desc: 'AIの進化に追いつく必要はもうありません', borderColor: 'border-l-violet-500', badgeBg: 'bg-violet-50', iconColor: 'text-violet-600', hoverColor: 'group-hover:text-violet-600', Icon: Users },
                 ].map((card) => (
                   <a
                     key={card.id}
@@ -218,25 +218,23 @@ const ProductPage: React.FC = () => {
                       e.preventDefault();
                       document.getElementById(card.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     }}
-                    className={`group relative block overflow-hidden rounded-2xl ${card.gradient} p-8 min-h-[200px] md:min-h-[240px] hover:shadow-2xl hover:-translate-y-1 transition-all duration-300`}
+                    className={`group relative block overflow-hidden rounded-xl bg-white border border-gray-200 border-l-4 ${card.borderColor} p-8 min-h-[220px] hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300`}
                   >
                     {/* 右上の大きなあしらいアイコン */}
-                    <div className="absolute -top-4 -right-4 opacity-10">
-                      <card.Icon className="h-32 w-32 text-white" />
+                    <div className="absolute -top-4 -right-4 opacity-[0.05]">
+                      <card.Icon className={`w-28 h-28 ${card.iconColor}`} />
                     </div>
 
                     {/* コンテンツ */}
                     <div className="relative z-10 flex flex-col justify-between h-full">
-                      <div className="flex items-center gap-3 mb-6">
-                        <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center">
-                          <card.Icon className="h-6 w-6 text-white" />
-                        </div>
+                      <div className={`w-11 h-11 rounded-xl ${card.badgeBg} flex items-center justify-center mb-6`}>
+                        <card.Icon className={`h-5 w-5 ${card.iconColor}`} />
                       </div>
                       <div>
-                        <h3 className="font-serif text-2xl font-bold text-white mb-2">{card.title}</h3>
-                        <p className="text-white/70 text-sm">{card.desc}</p>
+                        <h3 className="font-serif text-xl font-bold text-ink mb-2">{card.title}</h3>
+                        <p className="text-warm text-sm">{card.desc}</p>
                       </div>
-                      <div className="mt-4 flex items-center text-white/60 text-sm font-mono group-hover:text-white transition-colors">
+                      <div className={`mt-4 flex items-center text-warm text-xs tracking-wide font-mono ${card.hoverColor} transition-colors`}>
                         詳しく見る
                         <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                       </div>
