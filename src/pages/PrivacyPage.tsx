@@ -232,7 +232,6 @@ const PrivacyPage: React.FC = () => {
                     </p>
                     <div className="space-y-2 text-sm text-gray-600">
                       <p><strong>会社名：</strong>株式会社honkoma</p>
-                      <p><strong>所在地：</strong>〒113-0021 東京都文京区本駒込1-20-16 モンテベルデ本駒込102</p>
                       <p><strong>電話番号：</strong>080-8526-6978</p>
                       <p><strong>メール：</strong>quickclip@ltdhonkoma.com</p>
                       <p><strong>受付時間：</strong>平日 9:00-18:00（土日祝日を除く）</p>
