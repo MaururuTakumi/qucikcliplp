@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, ArrowUpRight, Bot, Zap, Users } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, Bot, Zap, Users, Layers3, UserX, Workflow, Sparkles, CheckCircle2 } from 'lucide-react';
 
 function useScrollReveal() {
   const ref = React.useRef<HTMLDivElement>(null);
@@ -76,16 +76,56 @@ const HomePage: React.FC = () => {
   ];
 
   const processSteps = [
-    { step: '01', title: 'ヒアリング', desc: '現在の業務フロー・課題をお伺いし、自動化・AI導入の可能性を分析します。' },
-    { step: '02', title: '提案', desc: '最適なソリューションと導入計画をご提案。費用対効果も明確にお伝えします。' },
-    { step: '03', title: '実装', desc: 'アジャイルで開発・導入を進行。途中経過を共有しながら御社仕様に仕上げます。' },
-    { step: '04', title: '運用支援', desc: '導入後の運用サポート・改善提案を継続。チームへの研修も実施します。' },
+    { step: '01', title: '要件定義', desc: '「どこから着手すべきか」から対話を開始。業務棚卸しと優先順位づけを一緒に行います。' },
+    { step: '02', title: '伴走設計', desc: 'キックオフから並走し、現場フローに合わせてAIエージェントの役割と運用導線を固めます。' },
+    { step: '03', title: '構築・実装', desc: '御社専用のエージェントを実装。APIがない手作業や画面操作を含めて自動化対象を広げます。' },
+    { step: '04', title: '自走化支援', desc: '導入して終わりではなく、社内にAI導入リーダーと運用ナレッジが残る状態まで支援します。' },
+  ];
+
+  const aaasPillars = [
+    {
+      title: 'SaaSを足す時代から、Agentを働かせる時代へ',
+      desc: 'SaaSを増やすほど運用は複雑になります。これからは、AIエージェントが業務そのものを引き受ける AaaS の設計が競争力になります。',
+    },
+    {
+      title: 'ツール導入ではなく、実務を持つ戦力を実装する',
+      desc: 'honkomaがつくるのはダッシュボードではなく、問い合わせ整理、レポート作成、顧客対応補助まで担う実務レイヤーのAIです。',
+    },
+  ];
+
+  const transformationCards = [
+    {
+      title: 'コストとツールの集約',
+      before: ['SaaSごとに個別契約', '業務ごとに情報が分散', '固定費がじわじわ膨らむ'],
+      after: ['Claude / AIエージェント中心に統合', '運用導線が一本化される', '少ない構成で回る状態へ'],
+      Icon: Layers3,
+      accent: 'text-blue-600',
+      bg: 'bg-blue-50',
+    },
+    {
+      title: '採用難の解消',
+      before: ['採りたい職種ほど採れない', '採用しても属人化しやすい', '教育コストが重い'],
+      after: ['AIが定型業務を先に担う', '人は判断と接客に集中', '採用負担と教育負担を圧縮'],
+      Icon: UserX,
+      accent: 'text-violet-600',
+      bg: 'bg-violet-50',
+    },
+    {
+      title: '手作業の自動化',
+      before: ['APIがないと手が出せない', '転記やコピペが残る', '画面確認の手作業が多い'],
+      after: ['AIエージェントが画面操作まで代行', 'アナログ業務も自動化対象に', '現場の重い雑務が消える'],
+      Icon: Workflow,
+      accent: 'text-emerald-600',
+      bg: 'bg-emerald-50',
+    },
   ];
 
   const trustedByReveal = useScrollReveal();
   const trustBarReveal = useScrollReveal();
   const positioningReveal = useScrollReveal();
   const servicesReveal = useScrollReveal();
+  const aaasReveal = useScrollReveal();
+  const transformationReveal = useScrollReveal();
   const useCaseReveal = useScrollReveal();
   const processReveal = useScrollReveal();
   const caseStudiesReveal = useScrollReveal();
@@ -300,6 +340,105 @@ const HomePage: React.FC = () => {
         </div>
       </section>
 
+      {/* ===== AaaS POSITIONING ===== */}
+      <section
+        ref={aaasReveal.ref}
+        className={`py-28 border-b border-subtle bg-ink ${scrollClass(aaasReveal.isVisible)}`}
+      >
+        <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+            <div className="lg:col-span-3">
+              <span className="font-mono text-xs tracking-[0.2em] uppercase text-cream/40">Positioning</span>
+            </div>
+            <div className="lg:col-span-9">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-accent/20 bg-accent/10 text-accent text-xs font-mono tracking-wide mb-6">
+                <Sparkles className="h-3.5 w-3.5" />
+                New category
+              </div>
+              <h2 className="font-serif text-4xl md:text-5xl font-bold leading-tight text-cream mb-6">
+                <span className="text-cream/45 line-through">SaaS is dead.</span><br />
+                これからは <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-300 to-orange-500">Agent as a Service</span> の時代へ。
+              </h2>
+              <p className="text-cream/65 text-lg leading-relaxed max-w-3xl mb-10">
+                ツールを増やして現場に覚えてもらう時代から、AIエージェントが実務そのものを持つ時代へ。
+                honkomaは、SaaSを追加導入するのではなく、御社専用のAI戦力を実装する AaaS パートナーです。
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-cream/10">
+                {aaasPillars.map((item, i) => (
+                  <div key={i} className="bg-ink p-8 md:p-10 hover:bg-cream/[0.03] transition-colors duration-300">
+                    <h3 className="font-serif text-2xl font-bold text-cream mb-4">{item.title}</h3>
+                    <p className="text-cream/60 leading-relaxed text-sm md:text-base">{item.desc}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== BEFORE / AFTER ===== */}
+      <section
+        ref={transformationReveal.ref}
+        className={`py-28 border-b border-subtle bg-accent-light/10 ${scrollClass(transformationReveal.isVisible)}`}
+      >
+        <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-16">
+            <div className="lg:col-span-3">
+              <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">Before / After</span>
+            </div>
+            <div className="lg:col-span-9">
+              <h2 className="font-serif text-4xl md:text-5xl font-bold leading-tight text-ink mb-5">
+                導入前と導入後で、<br />仕事の景色はここまで変わります。
+              </h2>
+              <p className="text-warm text-lg leading-relaxed max-w-3xl">
+                AIを入れるだけではなく、コスト構造、採用戦略、現場の業務導線そのものを再設計する。
+                それがAaaSとしてのhonkomaの役割です。
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {transformationCards.map((card, i) => (
+              <div key={i} className="rounded-2xl overflow-hidden border border-subtle bg-white shadow-sm hover:shadow-xl transition-all duration-300">
+                <div className="p-8 border-b border-subtle">
+                  <div className={`w-12 h-12 rounded-2xl ${card.bg} flex items-center justify-center mb-5`}>
+                    <card.Icon className={`h-6 w-6 ${card.accent}`} />
+                  </div>
+                  <h3 className="font-serif text-2xl font-bold text-ink">{card.title}</h3>
+                </div>
+                <div className="grid grid-cols-1 divide-y divide-subtle">
+                  <div className="p-8 bg-stone-50/80">
+                    <div className="font-mono text-xs tracking-[0.2em] uppercase text-warm mb-4">Before</div>
+                    <ul className="space-y-3 text-sm text-warm leading-relaxed">
+                      {card.before.map((item, idx) => (
+                        <li key={idx} className="flex items-start gap-3">
+                          <span className="w-1.5 h-1.5 rounded-full bg-warm/40 mt-2.5 flex-shrink-0"></span>
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div className="p-8 bg-white">
+                    <div className="flex items-center gap-2 text-accent mb-4">
+                      <ArrowRight className="h-4 w-4" />
+                      <span className="font-mono text-xs tracking-[0.2em] uppercase">After</span>
+                    </div>
+                    <ul className="space-y-3 text-sm text-ink leading-relaxed">
+                      {card.after.map((item, idx) => (
+                        <li key={idx} className="flex items-start gap-3">
+                          <CheckCircle2 className="h-4 w-4 text-accent mt-0.5 flex-shrink-0" />
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ===== FEATURED USE CASE ===== */}
       <section
         ref={useCaseReveal.ref}
@@ -392,9 +531,12 @@ const HomePage: React.FC = () => {
               <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">Process</span>
             </div>
             <div className="lg:col-span-9">
-              <h2 className="font-serif text-4xl md:text-5xl font-bold leading-tight text-ink">
-                導入の流れ
+              <h2 className="font-serif text-4xl md:text-5xl font-bold leading-tight text-ink mb-5">
+                伴走しながら、社内に残る形で進めます。
               </h2>
+              <p className="text-warm text-lg leading-relaxed max-w-3xl">
+                「どこから始めればいいかわからない」企業ほど相性がいい進め方です。導入して終わりではなく、御社がAIを使いこなせる状態まで一緒に持っていきます。
+              </p>
             </div>
           </div>
 
