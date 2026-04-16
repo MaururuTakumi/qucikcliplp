@@ -18,7 +18,6 @@ const AboutPage: React.FC = () => {
     { label: '設立年月日', value: '2025年7月' },
     { label: '電話番号', value: '080-8526-6978' },
     { label: 'メール', value: 'quickclip@ltdhonkoma.com' },
-    { label: '資本金', value: '500,000円' },
     { label: '事業内容', value: 'AI導入支援、業務自動化支援、AIエージェント開発・派遣、ソフトウェア開発' },
     { label: '従業員数', value: '2名（創業メンバー）' },
   ];
