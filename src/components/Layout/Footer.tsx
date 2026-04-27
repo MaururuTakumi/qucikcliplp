@@ -11,8 +11,8 @@ const Footer: React.FC = () => {
           {/* Company */}
           <div className="md:col-span-5">
             <img
-              className="h-20 w-auto filter brightness-0 invert mb-6"
-              src="/honkoma-logo-transparent--1--2.png"
+              className="h-12 w-auto filter brightness-0 invert mb-6"
+              src="/assets/hotel/honkoma-logo-blue.png"
               alt="honkoma"
             />
             <p className="text-sm leading-relaxed mb-6 max-w-xs">
@@ -32,6 +32,7 @@ const Footer: React.FC = () => {
                 { name: 'ホーム', href: '/' },
                 { name: '会社概要', href: '/about' },
                 { name: 'サービス', href: '/product' },
+                { name: 'ホテル向け', href: '/hotel' },
                 { name: 'メンバー', href: '/team' },
                 { name: 'お問い合わせ', href: '/contact' },
               ].map((item) => (
@@ -51,6 +52,7 @@ const Footer: React.FC = () => {
               <li><Link to="/product#standard" className="text-sm hover:text-cream transition-colors">スタンダードプラン</Link></li>
               <li><Link to="/product#advisory" className="text-sm hover:text-cream transition-colors">顧問相談</Link></li>
               <li><Link to="/product#ai-agent" className="text-sm hover:text-cream transition-colors">AI秘書派遣</Link></li>
+              <li><Link to="/hotel" className="text-sm hover:text-cream transition-colors">ホテル向け公開OTA表示レポート</Link></li>
               <li><Link to="/product#spot" className="text-sm hover:text-cream transition-colors">スポット相談</Link></li>
             </ul>
             <div className="mt-8">

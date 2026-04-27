@@ -11,6 +11,7 @@ import ContactPage from "./pages/ContactPage";
 import PrivacyPage from "./pages/PrivacyPage";
 import CaseStudiesPage from "./pages/CaseStudiesPage";
 import ReviewAIPage from "./pages/ReviewAIPage";
+import HotelPage from "./pages/HotelPage";
 createRoot(document.getElementById("app") as HTMLElement).render(
   <StrictMode>
     <HelmetProvider>
@@ -23,6 +24,9 @@ createRoot(document.getElementById("app") as HTMLElement).render(
             <Route path="/team" element={<TeamPage />} />
             <Route path="/case-studies" element={<CaseStudiesPage />} />
             <Route path="/review-ai" element={<ReviewAIPage />} />
+            <Route path="/hotel" element={<HotelPage />} />
+            <Route path="/hotels" element={<HotelPage />} />
+            <Route path="/hasip" element={<HotelPage />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/privacy" element={<PrivacyPage />} />
           </Routes>

@@ -10,6 +10,7 @@ const Header: React.FC = () => {
     { name: 'ホーム', href: '/' },
     { name: '会社概要', href: '/about' },
     { name: 'サービス', href: '/product' },
+    { name: 'ホテル向け', href: '/hotel' },
     { name: '口コミAI', href: '/review-ai' },
     { name: '導入事例', href: '/case-studies' },
     { name: 'メンバー', href: '/team' },
@@ -24,14 +25,14 @@ const Header: React.FC = () => {
           {/* Logo */}
           <Link to="/" className="flex-shrink-0">
             <img
-              className="h-24 w-auto"
-              src="/honkoma-logo-transparent--1--2.png"
+              className="h-12 w-auto"
+              src="/assets/hotel/honkoma-logo-blue.png"
               alt="honkoma"
             />
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-1">
+          <div className="hidden xl:flex items-center gap-1">
             {navigation.map((item) => (
               <Link
                 key={item.name}
@@ -58,7 +59,7 @@ const Header: React.FC = () => {
           {/* Mobile menu button */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden p-2 text-ink"
+            className="xl:hidden p-2 text-ink"
           >
             <span className="sr-only">メニュー</span>
             {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -67,7 +68,7 @@ const Header: React.FC = () => {
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="md:hidden border-t border-subtle py-4 space-y-1">
+          <div className="xl:hidden border-t border-subtle py-4 space-y-1">
             {navigation.map((item) => (
               <Link
                 key={item.name}
