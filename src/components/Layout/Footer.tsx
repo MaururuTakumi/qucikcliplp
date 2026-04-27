@@ -52,7 +52,7 @@ const Footer: React.FC = () => {
               <li><Link to="/product#standard" className="text-sm hover:text-cream transition-colors">スタンダードプラン</Link></li>
               <li><Link to="/product#advisory" className="text-sm hover:text-cream transition-colors">顧問相談</Link></li>
               <li><Link to="/product#ai-agent" className="text-sm hover:text-cream transition-colors">AI秘書派遣</Link></li>
-              <li><Link to="/hotel" className="text-sm hover:text-cream transition-colors">ホテル向け公開OTA表示レポート</Link></li>
+              <li><Link to="/hotel" className="text-sm hover:text-cream transition-colors">ホテル向けRevenue Intelligence</Link></li>
               <li><Link to="/product#spot" className="text-sm hover:text-cream transition-colors">スポット相談</Link></li>
             </ul>
             <div className="mt-8">

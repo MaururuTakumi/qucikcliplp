@@ -2,106 +2,106 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import {
   ArrowRight,
-  CalendarClock,
+  BellRing,
+  CalendarDays,
   CheckCircle2,
-  ClipboardList,
-  Clock3,
-  DatabaseZap,
-  Hotel,
+  ClipboardCheck,
+  Gauge,
   LineChart,
-  LockKeyhole,
-  Search,
+  Network,
+  ShieldCheck,
+  TrendingUp,
   UsersRound,
 } from 'lucide-react';
 
-const metrics = [
-  { label: '公開OTA観測', value: '579件', note: '価格と残室表示を時刻つきで蓄積' },
-  { label: '残室表示の変化', value: '29件', note: '表示変化の兆候として確認' },
-  { label: '公開価格レンジ', value: '¥3,960〜¥45,100 /人', note: '2名1室 / 1名あたり' },
+const signalCards = [
+  { label: '需要変化', value: 'Event', note: 'イベント・連休・周辺需要を注視' },
+  { label: '競合料金', value: 'Rate', note: '比較対象施設の価格変化を確認' },
+  { label: '対応管理', value: 'Action', note: '確認から対応完了までを記録' },
 ];
 
-const painPoints = [
+const problems = [
   {
-    icon: <Search className="h-5 w-5" />,
-    title: '競合確認が属人的になりやすい',
-    body: '担当者ごとに見るOTA、見る時刻、比較対象がずれ、価格会議の前提が揃いにくくなります。',
+    icon: <CalendarDays className="h-5 w-5" />,
+    title: '需要が動く日を見逃しやすい',
+    body: 'イベント、連休、曜日差、周辺施設の稼働など、料金判断に影響する変化が複数の情報源に散らばります。',
   },
-  {
-    icon: <Clock3 className="h-5 w-5" />,
-    title: '表示が動いた時刻が残りにくい',
-    body: '「いつ、どの宿泊日の表示が変わったか」を後から振り返れず、判断材料が会話に残りがちです。',
-  },
-  {
-    icon: <ClipboardList className="h-5 w-5" />,
-    title: '会議前の資料化に時間がかかる',
-    body: '自館と周辺ホテルを同じ形式で並べる作業に時間を使い、肝心の判断に集中しづらくなります。',
-  },
-];
-
-const valueCards = [
   {
     icon: <LineChart className="h-5 w-5" />,
-    title: '公開価格',
-    body: 'OTA上の表示価格を宿泊日別に整理し、自館と比較対象施設を同じ条件で確認できます。',
+    title: '競合の値動きに反応が遅れる',
+    body: '比較対象施設の上げ下げや販売条件の変化に気づくまでに時間がかかり、会議時点で判断材料が古くなりがちです。',
   },
   {
-    icon: <Hotel className="h-5 w-5" />,
-    title: '残室表示',
-    body: '観測時点の残室表示を記録し、日程ごとの表示変化を価格会議で扱いやすくします。',
+    icon: <ClipboardCheck className="h-5 w-5" />,
+    title: '判断後の対応が追いにくい',
+    body: '誰が確認し、どの料金・在庫・販路対応を検討したかが残らず、収益会議の運用が属人化します。',
+  },
+];
+
+const capabilities = [
+  {
+    icon: <BellRing className="h-5 w-5" />,
+    title: '需要シグナル通知',
+    body: 'イベント開催、連休、特定日程の市場変化をもとに、確認すべき日付と条件を通知します。',
   },
   {
-    icon: <CalendarClock className="h-5 w-5" />,
-    title: '観測時刻',
-    body: 'いつ見た表示なのかを残すことで、会議前後の振り返りと認識合わせをしやすくします。',
+    icon: <TrendingUp className="h-5 w-5" />,
+    title: '競合料金インテリジェンス',
+    body: '比較対象施設の価格差、上げ下げ、販売条件の変化を日別に整理し、料金見直しの材料にします。',
+  },
+  {
+    icon: <Gauge className="h-5 w-5" />,
+    title: '料金機会の優先順位づけ',
+    body: 'すべての数字を追うのではなく、対応を検討すべき日程・条件・競合変化に絞って提示します。',
   },
   {
     icon: <UsersRound className="h-5 w-5" />,
-    title: '比較対象施設',
-    body: 'エリア、価格帯、客層、運営方針に合わせて、確認すべき周辺ホテルを設計します。',
+    title: '対応ワークフロー',
+    body: '確認、共有、料金見直し、パリティ確認、対応完了までをチームで追える運用にします。',
   },
 ];
 
-const useCases = [
-  '価格会議前の周辺ホテル確認',
-  '週末・連休・イベント日前の表示変化チェック',
-  '宿泊販売とRevenue担当の認識合わせ',
-  '運営会社本部での複数施設モニタリング',
+const workflows = [
+  ['01', '変化を検知', 'イベント日程、競合料金、需要シグナルから、見るべき日付を抽出します。'],
+  ['02', '担当者へ通知', 'GM、Revenue、宿泊販売、本部など、確認すべき人に必要な粒度で共有します。'],
+  ['03', '対応を検討', '料金見直し、在庫配分、販売チャネル、パリティ確認の論点を整理します。'],
+  ['04', '履歴を残す', '誰が確認し、何を判断したかを残し、次回の収益会議につなげます。'],
 ];
 
 const roles = [
-  ['GM / 宿泊支配人', '価格会議で使う判断材料を揃え、現場の説明負荷を下げます。'],
-  ['Revenue Manager', '比較対象施設の公開価格・残室表示を同じ粒度で追いやすくします。'],
-  ['宿泊販売 / OTA担当', 'OTA上でどう見えているかを販売施策の確認材料にできます。'],
-  ['本部Revenue / 営業企画', '複数施設を共通フォーマットで確認し、施設間の見方を揃えます。'],
+  ['GM / 宿泊支配人', '収益会議で見るべき変化と対応状況を短時間で把握します。'],
+  ['Revenue Manager', '需要期・競合変化・料金機会を日次で確認し、対応優先度を決めます。'],
+  ['宿泊販売 / OTA担当', '販売チャネル上の表示差分やパリティ確認を業務に組み込みます。'],
+  ['本部Revenue / 営業企画', '複数施設の変化を同じ見方で確認し、施設間の判断基準を揃えます。'],
 ];
 
-const steps = [
-  ['01', '比較対象を決める', '貴館の商圏、価格帯、会議でよく名前が出る施設を起点にします。'],
-  ['02', 'サンプルを確認する', '公開OTA表示のレポート例を15分で確認し、見方の違和感を潰します。'],
-  ['03', '対象日とOTAを調整する', '週末、連休、イベント日など、現場が見たい日程へ寄せます。'],
-  ['04', '2週間で検証する', '価格会議や販売判断に使える形式かを短期間で確認します。'],
+const trustItems = [
+  '競合セットは商圏・価格帯・ブランドに合わせて設計',
+  '外部市場データから始め、必要に応じて自館データ連携を拡張',
+  '通知だけで終わらず、確認・共有・対応完了までを管理',
+  '日本のホテル運営に合わせた導入支援と運用設計',
 ];
 
 const faq = [
   {
-    q: 'どのようなデータを扱いますか？',
-    a: '公開OTAページ上に表示される価格、残室表示、観測時刻などを扱います。PMS内部情報、予約者情報、実売上データは扱いません。',
+    q: 'どのようなホテルに向いていますか？',
+    a: '複数チャネルで販売しており、イベント需要、競合料金、料金パリティ、販売ペースを日常的に確認しているホテルに向いています。担当者任せにせず、チームで収益運用を回したい施設に適しています。',
   },
   {
-    q: 'PMSとの連携は必要ですか？',
-    a: '必須ではありません。公開OTAページの表示情報をもとにレポート化するため、PMS内部データに接続しない形で確認できます。',
+    q: '競合ホテルの価格変化は確認できますか？',
+    a: 'はい。取得可能な外部情報をもとに、対象日や条件に応じた競合料金の変化を確認できます。表示内容や取得範囲は、対象エリア、販売条件、比較対象施設の設定によって変わります。',
   },
   {
-    q: '実際の予約数や売上は分かりますか？',
-    a: 'いいえ。HASIPは実予約数や実売上を扱うサービスではありません。公開OTA上で確認できる表示情報を、販売判断の参考にしやすい形で整理します。',
+    q: 'イベント開催時の通知はできますか？',
+    a: 'イベント日程、連休、周辺需要が高まりやすい日を注視対象として設定し、競合料金や販売条件の変化と合わせて通知する設計です。イベントデータの自動連携範囲は順次拡張予定です。',
   },
   {
-    q: '比較対象施設はどのように選びますか？',
-    a: 'エリア、価格帯、客層、ブランド、販売上よく比較される施設などをもとに相談できます。初回は会議でよく名前が出る施設を起点にするのが現実的です。',
+    q: '自館の予約状況や販売ペースも見られますか？',
+    a: '自館データの反映は、予約システム、PMS、サイトコントローラー等との連携範囲に応じて段階的に対応します。初期段階では外部市場シグナルや競合料金を中心に、収益判断に使う変化を整理します。',
   },
   {
-    q: '初回相談では何をしますか？',
-    a: '貴館の対象エリア、比較したい施設、確認したい日程やOTAを伺い、サンプルレポートの見方や比較対象施設の選び方を15分程度で確認します。',
+    q: '料金の自動変更まで行いますか？',
+    a: '初期段階では、料金変更の判断を支援する情報提示とワークフロー管理を中心に設計しています。外部システムへの自動反映は、施設ごとの運用方針と連携範囲に応じて検討します。',
   },
 ];
 
@@ -129,7 +129,7 @@ function ContactButton({
           : 'bg-[#0462CB] text-white hover:bg-[#003B86]'
       } ${className}`}
     >
-      貴館向けサンプルを15分だけ確認
+      デモを依頼する
       <ArrowRight className="ml-3 h-4 w-4 transition-transform group-hover:translate-x-1" />
     </Link>
   );
@@ -137,10 +137,10 @@ function ContactButton({
 
 const HotelPage: React.FC = () => {
   React.useEffect(() => {
-    document.title = 'ホテル向け公開OTA表示レポート | honkoma';
+    document.title = 'ホテル向けRevenue Intelligence | honkoma';
 
     const description =
-      '公開OTAページの価格・残室表示・観測時刻を定点観測し、ホテルの価格会議や販売判断で見やすい形に整理するHASIPのホテル向けページです。';
+      'HASIPは、需要シグナル・競合料金・対応ワークフローをつなぎ、ホテルの料金・在庫・販路判断を支援するRevenue Intelligence基盤です。';
     const setMeta = (name: string, content: string) => {
       let element = document.querySelector(`meta[name="${name}"]`);
       if (!element) {
@@ -167,16 +167,16 @@ const HotelPage: React.FC = () => {
         <div className="absolute right-0 top-0 hidden h-full w-[34%] bg-[#EAF3FF] lg:block" />
         <div className="relative mx-auto grid max-w-[1200px] grid-cols-1 gap-12 px-6 py-20 lg:grid-cols-12 lg:px-8 lg:py-28">
           <div className="lg:col-span-7">
-            <SectionLabel>Hotel Revenue Intelligence</SectionLabel>
+            <SectionLabel>Revenue Intelligence for Hotels</SectionLabel>
             <h1 className="mt-6 font-serif text-4xl font-bold leading-[1.12] tracking-tight text-ink sm:text-5xl lg:text-6xl">
-              公開OTA上の価格・残室表示を、
-              <span className="text-[#0462CB]">ホテルの販売判断</span>
-              に使いやすく。
+              需要・競合・料金機会を、
+              <span className="text-[#0462CB]">次の打ち手</span>
+              につなぐ。
             </h1>
             <p className="mt-7 max-w-2xl text-base leading-relaxed text-muted sm:text-lg">
-              HASIPは、公開OTAページに表示される価格・残室表示・観測時刻を定点観測し、
-              価格会議や宿泊販売の確認に使いやすいレポートとして整理します。
-              PMS内部情報や予約者情報、実売上データは扱いません。
+              HASIPは、イベント開催、周辺需要の変化、競合料金の動き、販売条件の差分を整理し、
+              料金見直し・在庫配分・パリティ確認までを日々の収益運用に落とし込む、
+              ホテル向けRevenue Intelligence基盤です。
             </p>
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
               <ContactButton />
@@ -184,11 +184,11 @@ const HotelPage: React.FC = () => {
                 to="/contact"
                 className="inline-flex items-center justify-center border border-[#0462CB] px-7 py-4 text-sm font-semibold tracking-wide text-[#0462CB] transition-colors duration-300 hover:bg-white"
               >
-                比較対象施設の選び方を相談
+                自館での活用を相談
               </Link>
             </div>
-            <div className="mt-8 grid max-w-xl grid-cols-2 gap-3 text-xs text-muted sm:grid-cols-3">
-              {['2名1室 / 1名あたり', '公開OTA表示', 'PMS接続なし'].map((item) => (
+            <div className="mt-8 grid max-w-2xl grid-cols-1 gap-3 text-xs text-muted sm:grid-cols-3">
+              {['イベント需要アラート', '競合料金の変化検知', '対応ワークフロー'].map((item) => (
                 <div key={item} className="border border-[#C8D7EA] bg-white px-4 py-3 text-center font-semibold text-[#0462CB]">
                   {item}
                 </div>
@@ -200,15 +200,37 @@ const HotelPage: React.FC = () => {
             <div className="border border-[#C8D7EA] bg-white p-4 shadow-[0_24px_60px_rgba(4,98,203,0.12)]">
               <img
                 src="/assets/hotel/hasip-report-preview.png"
-                alt="ホテル向け公開OTA表示レポートのサンプル"
-                className="w-full border border-[#E0E8F4] bg-white"
+                alt="ホテル向けRevenue Intelligenceダッシュボードのサンプル"
+                className="hidden w-full border border-[#E0E8F4] bg-white sm:block"
               />
+              <div className="border border-[#E0E8F4] bg-[#F7FAFF] p-5 sm:hidden">
+                <p className="font-mono text-[11px] font-semibold tracking-[0.18em] text-[#0462CB]">
+                  TODAY'S REVENUE ALERT
+                </p>
+                <h2 className="mt-3 font-serif text-2xl font-bold leading-tight text-ink">
+                  今日は、04/27・05/03・05/04を確認。
+                </h2>
+                <div className="mt-5 space-y-3 text-sm text-muted">
+                  <div className="flex items-start gap-3">
+                    <BellRing className="mt-0.5 h-4 w-4 flex-none text-[#0462CB]" />
+                    <span>競合料金の上昇をRevenue担当へ通知</span>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <CalendarDays className="mt-0.5 h-4 w-4 flex-none text-[#0462CB]" />
+                    <span>イベント日程の在庫配分をGMへ共有</span>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <ClipboardCheck className="mt-0.5 h-4 w-4 flex-none text-[#0462CB]" />
+                    <span>販路確認と対応完了までを記録</span>
+                  </div>
+                </div>
+              </div>
               <div className="grid grid-cols-1 gap-px bg-[#C8D7EA] sm:grid-cols-3">
-                {metrics.map((metric) => (
-                  <div key={metric.label} className="bg-[#F7FAFF] p-4">
-                    <p className="text-[11px] font-semibold text-muted">{metric.label}</p>
-                    <p className="mt-2 text-xl font-bold text-[#003B86]">{metric.value}</p>
-                    <p className="mt-2 text-[11px] leading-relaxed text-muted">{metric.note}</p>
+                {signalCards.map((item) => (
+                  <div key={item.label} className="bg-[#F7FAFF] p-4">
+                    <p className="text-[11px] font-semibold text-muted">{item.label}</p>
+                    <p className="mt-2 text-xl font-bold text-[#003B86]">{item.value}</p>
+                    <p className="mt-2 text-[11px] leading-relaxed text-muted">{item.note}</p>
                   </div>
                 ))}
               </div>
@@ -222,11 +244,11 @@ const HotelPage: React.FC = () => {
           <div className="lg:col-span-3">
             <SectionLabel>Problem</SectionLabel>
             <h2 className="mt-3 font-serif text-3xl font-bold leading-tight text-ink">
-              競合確認は、毎日必要なのに残りにくい。
+              市場は動いているのに、気づくタイミングが遅れている。
             </h2>
           </div>
           <div className="grid gap-4 md:grid-cols-3 lg:col-span-9">
-            {painPoints.map((item) => (
+            {problems.map((item) => (
               <div key={item.title} className="border border-subtle bg-white p-7">
                 <div className="mb-5 inline-flex h-10 w-10 items-center justify-center bg-[#EAF3FF] text-[#0462CB]">
                   {item.icon}
@@ -243,17 +265,17 @@ const HotelPage: React.FC = () => {
         <div className="mx-auto max-w-[1200px] px-6 lg:px-8">
           <div className="grid grid-cols-1 gap-10 lg:grid-cols-12">
             <div className="lg:col-span-4">
-              <SectionLabel>What HASIP organizes</SectionLabel>
+              <SectionLabel>Capabilities</SectionLabel>
               <h2 className="mt-3 font-serif text-3xl font-bold leading-tight text-ink">
-                価格会議で見るべき情報を、同じ形式で揃える。
+                収益判断に必要な変化を、対応できる形で可視化。
               </h2>
               <p className="mt-5 text-sm leading-relaxed text-muted">
-                対象は公開OTAページの表示情報です。既存のPMS/RMSを置き換えるのではなく、
-                外から見える市場の表示を会議で扱える形に整えます。
+                単なるレポートではなく、どの日付を見るべきか、どの競合変化に注意すべきか、
+                誰が確認し、どう対応するかまでを業務に組み込みます。
               </p>
             </div>
             <div className="grid gap-px bg-subtle md:grid-cols-2 lg:col-span-8">
-              {valueCards.map((item) => (
+              {capabilities.map((item) => (
                 <div key={item.title} className="bg-cream p-7">
                   <div className="mb-4 flex items-center gap-3 text-[#0462CB]">
                     {item.icon}
@@ -267,19 +289,44 @@ const HotelPage: React.FC = () => {
         </div>
       </section>
 
+      <section className="border-b border-subtle bg-[#F6FAFF] py-16 md:py-24">
+        <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-12 px-6 lg:grid-cols-12 lg:px-8">
+          <div className="lg:col-span-5">
+            <SectionLabel>Alerts & Workflow</SectionLabel>
+            <h2 className="mt-3 font-serif text-3xl font-bold leading-tight text-ink">
+              需要の変化を、対応すべきタイミングで知らせる。
+            </h2>
+            <p className="mt-5 text-sm leading-relaxed text-muted">
+              イベント開催、需要が高まりやすい日程、競合価格の変化、料金機会を検知し、
+              確認すべき日付や条件をアラートとして提示します。
+              通知だけで終わらせず、確認・共有・対応完了までをチームで管理します。
+            </p>
+          </div>
+          <div className="grid gap-4 md:grid-cols-2 lg:col-span-7">
+            {workflows.map(([num, title, body]) => (
+              <div key={num} className="border border-[#C8D7EA] bg-white p-6">
+                <div className="font-mono text-xs font-bold tracking-[0.2em] text-[#0462CB]">{num}</div>
+                <h3 className="mt-4 font-serif text-xl font-bold text-ink">{title}</h3>
+                <p className="mt-4 text-sm leading-relaxed text-muted">{body}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section className="border-b border-subtle py-16 md:py-24">
         <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-12 px-6 lg:grid-cols-12 lg:px-8">
           <div className="lg:col-span-5">
-            <SectionLabel>Use Cases</SectionLabel>
+            <SectionLabel>Teams</SectionLabel>
             <h2 className="mt-3 font-serif text-3xl font-bold leading-tight text-ink">
-              現場と本部の両方で、判断材料として使う。
+              現場と本部の両方で、同じ判断基準を持つ。
             </h2>
             <p className="mt-5 text-sm leading-relaxed text-muted">
-              レポートは単なる一覧ではなく、誰がどの会議で見るかを前提に設計します。
-              施設単体の確認から、運営会社本部の横比較まで対応できます。
+              HASIPはRevenue担当だけの画面ではなく、GM、宿泊販売、本部が同じ変化を見て、
+              日次運用と収益会議の判断を揃えるための基盤です。
             </p>
             <div className="mt-8 space-y-3">
-              {useCases.map((item) => (
+              {trustItems.map((item) => (
                 <div key={item} className="flex items-center gap-3 text-sm font-semibold text-ink">
                   <CheckCircle2 className="h-5 w-5 flex-none text-[#0462CB]" />
                   {item}
@@ -300,58 +347,34 @@ const HotelPage: React.FC = () => {
         </div>
       </section>
 
-      <section className="border-b border-subtle bg-[#F6FAFF] py-16 md:py-24">
-        <div className="mx-auto max-w-[1200px] px-6 lg:px-8">
-          <div className="max-w-3xl">
-            <SectionLabel>Process</SectionLabel>
-            <h2 className="mt-3 font-serif text-3xl font-bold text-ink">
-              導入前に、貴館で使える見え方かを確認します。
-            </h2>
-          </div>
-          <div className="mt-10 grid gap-4 md:grid-cols-4">
-            {steps.map(([num, title, body]) => (
-              <div key={num} className="border border-[#C8D7EA] bg-white p-6">
-                <div className="font-mono text-xs font-bold tracking-[0.2em] text-[#0462CB]">{num}</div>
-                <h3 className="mt-4 font-serif text-xl font-bold text-ink">{title}</h3>
-                <p className="mt-4 text-sm leading-relaxed text-muted">{body}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       <section className="border-b border-subtle bg-white py-16 md:py-24">
         <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-10 px-6 lg:grid-cols-12 lg:px-8">
           <div className="lg:col-span-4">
-            <SectionLabel>Scope</SectionLabel>
+            <SectionLabel>Operational Fit</SectionLabel>
             <h2 className="mt-3 font-serif text-3xl font-bold leading-tight text-ink">
-              扱うものと、扱わないものを明確にします。
+              小さく始め、運用に合わせて拡張する。
             </h2>
           </div>
           <div className="grid gap-4 md:grid-cols-2 lg:col-span-8">
             <div className="border border-[#C8D7EA] bg-[#F7FAFF] p-7">
               <div className="mb-5 inline-flex h-10 w-10 items-center justify-center bg-white text-[#0462CB]">
-                <DatabaseZap className="h-5 w-5" />
+                <Network className="h-5 w-5" />
               </div>
-              <h3 className="font-serif text-2xl font-bold text-ink">扱うもの</h3>
-              <ul className="mt-5 space-y-3 text-sm leading-relaxed text-muted">
-                <li>公開OTA上の表示価格</li>
-                <li>観測時点の残室表示</li>
-                <li>宿泊日・施設・OTA・観測時刻</li>
-                <li>比較対象施設との表示状況</li>
-              </ul>
+              <h3 className="font-serif text-2xl font-bold text-ink">初期導入</h3>
+              <p className="mt-5 text-sm leading-relaxed text-muted">
+                競合セット、注視日程、通知先、会議フォーマットを決め、
+                外部市場データを中心に収益判断の型を作ります。
+              </p>
             </div>
             <div className="border border-subtle bg-cream p-7">
               <div className="mb-5 inline-flex h-10 w-10 items-center justify-center bg-white text-ink">
-                <LockKeyhole className="h-5 w-5" />
+                <ShieldCheck className="h-5 w-5" />
               </div>
-              <h3 className="font-serif text-2xl font-bold text-ink">扱わないもの</h3>
-              <ul className="mt-5 space-y-3 text-sm leading-relaxed text-muted">
-                <li>PMSやサイトコントローラー内部情報</li>
-                <li>予約者情報・個人情報</li>
-                <li>実予約数や実売上データ</li>
-                <li>非公開ページや認証が必要な情報</li>
-              </ul>
+              <h3 className="font-serif text-2xl font-bold text-ink">拡張導入</h3>
+              <p className="mt-5 text-sm leading-relaxed text-muted">
+                予約システム、PMS、サイトコントローラー等との連携範囲に応じて、
+                自館データを用いた分析やアラートを段階的に広げます。
+              </p>
             </div>
           </div>
         </div>
@@ -383,13 +406,13 @@ const HotelPage: React.FC = () => {
         <div className="mx-auto max-w-[1200px] px-6 lg:px-8">
           <div className="grid grid-cols-1 gap-10 lg:grid-cols-12 lg:items-center">
             <div className="lg:col-span-8">
-              <SectionLabel>Start with sample review</SectionLabel>
+              <SectionLabel>Book a Revenue Intelligence Demo</SectionLabel>
               <h2 className="mt-4 font-serif text-3xl font-bold leading-tight md:text-5xl">
-                まずは、貴館の販売判断に使える形かをご確認ください。
+                貴館の収益運用で、どの変化を通知すべきか一緒に設計します。
               </h2>
               <p className="mt-6 max-w-2xl text-sm leading-relaxed text-white/70 md:text-base">
-                導入前提ではなく、対象OTA・比較対象施設・確認したい日程を伺い、
-                サンプルの見方を短時間でご案内します。
+                導入前提ではなく、対象エリア、比較対象施設、イベント日程、会議フローを伺い、
+                貴館で使えるアラートとレポートの形を短時間で確認します。
               </p>
             </div>
             <div className="flex flex-col gap-3 lg:col-span-4">
@@ -398,7 +421,7 @@ const HotelPage: React.FC = () => {
                 to="/contact"
                 className="inline-flex items-center justify-center border border-white/30 px-7 py-4 text-sm font-semibold tracking-wide text-white transition-colors duration-300 hover:bg-white/10"
               >
-                比較対象施設の選び方を相談
+                自館での活用を相談
               </Link>
             </div>
           </div>

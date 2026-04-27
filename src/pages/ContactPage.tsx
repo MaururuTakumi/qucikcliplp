@@ -4,7 +4,7 @@ import { Mail, Phone, MessageSquare, Calendar, ArrowRight, ArrowLeft, CheckCircl
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbxVMYEL9aJS124xpDj-bpynGYH_QbyEsb0yGqUznlTALT6OreAjCSS7oth4f7ETDciQ/exec';
 
 const inquiryOptions = [
-  { emoji: '🏨', label: 'ホテル向け公開OTA表示レポートを相談したい' },
+  { emoji: '🏨', label: 'ホテル向けRevenue Intelligenceを相談したい' },
   { emoji: '🤖', label: 'AI秘書の導入を検討したい' },
   { emoji: '⚡', label: '業務自動化について相談したい' },
   { emoji: '📊', label: '口コミAI（宿泊・飲食向け）を試したい' },
@@ -249,7 +249,7 @@ const ContactPage: React.FC = () => {
                   <div>
                     <label htmlFor="message" className="block font-mono text-xs tracking-wide uppercase text-warm mb-3">
                       {isHotelInquiry
-                        ? '確認したいOTA・対象エリア・比較施設'
+                        ? '確認したいエリア・比較施設・通知したい変化'
                         : 'どんな業務を自動化したいですか？'} <span className="text-accent">*</span>
                     </label>
                     <textarea
@@ -257,7 +257,7 @@ const ContactPage: React.FC = () => {
                       onChange={(e) => setMessage(e.target.value)}
                       placeholder={
                         isHotelInquiry
-                          ? '例: 博多駅周辺のホテル5〜10施設を比較したい、楽天/一休の表示を確認したい など'
+                          ? '例: 博多駅周辺のホテル5〜10施設を比較したい、イベント日や競合料金の変化を通知したい など'
                           : '例: 毎日の口コミチェックに1時間かかっている、営業メールの作成を効率化したい など'
                       }
                       className="w-full px-0 py-3 bg-transparent border-0 border-b border-subtle focus:border-ink focus:ring-0 text-ink resize-none transition-colors placeholder:text-warm/50"
