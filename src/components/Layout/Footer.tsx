@@ -10,11 +10,15 @@ const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12">
           {/* Company */}
           <div className="md:col-span-5">
-            <img
-              className="h-20 w-auto filter brightness-0 invert mb-6"
-              src="/honkoma-logo-transparent--1--2.png"
-              alt="honkoma"
-            />
+            <Link to="/" className="mb-7 inline-flex items-center gap-3">
+              <span className="relative flex h-10 w-10 items-center justify-center rounded-full bg-[#0462CB]">
+                <span className="absolute -top-1.5 right-0 h-3.5 w-3.5 rounded-full bg-[#2F9BFF]" />
+                <span className="h-4 w-4 rounded-full bg-white" />
+              </span>
+              <span className="text-2xl font-bold tracking-tight text-cream">
+                honkoma
+              </span>
+            </Link>
             <p className="text-sm leading-relaxed mb-6 max-w-xs">
               AIと自動化の力で、<br />
               ビジネスを次のステージへ。
@@ -32,6 +36,7 @@ const Footer: React.FC = () => {
                 { name: 'ホーム', href: '/' },
                 { name: '会社概要', href: '/about' },
                 { name: 'サービス', href: '/product' },
+                { name: 'ホテル向け', href: '/hotel' },
                 { name: 'メンバー', href: '/team' },
                 { name: 'お問い合わせ', href: '/contact' },
               ].map((item) => (
@@ -51,6 +56,7 @@ const Footer: React.FC = () => {
               <li><Link to="/product#standard" className="text-sm hover:text-cream transition-colors">スタンダードプラン</Link></li>
               <li><Link to="/product#advisory" className="text-sm hover:text-cream transition-colors">顧問相談</Link></li>
               <li><Link to="/product#ai-agent" className="text-sm hover:text-cream transition-colors">AI秘書派遣</Link></li>
+              <li><Link to="/hotel" className="text-sm hover:text-cream transition-colors">ホテル向けRevenue Intelligence</Link></li>
               <li><Link to="/product#spot" className="text-sm hover:text-cream transition-colors">スポット相談</Link></li>
             </ul>
             <div className="mt-8">
