@@ -169,8 +169,8 @@ const HotelPage: React.FC = () => {
           <div className="lg:col-span-7">
             <SectionLabel>Revenue Intelligence for Hotels</SectionLabel>
             <h1 className="mt-6 font-serif text-4xl font-bold leading-[1.12] tracking-tight text-ink sm:text-5xl lg:text-6xl">
-              需要・競合・料金機会を、
-              <span className="text-[#0462CB]">次の打ち手</span>
+              需要・競合・<span className="whitespace-nowrap">料金機会を、</span>
+              <span className="whitespace-nowrap text-[#0462CB]">次の打ち手</span>
               につなぐ。
             </h1>
             <p className="mt-7 max-w-2xl text-base leading-relaxed text-muted sm:text-lg">
