@@ -11,6 +11,7 @@ const Header: React.FC = () => {
     { name: '会社概要', href: '/about' },
     { name: 'サービス', href: '/product' },
     { name: 'ホテル向け', href: '/hotel' },
+    { name: 'D2C支援', href: '/d2c' },
     { name: '口コミAI', href: '/review-ai' },
     { name: '導入事例', href: '/case-studies' },
     { name: 'メンバー', href: '/team' },

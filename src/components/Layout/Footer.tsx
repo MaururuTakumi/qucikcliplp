@@ -37,6 +37,7 @@ const Footer: React.FC = () => {
                 { name: '会社概要', href: '/about' },
                 { name: 'サービス', href: '/product' },
                 { name: 'ホテル向け', href: '/hotel' },
+                { name: 'D2C支援', href: '/d2c' },
                 { name: 'メンバー', href: '/team' },
                 { name: 'お問い合わせ', href: '/contact' },
               ].map((item) => (
@@ -57,6 +58,7 @@ const Footer: React.FC = () => {
               <li><Link to="/product#advisory" className="text-sm hover:text-cream transition-colors">顧問相談</Link></li>
               <li><Link to="/product#ai-agent" className="text-sm hover:text-cream transition-colors">AI秘書派遣</Link></li>
               <li><Link to="/hotel" className="text-sm hover:text-cream transition-colors">ホテル向けRevenue Intelligence</Link></li>
+              <li><Link to="/d2c" className="text-sm hover:text-cream transition-colors">D2C事業者向けAI支援</Link></li>
               <li><Link to="/product#spot" className="text-sm hover:text-cream transition-colors">スポット相談</Link></li>
             </ul>
             <div className="mt-8">
