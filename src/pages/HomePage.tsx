@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, ArrowUpRight, Bot, Zap, Users, Layers3, UserX, Workflow, Sparkles, CheckCircle2 } from 'lucide-react';
+import { HeroHome } from '../components/sections/HeroHome';
 
 function useScrollReveal() {
   const ref = React.useRef<HTMLDivElement>(null);
@@ -140,68 +141,8 @@ const HomePage: React.FC = () => {
 
   return (
     <div className="bg-cream">
-      {/* ===== HERO ===== */}
-      <section
-        className="min-h-[90vh] flex items-center relative"
-        style={{
-          background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
-        }}
-      >
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px)',
-            backgroundSize: '24px 24px',
-          }}
-        />
-        <div className="max-w-[1200px] mx-auto px-6 lg:px-8 w-full py-24 md:py-32 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-end">
-            <div className="lg:col-span-3 opacity-0 animate-fade-up">
-              <span className="font-mono text-xs tracking-[0.2em] uppercase text-cream/60">
-                AI Agent Dispatch
-              </span>
-            </div>
-
-            <div className="lg:col-span-9">
-              <div className="flex items-center gap-3 mb-6 opacity-0 animate-fade-up-delay-1">
-                <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-orange-400/40 bg-orange-400/10 text-orange-300 text-xs font-mono tracking-wide">
-                  <span className="w-1.5 h-1.5 rounded-full bg-orange-400 inline-block"></span>
-                  上場企業含む 20社以上 への導入支援実績
-                </span>
-              </div>
-
-              <h1 className="font-serif text-[clamp(2.5rem,7vw,5.5rem)] font-bold leading-[1.1] tracking-tight text-cream mb-8 opacity-0 animate-fade-up-delay-1">
-                AIエージェントを、<br />
-                御社に<span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-orange-600">派遣する。</span>
-              </h1>
-
-              <p className="text-lg md:text-xl text-cream/70 leading-relaxed max-w-2xl mb-12 opacity-0 animate-fade-up-delay-2">
-                口コミ分析、LINE返信補助、営業支援、AI秘書まで。<br className="hidden sm:block" />
-                honkomaは御社専用のAIエージェントを設計し、<br className="hidden sm:block" />
-                実装・運用まで一気通貫で支援します。
-              </p>
-
-              <div className="flex flex-col sm:flex-row gap-4 opacity-0 animate-fade-up-delay-3">
-                <Link
-                  to="/contact"
-                  className="group inline-flex items-center justify-center px-8 py-4 bg-accent text-white text-base font-medium tracking-wide hover:bg-accent-hover transition-colors duration-300"
-                >
-                  まず無料で相談する
-                  <ArrowRight className="ml-3 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                </Link>
-                <Link
-                  to="/product"
-                  className="inline-flex items-center justify-center px-8 py-4 border border-cream/30 text-cream text-base font-medium tracking-wide hover:bg-cream/10 transition-all duration-300"
-                >
-                  サービス・料金を見る
-                </Link>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-20 h-px bg-cream/20 w-0 animate-draw-line"></div>
-        </div>
-      </section>
+      {/* ===== HERO (corporate face — LayerX-faithful × honkoma blue, embraceStack 3D) ===== */}
+      <HeroHome />
 
       {/* ===== TRUSTED BY ===== */}
       <div

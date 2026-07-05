@@ -18,8 +18,12 @@ export default defineConfig({
     alias: {
       buffer: 'buffer',
     },
+    // r3f's Canvas uses its own reconciler; without deduping, Vite can hand the
+    // Canvas subtree a second React copy -> "Invalid hook call". Force one React.
+    dedupe: ['react', 'react-dom'],
   },
   optimizeDeps: {
-    include: ['buffer'],
+    // Pre-bundle the 3D stack against the same React instance as the app.
+    include: ['buffer', 'three', '@react-three/fiber', '@react-three/drei'],
   },
 });

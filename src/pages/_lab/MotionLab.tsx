@@ -8,12 +8,36 @@
  * inverse-theme section, and withText examples.
  * ========================================================================== */
 
-import type { ReactNode } from "react";
+import { Suspense, lazy, useEffect, type ReactNode } from "react";
+import { useMotionValue } from "framer-motion";
 import { ArrowCTA } from "../../components/ui/ArrowCTA";
 import { Reveal, RevealGroup } from "../../components/motion/Reveal";
 import { TextReveal } from "../../components/motion/TextReveal";
 import { WedgeDivider } from "../../components/motion/Wedge";
 import { SectionHeading } from "../../components/ui/SectionHeading";
+
+const ScrollScene = lazy(() => import("../../components/motion/ScrollScene"));
+
+/** Drives embraceStack progress on a 0->1->0 loop for static eyeballing in /_lab. */
+function EmbraceStackDemo() {
+  const progress = useMotionValue(0);
+  useEffect(() => {
+    let raf = 0;
+    const start = performance.now();
+    const loop = (t: number) => {
+      const cycle = ((t - start) / 6000) % 1; // 6s loop
+      progress.set(cycle < 0.5 ? cycle * 2 : (1 - cycle) * 2); // ping-pong 0..1..0
+      raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(raf);
+  }, [progress]);
+  return (
+    <Suspense fallback={<div style={{ color: "var(--text-secondary)" }}>loading 3D…</div>}>
+      <ScrollScene scene="embraceStack" progress={progress} className="lab-scene" />
+    </Suspense>
+  );
+}
 
 const SIZES = ["sm", "md", "lg"] as const;
 const VARIANTS = ["outline", "fill", "ghost"] as const;
@@ -285,6 +309,17 @@ export default function MotionLab() {
             />
           </div>
         </Row>
+      </LabSection>
+
+      {/* embraceStack — hero 3D (blueprint §5① / #19) */}
+      <style>{`.lab-scene{width:100%;height:100%;display:block}`}</style>
+      <LabSection
+        title="embraceStack (3D)"
+        subtitle="ロゴの抱擁を幾何化。progress 0→1→0 ループ再生（実スクロール連動はヒーローで）"
+      >
+        <div style={{ height: 420, width: "100%" }}>
+          <EmbraceStackDemo />
+        </div>
       </LabSection>
 
       {/* inverse theme — children flip with NO props */}
