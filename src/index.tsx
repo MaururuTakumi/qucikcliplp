@@ -8,6 +8,7 @@ import "@fontsource/space-grotesk/latin-700.css";
 // Design system tokens (color/spacing/radius/typography scale + inverse theme).
 import "./design/tokens.css";
 import { MotionProvider } from "./motion/MotionProvider";
+import { WedgeOverlay } from "./components/motion/Wedge";
 import Layout from "./components/Layout/Layout";
 import HomePage from "./pages/HomePage";
 import AboutPage from "./pages/AboutPage";
@@ -31,6 +32,7 @@ createRoot(document.getElementById("app") as HTMLElement).render(
       <Router>
         <MotionProvider>
         <Layout>
+          <WedgeOverlay>
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/about" element={<AboutPage />} />
@@ -55,6 +57,7 @@ createRoot(document.getElementById("app") as HTMLElement).render(
               />
             )}
           </Routes>
+          </WedgeOverlay>
         </Layout>
         </MotionProvider>
       </Router>
