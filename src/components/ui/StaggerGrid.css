@@ -1,0 +1,39 @@
+/* StaggerGrid layout (blueprint §2 C-2). Column counts are driven by CSS vars
+ * so the component stays declarative; media queries live here (inline styles
+ * can't express them). Motion is handled in StaggerGrid.tsx via tokens. */
+.ds-stagger-grid {
+  display: grid;
+  gap: var(--sg-gap, 1.5rem);
+  grid-template-columns: repeat(var(--sg-base, 1), minmax(0, 1fr));
+}
+@media (min-width: 768px) {
+  .ds-stagger-grid {
+    grid-template-columns: repeat(var(--sg-md, 2), minmax(0, 1fr));
+  }
+}
+@media (min-width: 1024px) {
+  .ds-stagger-grid {
+    grid-template-columns: repeat(var(--sg-lg, 3), minmax(0, 1fr));
+  }
+}
+
+/* Masonry variant: CSS columns. Items must not break across columns. */
+.ds-stagger-grid--masonry {
+  display: block;
+  column-gap: var(--sg-gap, 1.5rem);
+  column-count: var(--sg-base, 1);
+}
+@media (min-width: 768px) {
+  .ds-stagger-grid--masonry {
+    column-count: var(--sg-md, 2);
+  }
+}
+@media (min-width: 1024px) {
+  .ds-stagger-grid--masonry {
+    column-count: var(--sg-lg, 3);
+  }
+}
+.ds-stagger-grid--masonry > * {
+  break-inside: avoid;
+  margin-bottom: var(--sg-gap, 1.5rem);
+}
