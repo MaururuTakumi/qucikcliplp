@@ -140,17 +140,18 @@ export function HeroHome() {
           gap: clamp(2rem, 5vw, 4rem);
           align-items: start;
         }
-        /* Horizontal (mobile fallback of vertical-md): normal hero scale. */
-        .hero-title { font-size: clamp(2rem, 7vw, 2.75rem); font-weight: 700; line-height: 1.15; }
-        .hero-visual { order: -1; height: min(46vh, 380px); }
+        /* Horizontal (mobile fallback of vertical-md): larger, bolder hero. */
+        .hero-title { font-size: clamp(2.5rem, 10vw, 3.75rem); font-weight: 700; line-height: 1.12; }
+        .hero-visual { order: -1; height: min(56vh, 480px); }
         .hero-canvas { width: 100%; height: 100%; display: block; }
         @media (min-width: 768px) {
-          .hero-grid { grid-template-columns: 1.05fr 0.95fr; }
-          .hero-visual { order: 0; height: min(70vh, 620px); }
-          /* Vertical writing: a 6-char column multiplies the font-size into
-           * height, so the hero scale must be smaller than --fs-hero here or the
-           * heading overflows the section and collides with the sticky header. */
-          .hero-title { font-size: clamp(2.25rem, 3vw, 3rem); line-height: 1.24; }
+          /* Give the 3D visual the larger share; content stays readable at ~44ch. */
+          .hero-grid { grid-template-columns: 0.9fr 1.1fr; }
+          .hero-visual { order: 0; height: min(82vh, 760px); }
+          /* Vertical writing multiplies font-size into column height. align-start
+           * + top padding lets a big heading flow (page scrolls) without hitting
+           * the sticky header, so we can push the manifesto much larger here. */
+          .hero-title { font-size: clamp(3rem, 4.6vw, 4.75rem); line-height: 1.2; }
         }
       `}</style>
     </section>
