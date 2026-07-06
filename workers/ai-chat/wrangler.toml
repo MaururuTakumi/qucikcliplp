@@ -11,3 +11,7 @@ EMAIL_REPLY_TO = "diagnosis@ltdhonkoma.com"
 
 [[send_email]]
 name = "EMAIL"
+
+[[kv_namespaces]]
+binding = "LEAD_MATERIALS"
+id = "5ff69fbdec844093b23012bf5d8766c0"

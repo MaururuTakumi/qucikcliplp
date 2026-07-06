@@ -2,6 +2,11 @@ type Env = {
   DEEPSEEK_API_KEY?: string;
   XAI_API_KEY?: string;
   DEEPSEEK_MODEL?: string;
+  MATERIAL_APPROVAL_ENABLED?: string;
+  SLACK_BOT_TOKEN?: string;
+  SLACK_SIGNING_SECRET?: string;
+  SLACK_APPROVAL_CHANNEL_ID?: string;
+  SLACK_APPROVER_IDS?: string;
   NOTION_TOKEN?: string;
   NOTION_LEADS_DB_ID?: string;
   NOTION_CASES_DB_ID?: string;
@@ -21,6 +26,12 @@ type Env = {
   CLOUDFLARE_API_TOKEN?: string;
   RESEND_API_KEY?: string;
   COMPLIANCE_CLIENT_NAMES?: string;
+  LEAD_MATERIALS?: MaterialKVNamespace;
+};
+
+type MaterialKVNamespace = {
+  get(key: string): Promise<string | null>;
+  put(key: string, value: string, options?: { expirationTtl?: number }): Promise<void>;
 };
 
 type EmailMessagePayload = {
@@ -176,6 +187,71 @@ type CaseRecord = {
   duration: string;
 };
 
+type MaterialVariant = "normal" | "booked_confirmed" | "booking_in_progress" | "other_channel";
+type MaterialStatus =
+  | "generating"
+  | "pending"
+  | "revising"
+  | "approved_sending"
+  | "sent"
+  | "discarded"
+  | "failed";
+
+type MaterialScene = {
+  title: string;
+  current: string;
+  withAi: string;
+  firstMove: string;
+};
+
+type MaterialDraft = {
+  schemaVersion: "1.0";
+  opening: string;
+  scenes: MaterialScene[];
+  firstStep: string;
+  caseConnection?: string;
+  meetingTopics: string[];
+};
+
+type MaterialDraftEntry = {
+  rev: number;
+  mode: "model" | "fallback" | "failed";
+  draft?: MaterialDraft;
+  instruction?: string;
+  createdAt: string;
+  warning?: string;
+};
+
+type MaterialOverlap = {
+  booked: boolean;
+  bookingClick: boolean;
+  sameEmail: boolean;
+  sameDomain: boolean;
+  matchedLeadUrl?: string;
+};
+
+type MaterialRecord = {
+  status: MaterialStatus;
+  rev: number;
+  variant: MaterialVariant;
+  variantSuggested: MaterialVariant;
+  overlap: MaterialOverlap;
+  context: LeadBody;
+  drafts: MaterialDraftEntry[];
+  slack?: { channel: string; ts: string };
+  slackWebhookOnly?: boolean;
+  slackWebhookCardPosted?: boolean;
+  slackResponseUrl?: string;
+  approvedBy?: string;
+  approvalRunId?: string;
+  sentAt?: string;
+  discardedBy?: string;
+  failedPhase?: "generation" | "send" | "flow";
+  failedError?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
 type InternalCaseRecord = CaseRecord & {
   painCategories: string[];
   axis?: ProposalAxis;
@@ -204,6 +280,8 @@ const DEEPSEEK_DEFAULT_MODEL = "deepseek-v4-pro";
 const NOTION_VERSION = "2022-06-28";
 const CACHE_TTL_SECONDS = 3600;
 const DEFAULT_BOOKING_URL = "https://calendar.app.google/DcGsqPYBvRf3dvZJ8";
+const MATERIAL_TTL_SECONDS = 60 * 60 * 24 * 90;
+const MATERIAL_MAX_REVISIONS = 3;
 
 const axisOrder: ProposalAxis[] = ["top_line", "bottom_line", "fde"];
 const companySizeOrder: CompanySize[] = ["lte10", "lte50", "lte300", "gt300"];
@@ -1305,6 +1383,7 @@ async function findNotionPageBySession(env: Env, sessionId: string) {
   return {
     id: page.id,
     stage: notionSelectName(page.properties?.Stage),
+    booked: Boolean((page.properties?.Booked as { checkbox?: boolean } | undefined)?.checkbox),
   };
 }
 
@@ -1721,17 +1800,19 @@ function emailTransportConfigured(env: Env) {
   );
 }
 
-async function sendDiagnosisEmail(env: Env, payload: LeadBody) {
-  if (!payload.email || !payload.consent || !emailTransportConfigured(env)) return false;
-
+async function sendEmailContent(
+  env: Env,
+  to: string,
+  content: { subject: string; html: string; text: string },
+) {
+  if (!to || !emailTransportConfigured(env)) return false;
   const fromEmail = emailFrom(env);
   const fromName = env.EMAIL_FROM_NAME || "honkoma";
   const replyTo = env.EMAIL_REPLY_TO || fromEmail;
-  const content = diagnosisEmailContent(env, payload);
 
   if (env.EMAIL) {
     await env.EMAIL.send({
-      to: payload.email,
+      to,
       from: { email: fromEmail, name: fromName },
       replyTo: { email: replyTo, name: fromName },
       subject: content.subject,
@@ -1752,7 +1833,7 @@ async function sendDiagnosisEmail(env: Env, payload: LeadBody) {
         },
         body: JSON.stringify({
           from: { email: fromEmail, name: fromName },
-          to: [{ email: payload.email }],
+          to: [{ email: to }],
           reply_to: { email: replyTo, name: fromName },
           subject: content.subject,
           html: content.html,
@@ -1773,7 +1854,7 @@ async function sendDiagnosisEmail(env: Env, payload: LeadBody) {
       },
       body: JSON.stringify({
         from: `${fromName} <${fromEmail}>`,
-        to: [payload.email],
+        to: [to],
         reply_to: replyTo,
         subject: content.subject,
         html: content.html,
@@ -1785,6 +1866,11 @@ async function sendDiagnosisEmail(env: Env, payload: LeadBody) {
   }
 
   return false;
+}
+
+async function sendDiagnosisEmail(env: Env, payload: LeadBody) {
+  if (!payload.email || !payload.consent) return false;
+  return sendEmailContent(env, payload.email, diagnosisEmailContent(env, payload));
 }
 
 function queueDiagnosisEmail(env: Env, payload: LeadBody, ctx?: WorkerExecutionContext) {
@@ -1803,6 +1889,1060 @@ function queueDiagnosisEmail(env: Env, payload: LeadBody, ctx?: WorkerExecutionC
     return true;
   }
   return false;
+}
+
+function materialApprovalEnabled(env: Env) {
+  return (
+    env.MATERIAL_APPROVAL_ENABLED?.toLowerCase() === "true" &&
+    Boolean(env.LEAD_MATERIALS && env.SLACK_BOT_TOKEN && env.SLACK_SIGNING_SECRET && env.SLACK_APPROVAL_CHANNEL_ID)
+  );
+}
+
+function materialKey(sessionId: string) {
+  return `material:${sessionId}`;
+}
+
+function latestDraft(record: MaterialRecord) {
+  return [...record.drafts].reverse().find((entry) => entry.draft)?.draft;
+}
+
+async function readMaterialRecord(env: Env, sessionId: string) {
+  if (!env.LEAD_MATERIALS) return null;
+  const raw = await env.LEAD_MATERIALS.get(materialKey(sessionId));
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw) as MaterialRecord;
+  } catch {
+    return null;
+  }
+}
+
+async function writeMaterialRecord(env: Env, record: MaterialRecord) {
+  if (!env.LEAD_MATERIALS) return;
+  record.updatedAt = new Date().toISOString();
+  await env.LEAD_MATERIALS.put(materialKey(record.context.sessionId), JSON.stringify(record), {
+    expirationTtl: MATERIAL_TTL_SECONDS,
+  });
+}
+
+function materialStatusLabel(status: MaterialStatus) {
+  const labels: Record<MaterialStatus, string> = {
+    generating: "生成中",
+    pending: "承認待ち",
+    revising: "修正中",
+    approved_sending: "送信中",
+    sent: "送信済み",
+    discarded: "見送り",
+    failed: "失敗",
+  };
+  return labels[status];
+}
+
+function materialVariantLabel(variant: MaterialVariant) {
+  const labels: Record<MaterialVariant, string> = {
+    normal: "通常版",
+    booked_confirmed: "既予約版",
+    booking_in_progress: "日程調整中版",
+    other_channel: "別動線版",
+  };
+  return labels[variant];
+}
+
+function materialVariantOptions(selected: MaterialVariant) {
+  const variants: MaterialVariant[] = ["normal", "booked_confirmed", "booking_in_progress", "other_channel"];
+  return variants.map((variant) => ({
+    text: slackPlainText(materialVariantLabel(variant)),
+    value: variant,
+    ...(variant === selected ? { selected: true } : {}),
+  }));
+}
+
+function materialStageLabel(payload: LeadBody) {
+  return stageLabel(payload.stage) || (payload.focusPlan ? "プラン表示後" : "課題選択後");
+}
+
+function materialTitle(payload: LeadBody) {
+  return companyNameForLead(payload);
+}
+
+function proposedCaseLines(payload: LeadBody) {
+  return (payload.proposedCases || "")
+    .split(/\n+/)
+    .map((line) => line.replace(/^\d+\.\s*/, "").trim())
+    .filter(Boolean)
+    .slice(0, 3);
+}
+
+function fallbackMaterialDraft(payload: LeadBody): MaterialDraft {
+  const pain = painDisplay(payload.painPoint) || "AI活用";
+  const proposals = proposedCaseLines(payload);
+  const focusSteps = payload.focusPlan?.steps || [];
+  const sceneTitles = proposals.length ? proposals : [
+    `${pain}の初動整理`,
+    "定型確認の軽量化",
+    "現場に残る運用化",
+  ];
+  const scenes = sceneTitles.slice(0, 2).map((title, index) => {
+    const focusStep = focusSteps[index];
+    return {
+      title: shortText(title, `${pain}の活用場面`, 24),
+      current: shortText(
+        payload.analyzedSummary || "公開情報と入力内容から、改善余地のある業務を仮説化しました。",
+        "公開情報と入力内容から、改善余地のある業務を仮説化しました。",
+        90,
+      ),
+      withAi: shortText(
+        focusStep?.action || "AIが一次整理を担い、人が確認すべき判断に集中できる状態を作ります。",
+        "AIが一次整理を担い、人が確認すべき判断に集中できる状態を作ります。",
+        110,
+      ),
+      firstMove: shortText(
+        focusStep?.phase ? `${focusStep.phase}: ${focusStep.action}` : "まず対象業務を1つに絞り、既存ツールに合わせて試作します。",
+        "まず対象業務を1つに絞り、既存ツールに合わせて試作します。",
+        80,
+      ),
+    };
+  });
+  return {
+    schemaVersion: "1.0",
+    opening: shortText(
+      payload.focusPlan?.restatement || `${pain}を起点に、公開情報とご回答から進め方を整理しました。`,
+      `${pain}を起点に、公開情報とご回答から進め方を整理しました。`,
+      140,
+    ),
+    scenes,
+    firstStep: shortText(
+      focusSteps[0]?.action || "最初の2〜6週間で、対象業務の棚卸しと小さな試作から始めます。",
+      "最初の2〜6週間で、対象業務の棚卸しと小さな試作から始めます。",
+      120,
+    ),
+    caseConnection: payload.matchedCase
+      ? shortText(`${payload.matchedCase.companySize || "近い規模"}の匿名事例と、課題の入口が近いです。`, "", 80)
+      : undefined,
+    meetingTopics: (payload.focusPlan?.agenda || [
+      "最初にAIへ任せる業務範囲",
+      "人が確認すべき例外と判断基準",
+      "既存ツールとのつなぎ方",
+    ]).slice(0, 3).map((item) => shortText(item, "相談で確認すること", 40)),
+  };
+}
+
+function materialDraftLanguageOk(draft: MaterialDraft) {
+  return collectStrings(draft).every((text) => !text || hasJapanese(text));
+}
+
+function validateMaterialDraft(raw: unknown, payload: LeadBody, env: Env): MaterialDraft | null {
+  if (!raw || typeof raw !== "object") return null;
+  const input = raw as Partial<MaterialDraft>;
+  const fallback = fallbackMaterialDraft(payload);
+  const rawScenes = Array.isArray(input.scenes) ? input.scenes : [];
+  const scenes = rawScenes.slice(0, 3).map((scene, index) => {
+    const source = scene as Partial<MaterialScene>;
+    const fallbackScene = fallback.scenes[index] || fallback.scenes[0];
+    return {
+      title: shortText(source.title, fallbackScene.title, 24),
+      current: shortText(source.current, fallbackScene.current, 90),
+      withAi: shortText(source.withAi, fallbackScene.withAi, 110),
+      firstMove: shortText(source.firstMove, fallbackScene.firstMove, 80),
+    };
+  });
+  while (scenes.length < 2) scenes.push(fallback.scenes[scenes.length] || fallback.scenes[0]);
+
+  const rawTopics = Array.isArray(input.meetingTopics) ? input.meetingTopics : [];
+  const meetingTopics = rawTopics.slice(0, 3).map((topic, index) => (
+    shortText(topic, fallback.meetingTopics[index] || "相談で確認すること", 40)
+  ));
+  while (meetingTopics.length < 2) meetingTopics.push(fallback.meetingTopics[meetingTopics.length] || "相談で確認すること");
+
+  const draft: MaterialDraft = {
+    schemaVersion: "1.0",
+    opening: shortText(input.opening, fallback.opening, 140),
+    scenes,
+    firstStep: shortText(input.firstStep, fallback.firstStep, 120),
+    caseConnection: payload.matchedCase
+      ? shortText(input.caseConnection, fallback.caseConnection || "", 80)
+      : undefined,
+    meetingTopics,
+  };
+
+  if (!outputPassesLint(draft, env) || !materialDraftLanguageOk(draft)) return null;
+  return draft;
+}
+
+function materialPromptBody(env: Env, record: MaterialRecord, instruction?: string, retry = false) {
+  const payload = record.context;
+  const previous = latestDraft(record);
+  return {
+    model: env.DEEPSEEK_MODEL || DEEPSEEK_DEFAULT_MODEL,
+    thinking: { type: "disabled" },
+    temperature: retry ? 0.2 : 0.35,
+    max_tokens: 1600,
+    response_format: { type: "json_object" },
+    messages: [
+      {
+        role: "system",
+        content: [
+          "You are honkoma's lead-material generator. Return valid JSON only.",
+          "書いてよい事実は入力にあるものだけ。相手企業の内部事情、新しい事実、数値効果、固有名詞を創作しない。",
+          "クライアント実名、感嘆符、希少性、保証、断定数値は禁止。",
+          "matchedCaseの事実は書き換えない。caseConnectionだけを書く。",
+          "丁寧で静かな日本語で、営業色を強くしすぎない。",
+        ].join("\n"),
+      },
+      {
+        role: "user",
+        content: JSON.stringify({
+          companyUrl: payload.companyUrl,
+          companyName: materialTitle(payload),
+          analyzedSummary: payload.analyzedSummary,
+          proposedCases: payload.proposedCases,
+          painPoint: payload.painPoint,
+          painPointLabel: painDisplay(payload.painPoint),
+          painPointRaw: payload.painPointRaw,
+          companySize: payload.companySize,
+          companySizeLabel: companySizeLabel(payload.companySize),
+          aiMaturity: payload.aiMaturity,
+          aiMaturityLabel: maturityLabel(payload.aiMaturity),
+          focusPlan: payload.focusPlan,
+          matchedCase: payload.matchedCase || null,
+          diagnosisCode: payload.diagnosisCode || diagnosisCodeForSession(payload.sessionId),
+          stage: payload.stage,
+          fixedCompanyFacts: {
+            company: "株式会社honkoma",
+            supportScale: "30社以上のAI伴走導入",
+            team: "10名体制",
+            representative: "代表 林拓海",
+          },
+          previousDraft: previous || null,
+          revisionInstruction: instruction || "",
+          outputSchema: {
+            schemaVersion: "1.0",
+            opening: "string <=140",
+            scenes: [
+              {
+                title: "string <=24",
+                current: "string <=90",
+                withAi: "string <=110",
+                firstMove: "string <=80",
+              },
+            ],
+            firstStep: "string <=120",
+            caseConnection: "optional string <=80",
+            meetingTopics: ["2-3 strings <=40"],
+          },
+          example: fallbackMaterialDraft(payload),
+        }),
+      },
+    ],
+  };
+}
+
+async function generateMaterialDraft(env: Env, record: MaterialRecord, instruction?: string): Promise<MaterialDraftEntry> {
+  const apiKey = env.DEEPSEEK_API_KEY || env.XAI_API_KEY;
+  const fallback = fallbackMaterialDraft(record.context);
+  const createdAt = new Date().toISOString();
+  if (!apiKey) {
+    return {
+      rev: record.rev + 1,
+      mode: "fallback",
+      draft: fallback,
+      instruction,
+      createdAt,
+      warning: "DeepSeek APIキー未設定のため、テンプレ版を表示しています。",
+    };
+  }
+
+  let transportFailed = false;
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      const response = await fetch(DEEPSEEK_BASE_URL, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(materialPromptBody(env, record, instruction, attempt > 0)),
+      });
+      if (!response.ok) {
+        transportFailed = true;
+        throw new Error(`DeepSeek API failed: ${response.status}`);
+      }
+      const data = await response.json() as { choices?: Array<{ message?: { content?: unknown } }> };
+      const content = messageContent(data.choices?.[0]?.message);
+      if (!content.trim()) continue;
+      const draft = validateMaterialDraft(extractJson(content), record.context, env);
+      if (draft) {
+        return { rev: record.rev + 1, mode: "model", draft, instruction, createdAt };
+      }
+    } catch (error) {
+      if (error instanceof TypeError) transportFailed = true;
+      // Retry once, then deterministic fallback.
+    }
+  }
+
+  if (transportFailed) {
+    return {
+      rev: record.rev + 1,
+      mode: "failed",
+      instruction,
+      createdAt,
+      warning: "資料生成に失敗しました。再試行できます。",
+    };
+  }
+
+  return {
+    rev: record.rev + 1,
+    mode: "fallback",
+    draft: fallback,
+    instruction,
+    createdAt,
+    warning: "自動生成が検証を通らなかったため、テンプレ版を表示しています。",
+  };
+}
+
+function materialEmailContent(env: Env, record: MaterialRecord) {
+  const payload = record.context;
+  const draft = latestDraft(record) || fallbackMaterialDraft(payload);
+  const companyName = materialTitle(payload);
+  const pain = painDisplay(payload.painPoint) || "AI活用";
+  const diagnosisCode = payload.diagnosisCode || diagnosisCodeForSession(payload.sessionId);
+  const bookingUrl = env.BOOKING_URL || DEFAULT_BOOKING_URL;
+  const bookedVariant = record.variant === "booked_confirmed" || record.variant === "booking_in_progress";
+  const subject = bookedVariant
+    ? "【honkoma】ご予約ありがとうございます — 当日に向けた資料です"
+    : `【honkoma】${companyName}向けに、AI活用の進め方をまとめました`;
+  const greeting = (() => {
+    if (record.variant === "booked_confirmed") {
+      return [
+        "このたびは、ミーティングのご予約をありがとうございます。代表の林です。",
+        "ご予約の前後にご案内が行き違いになっていましたら、申し訳ございません。",
+        "当日に向けて、診断の内容を資料としてまとめました。事前のご準備は不要です。当日は、この内容から一緒に始めましょう。",
+      ];
+    }
+    if (record.variant === "booking_in_progress") {
+      return [
+        "代表の林です。診断のご利用ありがとうございました。",
+        "すでに日程調整にお進みいただいていましたら、ご案内が行き違いになり申し訳ございません。",
+        "その場合このメールへのご返信は不要です。当日、この資料の内容からお話しできるよう、こちらで準備しておきます。",
+      ];
+    }
+    const overlapLine = record.variant === "other_channel"
+      ? "なお、別の窓口からも既にご連絡をいただいているようでしたら、ご案内が重なってしまい申し訳ございません。お返事は、どちらか一方で結構です。"
+      : "";
+    return [
+      `${companyName} ご担当者様`,
+      "先ほどは、honkomaのAI診断をご利用いただきありがとうございました。",
+      "代表の林です。",
+      overlapLine,
+      `診断の内容を確認し、${pain}を起点とした${companyName}での活用イメージを、こちらの1通にまとめました。`,
+    ].filter(Boolean);
+  })();
+  const caseLines = payload.matchedCase ? [
+    payload.matchedCase.title,
+    payload.matchedCase.situation,
+    payload.matchedCase.approach,
+    payload.matchedCase.outcome,
+    payload.matchedCase.duration,
+    draft.caseConnection || "",
+  ].filter(Boolean) : ["近い事例は、お話の中で状況に合わせてご紹介します。"];
+  const meetingBlock = (() => {
+    if (record.variant === "booked_confirmed") return [];
+    if (record.variant === "booking_in_progress") {
+      return [
+        "もしまだ日程がお決まりでなければ、こちらからどうぞ。",
+        `日程: ${bookingUrl}`,
+        `予約フォームのご相談内容欄に、診断コード ${diagnosisCode} をご記入ください。`,
+      ];
+    }
+    const heading = record.variant === "other_channel"
+      ? "■ もしまだ日程のご相談が進んでいなければ"
+      : "■ 一度、お話ししませんか";
+    return [
+      heading,
+      "30分のオンラインミーティングで、この資料を御社の実情に合わせて組み直すこともできます。売り込みはしません。",
+      `日程: ${bookingUrl}`,
+      `予約フォームのご相談内容欄に、診断コード ${diagnosisCode} をご記入ください。`,
+      "ミーティングで話すこと（目安）",
+      ...draft.meetingTopics.map((topic) => `・${topic}`),
+    ];
+  })();
+  const text = [
+    subject,
+    "",
+    ...greeting,
+    "",
+    "■ 診断の要約",
+    draft.opening,
+    "",
+    `■ ${companyName}での活用イメージ`,
+    ...draft.scenes.flatMap((scene, index) => [
+      `${index + 1}. ${scene.title}`,
+      `　いま　　　: ${scene.current}`,
+      `　AI導入後　: ${scene.withAi}`,
+      `　最初の一歩: ${scene.firstMove}`,
+    ]),
+    "",
+    "■ 進め方（最初の2〜6週間）",
+    draft.firstStep,
+    "",
+    "■ 近い状況の事例",
+    ...caseLines,
+    "",
+    ...meetingBlock,
+    "",
+    "この資料は公開情報とご入力内容に基づく仮説です。実装可否や優先順位は、業務の詳細を確認して調整します。",
+    payload.matchedCase ? "※事例は特定を避けるため、業種・規模など一部の表現を調整しています。" : "",
+    "",
+    "株式会社honkoma",
+    "代表取締役 林 拓海",
+    "https://ltdhonkoma.com",
+    "※このメールは、AI診断をご利用いただいた方に、内容を人が確認したうえで一度だけお送りしています。",
+    "　以降のご案内をお送りすることはありません。",
+  ].filter((line) => line !== "").join("\n");
+  const htmlScenes = draft.scenes.map((scene, index) => `
+        <li>
+          <strong>${index + 1}. ${escapeHtml(scene.title)}</strong><br>
+          いま: ${escapeHtml(scene.current)}<br>
+          AI導入後: ${escapeHtml(scene.withAi)}<br>
+          最初の一歩: ${escapeHtml(scene.firstMove)}
+        </li>`).join("");
+  const htmlMeeting = meetingBlock.length ? `
+      <h2 style="font-size:16px;margin:28px 0 10px;">${escapeHtml(meetingBlock[0].replace(/^■\s*/, ""))}</h2>
+      ${meetingBlock.slice(1).map((line) => `<p style="margin:0 0 8px;">${escapeHtml(line)}</p>`).join("")}
+  ` : "";
+  const html = `
+<!doctype html>
+<html lang="ja">
+  <body style="margin:0;background:#f6f8fb;color:#17202a;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;line-height:1.7;">
+    <main style="max-width:680px;margin:0 auto;padding:28px 20px;background:#ffffff;">
+      <p style="font-size:12px;color:#1d5fa7;font-weight:700;margin:0 0 8px;">AI Material</p>
+      <h1 style="font-size:22px;line-height:1.4;margin:0 0 16px;">${escapeHtml(subject)}</h1>
+      ${greeting.map((line) => `<p style="margin:0 0 10px;">${escapeHtml(line)}</p>`).join("")}
+      <h2 style="font-size:16px;margin:28px 0 10px;">診断の要約</h2>
+      <p>${escapeHtml(draft.opening)}</p>
+      <h2 style="font-size:16px;margin:28px 0 10px;">${escapeHtml(companyName)}での活用イメージ</h2>
+      <ol style="padding-left:20px;margin:0;">${htmlScenes}</ol>
+      <h2 style="font-size:16px;margin:28px 0 10px;">進め方（最初の2〜6週間）</h2>
+      <p>${escapeHtml(draft.firstStep)}</p>
+      <h2 style="font-size:16px;margin:28px 0 10px;">近い状況の事例</h2>
+      ${caseLines.map((line) => `<p style="margin:0 0 8px;">${escapeHtml(line)}</p>`).join("")}
+      ${htmlMeeting}
+      <hr style="border:none;border-top:1px solid #e5e9f0;margin:28px 0;" />
+      <p style="font-size:12px;color:#667085;">この資料は公開情報とご入力内容に基づく仮説です。実装可否や優先順位は、業務の詳細を確認して調整します。</p>
+      ${payload.matchedCase ? `<p style="font-size:12px;color:#667085;">※事例は特定を避けるため、業種・規模など一部の表現を調整しています。</p>` : ""}
+      <p style="font-size:12px;color:#667085;">株式会社honkoma<br>代表取締役 林 拓海<br>https://ltdhonkoma.com</p>
+      <p style="font-size:12px;color:#667085;">※このメールは、AI診断をご利用いただいた方に、内容を人が確認したうえで一度だけお送りしています。以降のご案内をお送りすることはありません。</p>
+    </main>
+  </body>
+</html>`.trim();
+  return { subject, text, html };
+}
+
+async function sendMaterialEmail(env: Env, record: MaterialRecord) {
+  const email = record.context.email;
+  if (!email || !record.context.consent || record.sentAt) return false;
+  return sendEmailContent(env, email, materialEmailContent(env, record));
+}
+
+async function updateNotionMaterialStatus(env: Env, sessionId: string, status: MaterialStatus, sentAt?: string) {
+  if (!env.NOTION_TOKEN || !env.NOTION_LEADS_DB_ID) return false;
+  const page = await findNotionPageBySession(env, sessionId);
+  if (!page?.id) return false;
+  const rawProperties: Record<string, unknown> = {
+    "Material Status": { select: { name: materialStatusLabel(status) } },
+  };
+  if (sentAt) rawProperties["Material Sent At"] = { date: { start: sentAt } };
+  const properties = await filterNotionProperties(env, rawProperties);
+  if (!Object.keys(properties).length) return false;
+  await notionFetch(env, `/pages/${page.id}`, {
+    method: "PATCH",
+    body: JSON.stringify({ properties }),
+  });
+  return true;
+}
+
+async function detectMaterialOverlap(env: Env, payload: LeadBody): Promise<MaterialOverlap> {
+  const overlap: MaterialOverlap = {
+    booked: false,
+    bookingClick: payload.stage === "booking_click" || payload.stage === "bookingStarted" || payload.contactMethod === "booking",
+    sameEmail: false,
+    sameDomain: false,
+  };
+  if (!env.NOTION_TOKEN || !env.NOTION_LEADS_DB_ID) return overlap;
+  try {
+    const current = await findNotionPageBySession(env, payload.sessionId);
+    overlap.booked = Boolean(current?.booked);
+    overlap.bookingClick = overlap.bookingClick || current?.stage === "booking_click" || current?.stage === "bookingStarted";
+    if (payload.email) {
+      const result = await notionFetch(env, `/databases/${env.NOTION_LEADS_DB_ID}/query`, {
+        method: "POST",
+        body: JSON.stringify({
+          filter: { property: "Email", email: { equals: payload.email } },
+          page_size: 5,
+        }),
+      }) as { results?: Array<{ properties?: Record<string, unknown> }> };
+      const matched = (result.results || []).find((page) => {
+        const session = notionPlainText(page.properties?.["Session ID"]);
+        return session && session !== payload.sessionId;
+      });
+      if (matched) {
+        overlap.sameEmail = true;
+        overlap.matchedLeadUrl = notionPlainText(matched.properties?.["Company"]);
+      }
+    }
+  } catch {
+    return overlap;
+  }
+  return overlap;
+}
+
+function suggestedVariant(overlap: MaterialOverlap): MaterialVariant {
+  if (overlap.booked) return "booked_confirmed";
+  if (overlap.bookingClick) return "booking_in_progress";
+  if (overlap.sameEmail) return "other_channel";
+  return "normal";
+}
+
+type SlackApiResponse = { ok?: boolean; error?: string; channel?: string; ts?: string };
+
+async function slackApi(env: Env, method: string, body: Record<string, unknown>): Promise<SlackApiResponse> {
+  if (!env.SLACK_BOT_TOKEN) throw new Error("Slack bot token is not configured");
+  const response = await fetch(`https://slack.com/api/${method}`, {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${env.SLACK_BOT_TOKEN}`,
+      "Content-Type": "application/json; charset=utf-8",
+    },
+    body: JSON.stringify(body),
+  });
+  const data = await response.json() as SlackApiResponse;
+  if (!response.ok || !data.ok) throw new Error(`Slack API ${method} failed: ${data.error || response.status}`);
+  return data;
+}
+
+function materialCardPayload(env: Env, record: MaterialRecord) {
+  return {
+    text: `リード資料 ${materialStatusLabel(record.status)}: ${materialTitle(record.context)}`,
+    unfurl_links: false,
+    unfurl_media: false,
+    blocks: materialSlackBlocks(env, record),
+  };
+}
+
+async function postMaterialCardWebhook(env: Env, record: MaterialRecord) {
+  if (!env.SLACK_WEBHOOK_URL) return false;
+  const response = await fetch(env.SLACK_WEBHOOK_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(materialCardPayload(env, record)),
+  });
+  if (!response.ok) throw new Error(`Slack webhook failed: ${response.status}`);
+  return true;
+}
+
+async function replaceMaterialCardWithResponseUrl(env: Env, record: MaterialRecord) {
+  if (!record.slackResponseUrl) return false;
+  const response = await fetch(record.slackResponseUrl, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      replace_original: true,
+      ...materialCardPayload(env, record),
+    }),
+  });
+  return response.ok;
+}
+
+function materialSlackPreview(env: Env, record: MaterialRecord) {
+  const content = materialEmailContent(env, record);
+  return [
+    `*件名*: ${slackText(content.subject)}`,
+    "```",
+    slackText(content.text.slice(0, 1800)),
+    "```",
+  ].join("\n");
+}
+
+function materialSlackBlocks(env: Env, record: MaterialRecord): SlackBlock[] {
+  const payload = record.context;
+  const diagnosisCode = payload.diagnosisCode || diagnosisCodeForSession(payload.sessionId);
+  const fields = [
+    slackField("診断コード", diagnosisCode),
+    slackField("Stage", materialStageLabel(payload)),
+    slackField("課題", painDisplay(payload.painPoint)),
+    slackField("規模", payload.companySize ? companySizeLabel(payload.companySize) : ""),
+    slackField("AI活用", payload.aiMaturity ? maturityLabel(payload.aiMaturity) : ""),
+    slackField("URL", slackUrl(payload.companyUrl)),
+    slackField("Email", payload.email),
+    slackField("rev", String(record.rev)),
+  ].filter(Boolean);
+  const warning = [
+    record.overlap.booked ? "Bookedフラグあり → 既予約版を提案" : "",
+    record.overlap.bookingClick ? "booking_clickあり → 日程調整中版を提案" : "",
+    record.overlap.sameEmail ? "同じメールアドレスの既存リードあり → 別動線版を提案" : "",
+  ].filter(Boolean).join("\n");
+  const draftEntry = record.drafts[record.drafts.length - 1];
+  const blocks: SlackBlock[] = [
+    { type: "header", text: slackPlainText(`📮 リード資料 ${materialStatusLabel(record.status)} — ${materialTitle(payload)}`) },
+    {
+      type: "section",
+      text: slackMrkdwn("*Next*: 内容を確認し「承認して送信」か「修正を依頼」を押してください。承認まで送信されません。"),
+    },
+    { type: "section", fields },
+  ];
+  if (warning) {
+    blocks.push({ type: "section", text: slackMrkdwn(`*⚠️ 行き違い候補*\n${slackText(warning)}`) });
+  }
+  blocks.push({
+    type: "actions",
+    block_id: `material_variant:${payload.sessionId}`,
+    elements: [
+      {
+        type: "static_select",
+        action_id: "material_variant",
+        placeholder: slackPlainText("文面タイプ"),
+        initial_option: {
+          text: slackPlainText(materialVariantLabel(record.variant)),
+          value: record.variant,
+        },
+        options: materialVariantOptions(record.variant).map(({ text, value }) => ({ text, value })),
+      },
+    ],
+  });
+  if (record.status === "generating" || record.status === "revising") {
+    blocks.push({ type: "section", text: slackMrkdwn("資料を生成しています。完了後にこのカードを更新します。") });
+  } else if (draftEntry?.warning) {
+    blocks.push({ type: "section", text: slackMrkdwn(`*⚠️* ${slackText(draftEntry.warning)}`) });
+  }
+  if (latestDraft(record)) {
+    blocks.push({ type: "section", text: slackMrkdwn(materialSlackPreview(env, record)) });
+  } else if (record.status === "failed") {
+    blocks.push({ type: "section", text: slackMrkdwn(`*⚠️ 失敗*: ${slackText(record.failedError || "生成または送信に失敗しました。")}`) });
+  }
+
+  const actionElements: Record<string, unknown>[] = [];
+  if (record.status === "pending" && record.drafts.length <= MATERIAL_MAX_REVISIONS) {
+    actionElements.push(
+      { type: "button", style: "primary", text: slackPlainText("承認して送信"), action_id: "material_approve", value: payload.sessionId },
+      { type: "button", text: slackPlainText("修正を依頼"), action_id: "material_revise", value: payload.sessionId },
+      { type: "button", style: "danger", text: slackPlainText("今回は送らない"), action_id: "material_discard", value: payload.sessionId },
+    );
+  } else if (record.status === "failed") {
+    const retryLabel = record.failedPhase === "send" && latestDraft(record) ? "再送" : "再生成";
+    actionElements.push(
+      { type: "button", style: "primary", text: slackPlainText(retryLabel), action_id: "material_retry", value: payload.sessionId },
+      { type: "button", style: "danger", text: slackPlainText("今回は送らない"), action_id: "material_discard", value: payload.sessionId },
+    );
+  } else if (record.status === "pending") {
+    actionElements.push(
+      { type: "button", style: "danger", text: slackPlainText("今回は送らない"), action_id: "material_discard", value: payload.sessionId },
+    );
+    blocks.push({ type: "section", text: slackMrkdwn("修正上限に達しました。手書きでの送信をおすすめします。") });
+  }
+  if (actionElements.length) blocks.push({ type: "actions", elements: actionElements });
+  blocks.push({
+    type: "context",
+    elements: [
+      slackMrkdwn([
+        `session: ${slackText(compactSession(payload.sessionId))}`,
+        `文面: ${slackText(materialVariantLabel(record.variant))}`,
+        "送信前にカレンダーをご確認ください（予約が見えるのは人間だけです）",
+        "承認するまで自動送信されません",
+      ].join("  |  ")),
+    ],
+  });
+  return blocks;
+}
+
+async function postMaterialCard(env: Env, record: MaterialRecord) {
+  try {
+    const result = await slackApi(env, "chat.postMessage", {
+      channel: env.SLACK_APPROVAL_CHANNEL_ID,
+      ...materialCardPayload(env, record),
+    });
+    if (result.channel && result.ts) {
+      record.slack = { channel: result.channel, ts: result.ts };
+      record.slackWebhookOnly = false;
+      await writeMaterialRecord(env, record);
+    }
+  } catch (error) {
+    if (!env.SLACK_WEBHOOK_URL) throw error;
+    record.slackWebhookOnly = true;
+    if (record.status !== "generating" && record.status !== "revising") {
+      await postMaterialCardWebhook(env, record);
+      record.slackWebhookCardPosted = true;
+    }
+    await writeMaterialRecord(env, record);
+  }
+}
+
+async function updateMaterialCard(env: Env, record: MaterialRecord) {
+  if (record.slack) {
+    await slackApi(env, "chat.update", {
+      channel: record.slack.channel,
+      ts: record.slack.ts,
+      ...materialCardPayload(env, record),
+    });
+    return;
+  }
+  if (await replaceMaterialCardWithResponseUrl(env, record)) return;
+  if (!record.slackWebhookOnly || record.slackWebhookCardPosted) return;
+  if (record.status === "generating" || record.status === "revising") return;
+  await postMaterialCardWebhook(env, record);
+  record.slackWebhookCardPosted = true;
+  await writeMaterialRecord(env, record);
+}
+
+async function postMaterialThread(env: Env, record: MaterialRecord, text: string) {
+  if (!record.slack) return;
+  await slackApi(env, "chat.postMessage", {
+    channel: record.slack.channel,
+    thread_ts: record.slack.ts,
+    text,
+    unfurl_links: false,
+    unfurl_media: false,
+  });
+}
+
+async function startMaterialFlow(env: Env, payload: LeadBody) {
+  if (!materialApprovalEnabled(env) || !payload.email || !payload.consent) return false;
+  const existing = await readMaterialRecord(env, payload.sessionId);
+  if (existing) return true;
+  const now = new Date().toISOString();
+  const record: MaterialRecord = {
+    status: "generating",
+    rev: 0,
+    variant: "normal",
+    variantSuggested: "normal",
+    overlap: { booked: false, bookingClick: false, sameEmail: false, sameDomain: false },
+    context: payload,
+    drafts: [],
+    createdAt: now,
+    updatedAt: now,
+  };
+  await writeMaterialRecord(env, record);
+  await updateNotionMaterialStatus(env, payload.sessionId, "generating").catch(() => false);
+  try {
+    await postMaterialCard(env, record);
+    record.overlap = await detectMaterialOverlap(env, payload);
+    record.variantSuggested = suggestedVariant(record.overlap);
+    record.variant = record.variantSuggested;
+    await writeMaterialRecord(env, record);
+    const draft = await generateMaterialDraft(env, record);
+    record.rev = draft.rev;
+    record.drafts.push(draft);
+    record.status = draft.mode === "failed" || !draft.draft ? "failed" : "pending";
+    record.failedPhase = record.status === "failed" ? "generation" : undefined;
+    record.failedError = record.status === "failed" ? draft.warning || "material generation failed" : undefined;
+    await writeMaterialRecord(env, record);
+    await updateNotionMaterialStatus(env, payload.sessionId, record.status).catch(() => false);
+    await updateMaterialCard(env, record);
+    return record.status === "pending";
+  } catch (error) {
+    record.status = "failed";
+    record.failedPhase = "flow";
+    record.failedError = error instanceof Error ? error.message : "material flow failed";
+    await writeMaterialRecord(env, record);
+    await updateNotionMaterialStatus(env, payload.sessionId, "failed").catch(() => false);
+    await updateMaterialCard(env, record).catch(() => undefined);
+    return false;
+  }
+}
+
+async function approveMaterial(env: Env, sessionId: string, userId: string, retry = false) {
+  const record = await readMaterialRecord(env, sessionId);
+  if (!record) return;
+  const canApprove = record.status === "pending";
+  const canRetrySend = retry && record.status === "failed" && record.failedPhase === "send" && Boolean(latestDraft(record));
+  if (record.sentAt || (!canApprove && !canRetrySend)) {
+    return;
+  }
+  const approvalRunId = crypto.randomUUID();
+  record.status = "approved_sending";
+  record.approvedBy = userId;
+  record.approvalRunId = approvalRunId;
+  record.failedPhase = undefined;
+  record.failedError = undefined;
+  await writeMaterialRecord(env, record);
+  const locked = await readMaterialRecord(env, sessionId);
+  if (!locked || locked.status !== "approved_sending" || locked.approvalRunId !== approvalRunId || locked.sentAt) {
+    return;
+  }
+  await updateMaterialCard(env, locked).catch(() => undefined);
+  try {
+    const sent = await sendMaterialEmail(env, locked);
+    if (!sent) throw new Error("Material email transport is not configured");
+    locked.status = "sent";
+    locked.sentAt = new Date().toISOString();
+    locked.failedPhase = undefined;
+    locked.failedError = undefined;
+    await writeMaterialRecord(env, locked);
+  } catch (error) {
+    locked.status = "failed";
+    locked.failedPhase = "send";
+    locked.failedError = error instanceof Error ? error.message : "send failed";
+    await writeMaterialRecord(env, locked);
+    await updateNotionMaterialStatus(env, sessionId, "failed").catch(() => false);
+    await updateMaterialCard(env, locked).catch(() => undefined);
+    return;
+  }
+  await updateNotionMaterialStatus(env, sessionId, "sent", locked.sentAt).catch(() => false);
+  await postMaterialThread(env, locked, `送信済み / by <@${userId}> / ${materialVariantLabel(locked.variant)}`).catch(() => undefined);
+  await updateMaterialCard(env, locked).catch(() => undefined);
+}
+
+async function retryMaterial(env: Env, sessionId: string, userId: string) {
+  const record = await readMaterialRecord(env, sessionId);
+  if (!record || record.sentAt || record.status !== "failed") return;
+  if (record.failedPhase === "send" && latestDraft(record)) {
+    await approveMaterial(env, sessionId, userId, true);
+    return;
+  }
+
+  record.status = "revising";
+  record.failedPhase = undefined;
+  record.failedError = undefined;
+  await writeMaterialRecord(env, record);
+  await updateNotionMaterialStatus(env, sessionId, "revising").catch(() => false);
+  await updateMaterialCard(env, record).catch(() => undefined);
+  await postMaterialThread(env, record, `再生成 / by <@${userId}>`);
+  const draft = await generateMaterialDraft(env, record, "前回の生成失敗から再試行");
+  record.rev = draft.rev;
+  record.drafts.push(draft);
+  record.status = draft.mode === "failed" || !draft.draft ? "failed" : "pending";
+  record.failedPhase = record.status === "failed" ? "generation" : undefined;
+  record.failedError = record.status === "failed" ? draft.warning || "material generation failed" : undefined;
+  await writeMaterialRecord(env, record);
+  await updateNotionMaterialStatus(env, sessionId, record.status).catch(() => false);
+  await updateMaterialCard(env, record);
+}
+
+async function discardMaterial(env: Env, sessionId: string, userId: string) {
+  const record = await readMaterialRecord(env, sessionId);
+  if (!record || record.sentAt) return;
+  record.status = "discarded";
+  record.discardedBy = userId;
+  await writeMaterialRecord(env, record);
+  await updateNotionMaterialStatus(env, sessionId, "discarded").catch(() => false);
+  await postMaterialThread(env, record, `見送り / by <@${userId}>`);
+  await updateMaterialCard(env, record);
+}
+
+async function reviseMaterial(env: Env, sessionId: string, userId: string, instruction: string, variant?: MaterialVariant) {
+  const record = await readMaterialRecord(env, sessionId);
+  if (!record || record.sentAt || record.drafts.length >= MATERIAL_MAX_REVISIONS) return;
+  if (variant) record.variant = variant;
+  record.status = "revising";
+  await writeMaterialRecord(env, record);
+  await updateNotionMaterialStatus(env, sessionId, "revising").catch(() => false);
+  await updateMaterialCard(env, record).catch(() => undefined);
+  await postMaterialThread(env, record, `rev${record.rev} → rev${record.rev + 1} / by <@${userId}> / 指示: ${slackText(instruction, "修正指示")}`);
+  const draft = await generateMaterialDraft(env, record, instruction);
+  record.rev = draft.rev;
+  record.drafts.push(draft);
+  record.status = draft.mode === "failed" || !draft.draft ? "failed" : "pending";
+  record.failedPhase = record.status === "failed" ? "generation" : undefined;
+  record.failedError = record.status === "failed" ? draft.warning || "material generation failed" : undefined;
+  await writeMaterialRecord(env, record);
+  await updateNotionMaterialStatus(env, sessionId, record.status).catch(() => false);
+  await updateMaterialCard(env, record);
+}
+
+async function updateMaterialVariant(env: Env, sessionId: string, variant: MaterialVariant) {
+  const record = await readMaterialRecord(env, sessionId);
+  if (!record || record.sentAt) return;
+  record.variant = variant;
+  await writeMaterialRecord(env, record);
+  await updateMaterialCard(env, record);
+}
+
+function allowedApprover(env: Env, userId?: string) {
+  const configured = env.SLACK_APPROVER_IDS?.split(",").map((value) => value.trim()).filter(Boolean) || [];
+  if (!configured.length) return true;
+  return Boolean(userId && configured.includes(userId));
+}
+
+function slackAck(body: unknown = "") {
+  if (typeof body === "string") return new Response(body, { status: 200 });
+  return new Response(JSON.stringify(body), {
+    status: 200,
+    headers: { "Content-Type": "application/json; charset=utf-8" },
+  });
+}
+
+function timingSafeEqualString(left: string, right: string) {
+  const encoder = new TextEncoder();
+  const a = encoder.encode(left);
+  const b = encoder.encode(right);
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let index = 0; index < a.length; index += 1) diff |= a[index] ^ b[index];
+  return diff === 0;
+}
+
+async function slackSignatureValid(request: Request, env: Env, rawBody: string) {
+  if (!env.SLACK_SIGNING_SECRET) return false;
+  const timestamp = request.headers.get("X-Slack-Request-Timestamp") || "";
+  const signature = request.headers.get("X-Slack-Signature") || "";
+  const timestampSeconds = Number(timestamp);
+  if (!timestampSeconds || Math.abs(Date.now() / 1000 - timestampSeconds) > 60 * 5) return false;
+  const base = `v0:${timestamp}:${rawBody}`;
+  const key = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(env.SLACK_SIGNING_SECRET),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"],
+  );
+  const digest = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(base));
+  const hex = Array.from(new Uint8Array(digest)).map((byte) => byte.toString(16).padStart(2, "0")).join("");
+  return timingSafeEqualString(`v0=${hex}`, signature);
+}
+
+function parseSlackPayload(rawBody: string) {
+  const payload = new URLSearchParams(rawBody).get("payload");
+  if (!payload) throw new Error("Slack payload is missing");
+  return JSON.parse(payload) as {
+    type?: string;
+    trigger_id?: string;
+    response_url?: string;
+    user?: { id?: string };
+    channel?: { id?: string };
+    message?: { ts?: string };
+    actions?: Array<{ action_id?: string; block_id?: string; value?: string; selected_option?: { value?: string } }>;
+    view?: {
+      private_metadata?: string;
+      state?: { values?: Record<string, Record<string, { value?: string; selected_option?: { value?: string } }>> };
+    };
+  };
+}
+
+async function rememberSlackResponseUrl(env: Env, sessionId: string, responseUrl?: string) {
+  if (!sessionId || !responseUrl) return;
+  const record = await readMaterialRecord(env, sessionId);
+  if (!record) return;
+  record.slackResponseUrl = responseUrl;
+  await writeMaterialRecord(env, record);
+}
+
+function materialVariantFrom(value?: string): MaterialVariant | undefined {
+  if (value === "normal" || value === "booked_confirmed" || value === "booking_in_progress" || value === "other_channel") {
+    return value;
+  }
+  return undefined;
+}
+
+function sessionIdFromSlackAction(action?: { block_id?: string; value?: string }) {
+  if (action?.value) return action.value;
+  const blockId = action?.block_id || "";
+  return blockId.startsWith("material_variant:") ? blockId.slice("material_variant:".length) : "";
+}
+
+function revisionInstructionFromView(view?: {
+  state?: { values?: Record<string, Record<string, { value?: string }>> };
+}) {
+  const values = view?.state?.values || {};
+  for (const block of Object.values(values)) {
+    for (const action of Object.values(block)) {
+      if (typeof action.value === "string" && action.value.trim()) return action.value.trim().slice(0, 1200);
+    }
+  }
+  return "";
+}
+
+async function openRevisionModal(env: Env, triggerId: string, sessionId: string, currentVariant: MaterialVariant) {
+  await slackApi(env, "views.open", {
+    trigger_id: triggerId,
+    view: {
+      type: "modal",
+      callback_id: "material_revision",
+      title: slackPlainText("資料の修正依頼"),
+      submit: slackPlainText("再生成する"),
+      close: slackPlainText("閉じる"),
+      private_metadata: JSON.stringify({ sessionId }),
+      blocks: [
+        {
+          type: "input",
+          block_id: "instruction_block",
+          label: slackPlainText("修正指示"),
+          element: {
+            type: "plain_text_input",
+            action_id: "instruction",
+            multiline: true,
+            placeholder: slackPlainText("例）事例の話を先頭に。もっと短く。経理向けのシーンに差し替え。"),
+          },
+        },
+        {
+          type: "input",
+          block_id: "variant_block",
+          label: slackPlainText("文面タイプ"),
+          optional: true,
+          element: {
+            type: "static_select",
+            action_id: "variant",
+            initial_option: {
+              text: slackPlainText(materialVariantLabel(currentVariant)),
+              value: currentVariant,
+            },
+            options: materialVariantOptions(currentVariant).map(({ text, value }) => ({ text, value })),
+          },
+        },
+      ],
+    },
+  });
+}
+
+async function handleSlackInteraction(request: Request, env: Env, ctx: WorkerExecutionContext) {
+  const rawBody = await request.text();
+  if (!(await slackSignatureValid(request, env, rawBody))) {
+    return new Response("invalid signature", { status: 401 });
+  }
+  const payload = parseSlackPayload(rawBody);
+  const userId = payload.user?.id || "";
+  if (!allowedApprover(env, userId)) return slackAck("not allowed");
+
+  if (payload.type === "block_actions") {
+    const action = payload.actions?.[0];
+    const actionId = action?.action_id;
+    const sessionId = sessionIdFromSlackAction(action);
+    if (sessionId && payload.response_url) {
+      await rememberSlackResponseUrl(env, sessionId, payload.response_url);
+    }
+    if (actionId === "material_variant") {
+      const variant = materialVariantFrom(action?.selected_option?.value);
+      if (variant) ctx.waitUntil(updateMaterialVariant(env, sessionId, variant));
+      return slackAck();
+    }
+    if (actionId === "material_revise" && payload.trigger_id) {
+      const record = await readMaterialRecord(env, sessionId);
+      await openRevisionModal(env, payload.trigger_id, sessionId, record?.variant || "normal");
+      return slackAck();
+    }
+    if (actionId === "material_approve") {
+      ctx.waitUntil(approveMaterial(env, sessionId, userId));
+      return slackAck();
+    }
+    if (actionId === "material_retry") {
+      ctx.waitUntil(retryMaterial(env, sessionId, userId));
+      return slackAck();
+    }
+    if (actionId === "material_discard") {
+      ctx.waitUntil(discardMaterial(env, sessionId, userId));
+      return slackAck();
+    }
+  }
+
+  if (payload.type === "view_submission") {
+    const metadata = payload.view?.private_metadata ? JSON.parse(payload.view.private_metadata) as { sessionId?: string } : {};
+    const sessionId = metadata.sessionId || "";
+    const instruction = revisionInstructionFromView(payload.view);
+    const variantBlock = payload.view?.state?.values?.variant_block?.variant?.selected_option?.value;
+    const variant = materialVariantFrom(variantBlock);
+    if (sessionId && instruction) ctx.waitUntil(reviseMaterial(env, sessionId, userId, instruction, variant));
+    return slackAck({ response_action: "clear" });
+  }
+
+  return slackAck();
 }
 
 async function persistContactForm(env: Env, payload: ContactFormBody) {
@@ -1845,7 +2985,10 @@ async function persistContactForm(env: Env, payload: ContactFormBody) {
 }
 
 async function persistLead(env: Env, payload: LeadBody | PartialLeadBody, ctx?: WorkerExecutionContext) {
-  const dryRun = !env.NOTION_TOKEN && !env.SLACK_WEBHOOK_URL;
+  const useMaterialApproval = payload.action === "capture_lead" &&
+    Boolean(payload.email && payload.consent) &&
+    materialApprovalEnabled(env);
+  const dryRun = !env.NOTION_TOKEN && !env.SLACK_WEBHOOK_URL && !materialApprovalEnabled(env);
   const result = {
     ok: true,
     dryRun,
@@ -1857,7 +3000,7 @@ async function persistLead(env: Env, payload: LeadBody | PartialLeadBody, ctx?: 
 
   const [notionResult, slackResult] = await Promise.allSettled([
     upsertNotionLead(env, payload),
-    notifySlack(env, payload),
+    useMaterialApproval ? Promise.resolve(false) : notifySlack(env, payload),
   ]);
 
   if (notionResult.status === "fulfilled") {
@@ -1869,7 +3012,7 @@ async function persistLead(env: Env, payload: LeadBody | PartialLeadBody, ctx?: 
   }
 
   if (slackResult.status === "fulfilled") {
-    result.slackNotified = slackResult.value;
+    result.slackNotified = useMaterialApproval || slackResult.value;
   } else {
     result.integrationErrors.push(
       slackResult.reason instanceof Error ? slackResult.reason.message : "Slack notification failed",
@@ -1882,6 +3025,18 @@ async function persistLead(env: Env, payload: LeadBody | PartialLeadBody, ctx?: 
 
   if (payload.action === "capture_lead" && result.ok) {
     result.emailSent = queueDiagnosisEmail(env, payload, ctx);
+    if (useMaterialApproval) {
+      const task = startMaterialFlow(env, payload).catch((error) => {
+        console.error(JSON.stringify({
+          event: "material_flow_failed",
+          sessionId: payload.sessionId,
+          error: error instanceof Error ? error.message : "unknown error",
+        }));
+      });
+      if (ctx) ctx.waitUntil(task);
+      else void task;
+      result.slackNotified = true;
+    }
   }
 
   return result;
@@ -1910,6 +3065,11 @@ export default {
     }
 
     const url = new URL(request.url);
+    if (url.pathname === "/slack/interactions") {
+      if (request.method !== "POST") return new Response("Method not allowed", { status: 405 });
+      return handleSlackInteraction(request, env, ctx);
+    }
+
     if (request.method !== "POST" || (url.pathname !== "/" && url.pathname !== "/api/ai-chat")) {
       return jsonResponse({ ok: false, error: "Not found" }, request, env, 404);
     }
