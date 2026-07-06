@@ -93,7 +93,7 @@ const X_DM_URL = "https://x.com/moriyorihayash1";
 /* カジュアル面談の主動線 = 単一スワップポイント（§3.2）。
  * Phase 1: null のまま → /contact?type=recruit（種別プリセット・実装済）。
  * Phase 2: Googleカレンダー予約URLを入れると、全CTAが自動で予約(新規タブ)へ昇格する。 */
-const RECRUIT_BOOKING_URL: string | null = null;
+const RECRUIT_BOOKING_URL: string | null = "https://calendar.app.google/EqoJxNZ8i2NheCmM8";
 
 /** まず話す動線のCTA。RECRUIT_BOOKING_URL の有無でPhase1/2を自動切替。 */
 function CasualTalkCTA({
