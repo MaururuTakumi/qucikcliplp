@@ -20,6 +20,7 @@
  * compliant — no numbers/claims in the hero.
  * ========================================================================== */
 
+import { useEffect, useRef, useState } from "react";
 import { m, useReducedMotion } from "framer-motion";
 import { TextReveal } from "../motion/TextReveal";
 import { ArrowCTA } from "../ui/ArrowCTA";
@@ -36,10 +37,39 @@ const HERO_POSTER_WEBP = "/assets/hero-sky.webp";
 const HERO_POSTER_JPG = "/assets/hero-sky.jpg";
 const HERO_VIDEO = "/assets/hero-sky.mp4"; // Phase 1
 const HERO_VIDEO_LOW = "/assets/hero-sky_low.mp4"; // Phase 1 (mobile / low-bitrate)
-const HERO_HAS_VIDEO = false; // flip to true once the mp4s exist (Phase 1)
+const HERO_HAS_VIDEO = true; // seamless-loop sky timelapse (Topview i2v)
 
 export function HeroHome() {
   const reduce = useReducedMotion();
+  // Honor reduced-motion + Data Saver: fall back to the poster still, no video.
+  const saveData =
+    typeof navigator !== "undefined" &&
+    (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData === true;
+  const showVideo = HERO_HAS_VIDEO && !reduce && !saveData;
+
+  // Source selection in JS (a <source media> on <video> is not reliably honored):
+  // low-bitrate file on phones, full-res otherwise. Default to full-res for SSR/first paint.
+  const [videoSrc, setVideoSrc] = useState(HERO_VIDEO);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    if (!showVideo) return;
+    const mq = window.matchMedia("(max-width: 767px)");
+    const pick = () => setVideoSrc(mq.matches ? HERO_VIDEO_LOW : HERO_VIDEO);
+    pick();
+    mq.addEventListener("change", pick);
+    return () => mq.removeEventListener("change", pick);
+  }, [showVideo]);
+
+  // Nudge autoplay (muted autoplay is allowed but some engines need the call).
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v || !showVideo) return;
+    const play = () => void v.play().catch(() => {});
+    if (v.readyState >= 2) play();
+    v.addEventListener("canplay", play, { once: true });
+    return () => v.removeEventListener("canplay", play);
+  }, [showVideo, videoSrc]);
 
   return (
     <section
@@ -70,13 +100,15 @@ export function HeroHome() {
           />
         </picture>
 
-        {HERO_HAS_VIDEO && !reduce && (
+        {showVideo && (
           <video
+            ref={videoRef}
+            src={videoSrc}
             autoPlay
             muted
             loop
             playsInline
-            preload="metadata"
+            preload="auto"
             poster={HERO_POSTER_JPG}
             style={{
               position: "absolute",
@@ -85,10 +117,7 @@ export function HeroHome() {
               height: "100%",
               objectFit: "cover",
             }}
-          >
-            <source src={HERO_VIDEO_LOW} type="video/mp4" media="(max-width: 767px)" />
-            <source src={HERO_VIDEO} type="video/mp4" />
-          </video>
+          />
         )}
       </div>
 
