@@ -60,11 +60,6 @@ const traits = [
   },
 ];
 
-const techStack = [
-  "Claude Code", "OpenClaw", "Python", "TypeScript", "React", "Node.js",
-  "Notion API", "freee API", "Playwright", "LINE WORKS API", "Google Apps Script", "Cloudflare",
-];
-
 function Card({ children }: { children: ReactNode }) {
   return (
     <div
@@ -209,30 +204,6 @@ const TeamPage = () => {
             </Card>
           ))}
         </StaggerGrid>
-      </SectionShell>
-
-      {/* ===== TECH STACK ===== */}
-      <SectionShell wedge="top">
-        <SectionHeading enLabel="Stack" title="使う道具。" level={2} />
-        <Reveal variant="fadeUp">
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem", marginTop: "clamp(2rem, 4vw, 3rem)" }}>
-            {techStack.map((tech) => (
-              <span
-                key={tech}
-                className="font-en"
-                style={{
-                  padding: "0.5rem 1rem",
-                  borderRadius: "var(--radius-pill)",
-                  border: "1px solid color-mix(in srgb, var(--text-primary) 14%, transparent)",
-                  fontSize: "0.85rem",
-                  color: "var(--text-secondary)",
-                }}
-              >
-                {tech}
-              </span>
-            ))}
-          </div>
-        </Reveal>
       </SectionShell>
 
       {/* ===== CTA ===== */}

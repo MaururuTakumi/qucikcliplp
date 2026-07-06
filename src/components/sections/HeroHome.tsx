@@ -18,6 +18,15 @@ import { TextReveal } from "../motion/TextReveal";
 import { ArrowCTA } from "../ui/ArrowCTA";
 import { dur, ease } from "../../design/tokens";
 
+/* -----------------------------------------------------------------------------
+ * Hero visual image — SINGLE SWAP POINT.
+ * This is a placeholder, AI-generated workspace photo. When real office / team
+ * photos are available, just replace the file at public/assets/hero-workspace.png
+ * (keep the same path) OR point HERO_IMAGE at a new file under /public. No other
+ * change is needed — framing, wedges and animation stay the same.
+ * -------------------------------------------------------------------------- */
+const HERO_IMAGE = "/assets/hero-workspace.png";
+
 export function HeroHome() {
   const reduce = useReducedMotion();
 
@@ -132,7 +141,7 @@ export function HeroHome() {
               animate={reduce ? undefined : { opacity: 1, scale: 1 }}
               transition={{ duration: dur.hero, ease: ease.out, delay: 0.15 }}
             >
-              <img src="/assets/hero-workspace.png" alt="" loading="eager" />
+              <img src={HERO_IMAGE} alt="" loading="eager" />
             </m.div>
           </div>
         </div>
