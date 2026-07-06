@@ -16,6 +16,10 @@ import type {
 
 const DEFAULT_ENDPOINT = "/api/ai-chat";
 const REQUEST_TIMEOUT_MS = 18_000;
+/* deepen は DeepSeek(プラン生成)＋Notion事例RAG検索＋検証/リトライを挟むため
+ * analyze より長い。18秒だと本物のプランが間に合わず汎用フォールバックに落ちる
+ * ケースが出ていたため延長。 */
+const DEEPEN_TIMEOUT_MS = 45_000;
 
 const axisLabels: Record<ProposalAxis, string> = {
   top_line: "TOP LINE",
@@ -182,7 +186,7 @@ export async function deepenCompany(request: DeepenRequest): Promise<DeepenRespo
   try {
     const result = await postJson<DeepenRequest & { action: "deepen" }, DeepenResponse>(
       { ...request, action: "deepen" },
-      REQUEST_TIMEOUT_MS,
+      DEEPEN_TIMEOUT_MS,
     );
     if (result.ok) return result;
     return {
