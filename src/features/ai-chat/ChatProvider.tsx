@@ -44,7 +44,7 @@ type AiChatContextValue = {
   openChat: (options: OpenOptions) => void;
   closeChat: () => void;
   startAnalysis: (source: ChatSource, companyUrl: string) => Promise<void>;
-  /** 3案直後の主導線: cal.com日程予約を新規タブで開き bookingStarted へ。 */
+  /** 3案直後の主導線: 日程予約(Googleカレンダー)を新規タブで開き bookingStarted へ。 */
   startBooking: () => void;
   /** 副導線: 「この3案をメールで残す」pull型ask → emailRequested。 */
   requestEmail: () => void;
@@ -57,8 +57,10 @@ type AiChatContextValue = {
 
 const STORAGE_KEY = "honkoma-ai-chat-v1";
 
-/** 担当との30分壁打ち予約(ai-chat-funnel-ux-redesign §G)。ContactPage完了画面と同一。 */
-const CAL_BOOKING_URL = "https://cal.com/takumi-honkoma-mljb0f/honkoma-meeting";
+/** 担当との30分壁打ち予約。Googleカレンダーの予約ページ(経営決定でcal.comから変更)。
+ * ContactPage完了画面と同一。※Googleカレンダー予約はcal.comのようなmetadataクエリ・
+ * embedイベント・webhookを持たないため、新規タブで開くだけの単純ハンドオフにする。 */
+const BOOKING_URL = "https://calendar.app.google/DcGsqPYBvRf3dvZJ8";
 
 const initialState: ChatState = {
   isOpen: false,
@@ -316,15 +318,11 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
     void submitPartialLead(
       buildPartialLead({ ...current, phase: "bookingStarted" }, "painPointSelected"),
     );
-    /* v1: cal.com を新規タブで開く(§G-5 フォールバック)。webhookが予約を真値化。
-     * embed popup + bookingSuccessful イベント + Worker webhook は後続で追加。 */
+    /* Googleカレンダー予約ページを新規タブで開く。metadataクエリは非対応のため付けない。
+     * 予約はGoogle側で成立し、sessionId/URL/sourceは booking_started の partial lead に
+     * 記録済み(手動突合の一次データ)。予約自動昇格が要る段階でGoogle Apps Script等で追加。 */
     if (typeof window !== "undefined") {
-      const url = new URL(CAL_BOOKING_URL);
-      url.searchParams.set("overlayCalendar", "true");
-      url.searchParams.set("metadata[sessionId]", current.sessionId);
-      url.searchParams.set("metadata[source]", current.source);
-      if (current.companyUrl) url.searchParams.set("metadata[companyUrl]", current.companyUrl);
-      window.open(url.toString(), "_blank", "noopener,noreferrer");
+      window.open(BOOKING_URL, "_blank", "noopener,noreferrer");
     }
   }, []);
 

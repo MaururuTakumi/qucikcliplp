@@ -7,9 +7,8 @@ import { ArrowCTA } from "../../../components/ui/ArrowCTA";
 import { useAiChat } from "../ChatProvider";
 import type { AiProposal, ProposalAxis } from "../types";
 
-/** cal.com 予約(ChatProvider と同一・完了画面の戻り導線用)。 */
-const CAL_BOOKING_URL =
-  "https://cal.com/takumi-honkoma-mljb0f/honkoma-meeting?overlayCalendar=true";
+/** 予約リンク(ChatProvider と同一・Googleカレンダー予約ページ)。 */
+const CAL_BOOKING_URL = "https://calendar.app.google/DcGsqPYBvRf3dvZJ8";
 
 /** phase連動ヘッダー(§E.2-1: 静的タイトルの陳腐化を解消)。 */
 function headerFor(phase: string, companyName?: string): { kicker: string; title: string } {

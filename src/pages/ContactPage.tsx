@@ -342,7 +342,7 @@ const ContactPage: React.FC = () => {
                 <div className="border border-subtle p-8 md:p-10">
                   <p className="text-warm mb-4">すぐにオンライン相談をご希望の方</p>
                   <a
-                    href="https://cal.com/takumi-honkoma-mljb0f/honkoma-meeting?overlayCalendar=true"
+                    href="https://calendar.app.google/DcGsqPYBvRf3dvZJ8"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="group inline-flex items-center justify-center px-8 py-4 bg-ink text-cream text-base font-medium tracking-wide hover:bg-accent transition-colors duration-300"
