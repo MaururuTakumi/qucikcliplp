@@ -2,7 +2,7 @@ User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://quickclip.honkoma.jp/sitemap.xml
+Sitemap: https://ltdhonkoma.com/sitemap.xml
 
 # Disallow crawling of admin areas
 Disallow: /admin/

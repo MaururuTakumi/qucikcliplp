@@ -152,7 +152,7 @@ const HotelPage: React.FC = () => {
       canonical.setAttribute('rel', 'canonical');
       document.head.appendChild(canonical);
     }
-    canonical.setAttribute('href', 'https://quickclip.honkoma.jp/hotel');
+    canonical.setAttribute('href', 'https://ltdhonkoma.com/hotel');
   }, []);
 
   return (
