@@ -477,6 +477,7 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
       companySize: current.companySize,
       aiMaturity,
       analyzedSummary: current.analysis.analyzedSummary,
+      signals: current.analysis.signals,
       proposals: current.analysis.proposals,
       referrer: currentReferrer(),
       utm: currentUtm(),

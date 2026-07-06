@@ -401,44 +401,294 @@ async function fetchWebsiteText(companyUrl: string) {
   }
 }
 
-function mockAnalysis(companyUrl: string, reason?: string): AiChatAnalysis {
+type IndustryKey =
+  | "construction"
+  | "healthcare"
+  | "retail"
+  | "professional"
+  | "manufacturing"
+  | "it"
+  | "hospitality"
+  | "generic";
+
+type SiteFacts = {
+  domain: string;
+  industry: IndustryKey;
+  industryLabel: string;
+  signals: string[];
+  specificTerms: string[];
+  hasMultipleChannels: boolean;
+  hasRecruitingSignal: boolean;
+  hasContentAsset: boolean;
+  hasDataScatteringSignal: boolean;
+};
+
+const industryRules: Array<{ key: IndustryKey; label: string; pattern: RegExp }> = [
+  { key: "construction", label: "建設・施工", pattern: /建設|工務店|施工|工事|注文住宅|リフォーム|現場|職人|外壁|内装/ },
+  { key: "healthcare", label: "医療・介護", pattern: /医療|介護|クリニック|病院|歯科|初診|予約|レセプト|福祉|看護/ },
+  { key: "retail", label: "小売・EC", pattern: /EC|通販|オンラインショップ|小売|店舗|在庫|商品|レビュー|購入|カート/ },
+  { key: "professional", label: "士業・専門サービス", pattern: /士業|法律|会計|税理士|社労士|行政書士|相談|顧問|コンサル/ },
+  { key: "manufacturing", label: "製造・BtoB", pattern: /製造|工場|生産|部品|加工|図面|品質|設備|見積|BtoB/ },
+  { key: "it", label: "IT・SaaS", pattern: /IT|SaaS|システム|ソフトウェア|アプリ|クラウド|API|開発|DX/ },
+  { key: "hospitality", label: "宿泊・観光", pattern: /ホテル|宿泊|旅館|観光|予約|客室|旅行|インバウンド|多言語/ },
+];
+
+const signalRules: Array<{ signal: string; terms: string[]; pattern: RegExp }> = [
+  { signal: "施工事例・実績を掲載", terms: ["施工事例", "実績"], pattern: /施工事例|施工実績|実績紹介|導入事例|事例/ },
+  { signal: "症例・診療メニューを掲載", terms: ["症例", "診療メニュー"], pattern: /症例|診療メニュー|診療案内|初診|治療/ },
+  { signal: "商品・レビュー情報を掲載", terms: ["商品", "レビュー"], pattern: /商品|レビュー|口コミ|購入|カート|オンラインショップ/ },
+  { signal: "料金・見積もり導線あり", terms: ["料金", "見積もり"], pattern: /料金|価格|費用|見積|お見積もり/ },
+  { signal: "電話窓口を掲載", terms: ["電話"], pattern: /電話|TEL|tel:|Call|お問い合わせ番号/ },
+  { signal: "フォーム窓口を掲載", terms: ["フォーム"], pattern: /フォーム|お問い合わせ|問合せ|資料請求|contact/ },
+  { signal: "LINE導線あり", terms: ["LINE"], pattern: /LINE|ライン/ },
+  { signal: "採用・募集ページあり", terms: ["採用", "募集"], pattern: /採用|募集|求人|キャリア|recruit/ },
+  { signal: "FAQ・よくある質問を掲載", terms: ["FAQ"], pattern: /FAQ|よくある質問|Q&A|Q＆A/ },
+  { signal: "お知らせ・ブログを運用", terms: ["お知らせ", "ブログ"], pattern: /お知らせ|ニュース|NEWS|ブログ|コラム/ },
+  { signal: "店舗・拠点情報を掲載", terms: ["店舗", "拠点"], pattern: /店舗|拠点|支店|営業所|対応エリア|アクセス/ },
+  { signal: "Excel・紙の管理語がある", terms: ["Excel", "紙"], pattern: /Excel|エクセル|スプレッドシート|紙|台帳|帳票/ },
+];
+
+function detectIndustryFromText(text: string): { key: IndustryKey; label: string } {
+  const matched = industryRules.find((rule) => rule.pattern.test(text));
+  return matched ? { key: matched.key, label: matched.label } : { key: "generic", label: "公開サイト" };
+}
+
+function compactSignal(signal: string) {
+  return signal
+    .replace(/を確認/g, "")
+    .replace(/確認/g, "")
+    .replace(/\s+/g, "")
+    .trim()
+    .slice(0, 40);
+}
+
+function analyzeSiteFacts(companyUrl: string, websiteText = ""): SiteFacts {
   const domain = hostnameFor(companyUrl);
-  const reasonSignal = reason ? `フォールバック理由: ${reason}` : "AIキー未設定のためローカル診断で継続";
+  const text = `${domain} ${websiteText}`;
+  const industry = detectIndustryFromText(text);
+  const matchedSignals = signalRules.filter((rule) => rule.pattern.test(text));
+  const signals = [...new Set(matchedSignals.map((rule) => compactSignal(rule.signal)))].slice(0, 4);
+  if (!signals.length) {
+    signals.push(`${domain}の公開サイト`, `${industry.label}の事業情報を掲載`);
+  }
+  const channelCount = [
+    /電話|TEL|tel:/i.test(text),
+    /フォーム|お問い合わせ|問合せ|資料請求|contact/i.test(text),
+    /LINE|ライン/.test(text),
+    /Instagram|インスタ|X\b|Twitter|Facebook|SNS/.test(text),
+  ].filter(Boolean).length;
+  const specificTerms = [
+    industry.label,
+    ...matchedSignals.flatMap((rule) => rule.terms),
+    ...signals,
+    domain,
+  ].filter(Boolean);
   return {
-    companyName: domain,
-    analyzedSummary:
-      `${domain} の公開情報をもとに、問い合わせ・集客・現場業務の改善余地を仮説として整理しました。`,
-    signals: [
-      `企業サイト: ${domain} を確認`,
-      "問い合わせ導線とサービス説明の有無を確認",
-      reasonSignal,
-    ],
-    proposals: [
+    domain,
+    industry: industry.key,
+    industryLabel: industry.label,
+    signals,
+    specificTerms: [...new Set(specificTerms)].slice(0, 12),
+    hasMultipleChannels: channelCount >= 2 || /複数|多店舗|各店舗|チャネル|媒体|SNS/.test(text),
+    hasRecruitingSignal: /採用|募集|求人|キャリア|recruit/.test(text),
+    hasContentAsset: /施工事例|症例|実績|ブログ|コラム|FAQ|レビュー|導入事例/.test(text),
+    hasDataScatteringSignal: /Excel|エクセル|スプレッドシート|紙|台帳|複数|媒体|チャネル|店舗|拠点|記録/.test(text),
+  };
+}
+
+function containsSiteCue(text: string, facts: SiteFacts) {
+  return facts.specificTerms.some((term) => term.length >= 2 && text.includes(term));
+}
+
+function proposalAssetLabel(signal: string) {
+  return signal
+    .replace(/を掲載$/g, "")
+    .replace(/を運用$/g, "")
+    .replace(/あり$/g, "")
+    .trim();
+}
+
+function fallbackProposalSet(facts: SiteFacts): AiProposal[] {
+  const asset = proposalAssetLabel(facts.signals[0] || facts.industryLabel);
+  const channel = facts.hasMultipleChannels ? "電話・フォーム・LINEなど複数窓口" : "問い合わせ窓口";
+  const templates: Record<IndustryKey, AiProposal[]> = {
+    construction: [
       {
         axis: "top_line",
-        title: "問い合わせ前の疑問にAIが答え、相談につながる温度感を作る",
-        body:
-          "訪問者の状況に合わせて提案を返し、資料請求や初回相談に進む前の不安を減らします。",
-        rationale: "売上を伸ばす導線として、商談前の会話量と質を高めます。",
+        title: `${asset}を、見積もり前の相談窓口に変える`,
+        body: `${asset}は、相談前の不安をほどく材料になります。事例の文脈で概算条件を聞き取るAI窓口を置き、電話をためらう層の受け皿を作ります。`,
+        rationale: `${asset}と${channel}から。`,
       },
       {
         axis: "bottom_line",
-        title: "一次対応と定型確認をAIに寄せ、担当者の反復業務を減らす",
-        body:
-          "よくある質問、予約前確認、要件の整理をAIが受け、担当者は判断が必要な対応に集中します。",
-        rationale: "工数を削る導線として、繰り返しの問い合わせ対応を圧縮します。",
+        title: "日報・写真・発注書類をAIに引き取らせる",
+        body: `現場と事務所の往復では、写真整理や書類下書きが重くなりがちです。AIに転記と仕分けを寄せ、人の時間を現場判断に返します。`,
+        rationale: "建設・施工系の現場業務語から。",
       },
       {
         axis: "fde",
-        title: "既存業務に合わせて小さく実装し、運用まで伴走する",
-        body:
-          "フォーム、Slack、Notion、社内DBなど今ある運用に合わせて、使われる状態まで作り込みます。",
-        rationale: "FDEとして、PoCではなく現場実装まで接続します。",
+        title: `${channel}を、ひとつのデータ基盤にまとめる`,
+        body: `問い合わせと現場記録が分かれると、次の一手が経験頼みになります。AIが読める基盤に集め、過去案件を誰でも引ける状態を作ります。`,
+        rationale: `${channel}と記録分散の構造から。`,
       },
     ],
+    healthcare: [
+      {
+        axis: "top_line",
+        title: `${asset}を、初診前の不安解消に使う`,
+        body: `${asset}は、来院前の判断材料になります。予約前の質問をAIが受け、症状や持ち物の不安を相談へつなげます。`,
+        rationale: `${asset}と予約前導線から。`,
+      },
+      {
+        axis: "bottom_line",
+        title: "予約変更・書類案内をAIに寄せる",
+        body: `医療・介護では定型の案内が何度も発生します。予約変更、持ち物、書類の初動をAIが受け、スタッフは人の確認に集中します。`,
+        rationale: "予約・診療案内の業務語から。",
+      },
+      {
+        axis: "fde",
+        title: "予約・記録・FAQを共通データに整える",
+        body: `予約、問い合わせ、FAQが分かれると回答品質が人に寄ります。AIが読める共通基盤に整え、同じ答えを全員で使える状態にします。`,
+        rationale: "予約導線とFAQ資産から。",
+      },
+    ],
+    retail: [
+      {
+        axis: "top_line",
+        title: `${asset}を、接客前の比較相談に変える`,
+        body: `${asset}は購入前の迷いをほどく材料です。AIが用途や予算を聞き取り、商品選びの相談を問い合わせ前に受け止めます。`,
+        rationale: `${asset}と商品情報から。`,
+      },
+      {
+        axis: "bottom_line",
+        title: "受注・在庫・問い合わせの定型対応を減らす",
+        body: `小売・ECでは、配送、在庫、返品の確認が繰り返されます。AIが初動を受け、担当者は例外対応と接客に時間を戻します。`,
+        rationale: "商品・購入導線の業務語から。",
+      },
+      {
+        axis: "fde",
+        title: "店舗・EC・SNSの数字を一つに集める",
+        body: `チャネルごとに数字が分かれると、売れ筋の判断が遅れます。AIが読める基盤に集め、販促と接客の判断を揃えます。`,
+        rationale: "商品情報と複数チャネルの構造から。",
+      },
+    ],
+    professional: [
+      {
+        axis: "top_line",
+        title: `${asset}を、相談前の迷いをほどく入口にする`,
+        body: `${asset}は専門性を伝える材料になります。AIが「聞いてよいか分からない」相談を受け、初回面談につながる論点を整えます。`,
+        rationale: `${asset}と相談導線から。`,
+      },
+      {
+        axis: "bottom_line",
+        title: "定型調査・書類ドラフトをAIに寄せる",
+        body: `士業・専門サービスでは、事前確認と書類準備が積み重なります。AIが初稿と確認項目を作り、人は判断と助言に集中します。`,
+        rationale: "相談・書類準備の業務語から。",
+      },
+      {
+        axis: "fde",
+        title: "過去相談とナレッジをAIが引ける形にする",
+        body: `回答が人の記憶に残ると、品質が担当者に寄ります。相談ログとナレッジを基盤化し、全員がAIで引ける状態を作ります。`,
+        rationale: "専門相談とナレッジ属人化の構造から。",
+      },
+    ],
+    manufacturing: [
+      {
+        axis: "top_line",
+        title: `${asset}を、技術問い合わせの一次対応に使う`,
+        body: `${asset}は検討前の判断材料になります。AIが用途、仕様、数量を聞き取り、営業や技術者へ渡す前の情報を揃えます。`,
+        rationale: `${asset}と技術問い合わせの業務語から。`,
+      },
+      {
+        axis: "bottom_line",
+        title: "見積もり・図面・帳票の下準備をAIに寄せる",
+        body: `製造・BtoBでは、見積もり前の確認が何度も発生します。AIが条件整理と帳票下書きを受け、人は技術判断に集中します。`,
+        rationale: "見積もり・図面・帳票の語から。",
+      },
+      {
+        axis: "fde",
+        title: "基幹データと問い合わせをAIにつなぐ",
+        body: `仕様、在庫、問い合わせが分かれると、回答が経験頼みになります。AIが読める基盤に接続し、過去案件を使える状態にします。`,
+        rationale: "製造データと問い合わせの分散から。",
+      },
+    ],
+    it: [
+      {
+        axis: "top_line",
+        title: `${asset}を、デモ前の見込み整理に使う`,
+        body: `${asset}は導入検討の入口になります。AIが課題、規模、既存環境を聞き取り、商談前に温度感と論点を整えます。`,
+        rationale: `${asset}とIT・SaaSの導入検討語から。`,
+      },
+      {
+        axis: "bottom_line",
+        title: "サポートと社内ナレッジの反復回答を減らす",
+        body: `ITサービスでは、同じ質問がサポートと社内に重なりがちです。AIが一次回答を担い、人は設計や例外対応に集中します。`,
+        rationale: "サポート・ナレッジの業務語から。",
+      },
+      {
+        axis: "fde",
+        title: "顧客データをAIが読める基盤に集める",
+        body: `利用状況、問い合わせ、商談情報が分かれると改善点が見えにくくなります。AIが横断して読める基盤を作ります。`,
+        rationale: "顧客データと問い合わせの分散から。",
+      },
+    ],
+    hospitality: [
+      {
+        axis: "top_line",
+        title: `${asset}を、予約前質問の受け皿にする`,
+        body: `${asset}は予約前の期待値を作る材料です。AIが空き、設備、周辺情報の質問を受け、迷っている客の相談を拾います。`,
+        rationale: `${asset}と予約導線から。`,
+      },
+      {
+        axis: "bottom_line",
+        title: "予約変更・定型連絡をAIに寄せる",
+        body: `宿泊・観光では、変更、確認、多言語の連絡が積み上がります。AIが初動を受け、スタッフは現場対応に集中します。`,
+        rationale: "予約・多言語対応の業務語から。",
+      },
+      {
+        axis: "fde",
+        title: "口コミ・料金・稼働データを一つに見る",
+        body: `口コミ、料金、稼働が別々だと打ち手が経験頼みになります。AIが読める基盤に集め、判断材料を一つに揃えます。`,
+        rationale: "予約と口コミ・稼働データの構造から。",
+      },
+    ],
+    generic: [
+      {
+        axis: "top_line",
+        title: `${asset}を、問い合わせ前の相談入口に変える`,
+        body: `${asset}から、訪問者が事前に知りたい情報が見えます。AIが状況を聞き取り、相談前の迷いを減らす入口を作ります。`,
+        rationale: `${asset}から。`,
+      },
+      {
+        axis: "bottom_line",
+        title: "よくある確認と初動対応をAIに寄せる",
+        body: `問い合わせの初動には、同じ確認が繰り返し出ます。AIが要件と質問を先に受け、人は判断が必要な会話に集中します。`,
+        rationale: "問い合わせ導線の構造から。",
+      },
+      {
+        axis: "fde",
+        title: `${channel}を、AIが読める基盤にまとめる`,
+        body: `窓口や記録が分かれると、対応の質が人の記憶に寄ります。AIが読める一つの基盤に集め、次の対応へ使える状態にします。`,
+        rationale: `${channel}から。`,
+      },
+    ],
+  };
+  return templates[facts.industry];
+}
+
+function mockAnalysis(companyUrl: string, reason?: string, websiteText = ""): AiChatAnalysis {
+  const facts = analyzeSiteFacts(companyUrl, websiteText);
+  const proposals = fallbackProposalSet(facts);
+  return {
+    companyName: facts.domain,
+    analyzedSummary: `${facts.domain} は、${facts.signals.slice(0, 2).join("、")}という公開情報があります。${proposals[0].title}余地がありそうです。`,
+    signals: facts.signals.slice(0, 4),
+    proposals,
     reportTeaser:
-      "選んだ課題に合わせ、導入順序・必要なデータ・初期実装範囲を診断レポートに整理できます。",
-    shareUrl: `https://ltdhonkoma.com/contact?ai_chat=${encodeURIComponent(domain)}`,
+      reason
+        ? `ローカル診断で継続しました。課題を1つ選ぶと、御社の体制に合わせた進め方まで具体化します。`
+        : "課題を1つ選んでいただければ、御社の体制に合わせた進め方まで具体化します。",
+    shareUrl: `https://ltdhonkoma.com/contact?ai_chat=${encodeURIComponent(facts.domain)}`,
     mode: "mock",
   };
 }
@@ -489,6 +739,11 @@ function lintText(text: string, env?: Env) {
   };
 }
 
+function safeEchoText(value: unknown, env: Env, maxLength: number) {
+  const text = cleanText(value, "").slice(0, maxLength).trim();
+  return text && lintText(text, env).ok ? text : "";
+}
+
 function collectStrings(value: unknown): string[] {
   if (typeof value === "string") return [value];
   if (Array.isArray(value)) return value.flatMap((item) => collectStrings(item));
@@ -505,9 +760,9 @@ function outputPassesLint(value: unknown, env?: Env) {
   });
 }
 
-function validateAnalysis(raw: unknown, companyUrl: string): AiChatAnalysis {
+function validateAnalysis(raw: unknown, companyUrl: string, websiteText = ""): AiChatAnalysis {
   const input = raw as Partial<AiChatAnalysis>;
-  const fallback = mockAnalysis(companyUrl);
+  const fallback = mockAnalysis(companyUrl, undefined, websiteText);
   const rawProposals = Array.isArray(input.proposals) ? input.proposals : [];
   const proposals = axisOrder.map((axis, index) => {
     const source = rawProposals.find((proposal) => proposal && proposal.axis === axis) ||
@@ -536,9 +791,53 @@ function validateAnalysis(raw: unknown, companyUrl: string): AiChatAnalysis {
   };
 }
 
-function validateAnalysisWithLint(raw: unknown, companyUrl: string, env: Env): AiChatAnalysis {
-  const analysis = validateAnalysis(raw, companyUrl);
-  return outputPassesLint(analysis, env) ? analysis : mockAnalysis(companyUrl, "出力検証で安全な文面に切り替え");
+function validOutputText(text: string, env: Env) {
+  return !text.trim() || lintText(text, env).ok;
+}
+
+function signalLooksLikeObservation(signal: string) {
+  return Boolean(signal.trim()) && !/確認|チェック|調査|分析しました|見ました/.test(signal);
+}
+
+function repairProposal(
+  proposal: AiProposal,
+  fallback: AiProposal,
+  facts: SiteFacts,
+  env: Env,
+): AiProposal {
+  const candidate = {
+    axis: proposal.axis,
+    title: validOutputText(proposal.title, env) ? proposal.title : fallback.title,
+    body: validOutputText(proposal.body, env) ? proposal.body : fallback.body,
+    rationale: validOutputText(proposal.rationale, env) ? proposal.rationale : fallback.rationale,
+  };
+  const combined = `${candidate.title} ${candidate.body}`;
+  if (!containsSiteCue(combined, facts)) {
+    return fallback;
+  }
+  return candidate;
+}
+
+function validateAnalysisWithLint(raw: unknown, companyUrl: string, env: Env, websiteText = ""): AiChatAnalysis {
+  const facts = analyzeSiteFacts(companyUrl, websiteText);
+  const fallback = mockAnalysis(companyUrl, "出力検証で安全な文面に切り替え", websiteText);
+  const analysis = validateAnalysis(raw, companyUrl, websiteText);
+  const proposals = analysis.proposals.map((proposal, index) => (
+    repairProposal(proposal, fallback.proposals[index], facts, env)
+  ));
+  const signals = analysis.signals
+    .map(compactSignal)
+    .filter((signal) => signalLooksLikeObservation(signal) && validOutputText(signal, env));
+  const repaired: AiChatAnalysis = {
+    ...analysis,
+    analyzedSummary: validOutputText(analysis.analyzedSummary, env) && containsSiteCue(analysis.analyzedSummary, facts)
+      ? analysis.analyzedSummary
+      : fallback.analyzedSummary,
+    signals: signals.length ? signals.slice(0, 4) : fallback.signals,
+    proposals,
+    reportTeaser: validOutputText(analysis.reportTeaser, env) ? analysis.reportTeaser : fallback.reportTeaser,
+  };
+  return outputPassesLint(repaired, env) ? repaired : fallback;
 }
 
 function extractJson(content: string) {
@@ -549,6 +848,7 @@ function extractJson(content: string) {
 
 function deepSeekRequestBody(env: Env, companyUrl: string, websiteText: string, retry = false) {
   const domain = hostnameFor(companyUrl);
+  const facts = analyzeSiteFacts(companyUrl, websiteText);
   return {
     model: env.DEEPSEEK_MODEL || DEEPSEEK_DEFAULT_MODEL,
     thinking: { type: "disabled" },
@@ -560,34 +860,40 @@ function deepSeekRequestBody(env: Env, companyUrl: string, websiteText: string, 
         role: "system",
         content:
           [
-            "You are honkoma's AI diagnosis engine.",
-            "Return valid json only. Do not wrap the json in markdown.",
-            "Do not promise numerical outcomes. Do not invent client facts.",
-            "Produce exactly three proposals mapped to axes top_line, bottom_line, fde.",
-            "Keep Japanese concise and specific to the provided website text.",
-            "Example json output:",
+            "あなたはhonkomaのAI導入診断エンジンです。返答はvalid JSONのみ。markdownで囲まない。",
+            "目的: 相手が「自社の事業を読まれている」と感じる具体診断を作る。",
+            "禁止: サイトにない事実の断定、数値効果、保証、残枠・煽り、クライアント実名、景表法上の強い効果断定。",
+            "書き方: [観測] サイトに実在する具体を言い切る → [橋] 業界一般論 → [仮説] 内側は質問形で当てにいく。",
+            "観測チェックリスト: 事業構成、問い合わせ導線、媒体やチャネルの散らばり、採用ページ、施工事例・症例・ブログ・FAQ、業界固有語、店舗・拠点、更新の気配。",
+            "signals定義: サイトから読み取った具体的事実を3-4個。各40字以内。「確認」「チェック」「調査」など作業報告は禁止。中身だけを書く。",
+            "3案はtop_line/bottom_line/fdeを1つずつ。3案を同じチャットボットの言い換えにしない。売る場面、繰り返しの場面、データと現場の場面を分ける。",
+            "各proposal: titleは30字前後、bodyは2文、title+bodyにwebsiteText由来の固有語を最低1つ入れる。rationaleは「どこからそう読んだか」1文。",
+            "honkomaの背骨: ①散らばったデータをAIが読める基盤に整える ②全員がAIでその基盤に触れる ③バックオフィスと繰り返し業務をAIに任せる ④人は判断・交渉・創造に集中する。",
+            "軸プレイブック: 建設/施工=概算対応・事例営業活用、日報写真書類、現場事務所の情報一元化。医療/介護=予約前不安、レセプト書類日程、記録基盤。EC/小売=レビュー接客データ、受注在庫問い合わせ、チャネル横断データ。士業=相談前不安、書類ドラフト、ナレッジ属人解消。製造BtoB=技術問い合わせ、見積図面帳票、基幹データ接続。IT/SaaS=リード一次選別、サポートナレッジ、顧客データ分析。宿泊観光=予約前質問多言語、予約変更定型連絡、口コミ料金稼働データ。",
+            retry ? "前回は汎用または安全検証で落ちた。signalsとproposalにサイト由来の固有語を増やす。" : "",
+            "架空の良例:",
             JSON.stringify({
-              companyName: "example.jp",
-              analyzedSummary: "公開情報から見える業務課題の仮説。",
-              signals: ["企業サイトを確認", "問い合わせ導線を確認"],
+              companyName: "サンプル工務店（架空の例）",
+              analyzedSummary: "注文住宅とリフォームの2本柱で、施工事例を80件以上公開されているとお見受けしました。一方で窓口は電話とフォームのみ——事例で温まった見込み客を営業時間の外で取りこぼしていないでしょうか。",
+              signals: ["施工事例80件超を掲載", "窓口は電話とフォームの2つ", "採用ページで施工管理を募集中"],
               proposals: [
                 {
                   axis: "top_line",
-                  title: "問い合わせ前の疑問に答える",
-                  body: "訪問者の状況に合わせた回答を出します。",
-                  rationale: "商談前の温度感を高めます。",
+                  title: "施工事例80件を、見積もり前の相談窓口に変える",
+                  body: "事例を読み込んだ訪問者ほど、概算だけ知りたい段階にいます。事例の文脈で条件を聞き取るAI窓口を置き、電話をためらう層の受け皿を作ります。",
+                  rationale: "施工事例の厚さと、窓口が電話・フォームのみである点から。",
                 },
                 {
                   axis: "bottom_line",
-                  title: "一次対応を自動化する",
-                  body: "定型質問と要件整理をAIに寄せます。",
-                  rationale: "反復対応の工数を減らします。",
+                  title: "現場写真と日報の整理を、AIに引き取らせる",
+                  body: "施工管理を募集されている今は、現場と事務の往復が重くなりがちです。写真の仕分け、日報の転記、発注書類の下書きをAIに寄せます。",
+                  rationale: "採用ページの募集職種から、現場側の人手逼迫を仮説化。",
                 },
                 {
                   axis: "fde",
-                  title: "現場運用に接続する",
-                  body: "SlackやNotionなど既存運用へつなぎます。",
-                  rationale: "PoCで終わらせず実運用に残します。",
+                  title: "問い合わせと施工記録を、ひとつのデータ基盤にまとめる",
+                  body: "電話、フォーム、現場記録が別々の場所に残ると、次の一手が経験頼みになります。散らばった記録をAIが読める基盤に集めます。",
+                  rationale: "窓口と記録が複数に分かれている構造から。",
                 },
               ],
               reportTeaser: "導入順序と初期実装範囲を診断レポートに整理できます。",
@@ -599,6 +905,8 @@ function deepSeekRequestBody(env: Env, companyUrl: string, websiteText: string, 
         content: JSON.stringify({
           companyUrl,
           domain,
+          detectedIndustry: facts.industryLabel,
+          deterministicSignals: facts.signals,
           websiteText,
           outputSchema: {
             companyName: "string",
@@ -638,7 +946,7 @@ function messageContent(message: { content?: unknown } | undefined) {
 
 async function callDeepSeek(env: Env, companyUrl: string, websiteText: string) {
   const apiKey = env.DEEPSEEK_API_KEY || env.XAI_API_KEY;
-  if (!apiKey) return mockAnalysis(companyUrl);
+  if (!apiKey) return mockAnalysis(companyUrl, undefined, websiteText);
 
   let lastError = "DeepSeek response did not include content";
   for (let attempt = 0; attempt < 2; attempt += 1) {
@@ -659,7 +967,7 @@ async function callDeepSeek(env: Env, companyUrl: string, websiteText: string) {
       choices?: Array<{ message?: { content?: unknown } }>;
     };
     const content = messageContent(data.choices?.[0]?.message);
-    if (content.trim()) return validateAnalysisWithLint(extractJson(content), companyUrl, env);
+    if (content.trim()) return validateAnalysisWithLint(extractJson(content), companyUrl, env, websiteText);
     lastError = "DeepSeek response did not include content";
   }
 
@@ -893,22 +1201,15 @@ async function fetchCaseRecords(env: Env): Promise<InternalCaseRecord[]> {
   return records;
 }
 
-function inferIndustry(body: Pick<DeepenBody, "companyUrl" | "analyzedSummary" | "proposals">) {
+function inferIndustry(body: Pick<DeepenBody, "companyUrl" | "analyzedSummary" | "signals" | "proposals">) {
   const text = [
     body.companyUrl || "",
+    ...(body.signals || []),
     body.analyzedSummary,
     ...body.proposals.flatMap((proposal) => [proposal.title, proposal.body, proposal.rationale]),
   ].join(" ");
-  const rules: Array<[string, RegExp]> = [
-    ["建設", /建設|工事|施工|現場|職人/],
-    ["製造", /製造|工場|生産|部品|加工/],
-    ["小売・EC", /小売|EC|通販|店舗|販売/],
-    ["医療・介護", /医療|介護|クリニック|病院|福祉/],
-    ["士業・専門サービス", /士業|法律|会計|税理士|社労士|コンサル|専門サービス/],
-    ["IT", /IT|SaaS|システム|ソフトウェア|アプリ|開発/],
-    ["宿泊・観光", /ホテル|宿泊|旅館|観光/],
-  ];
-  return rules.find(([, pattern]) => pattern.test(text))?.[0];
+  const industry = detectIndustryFromText(text);
+  return industry.key === "generic" ? undefined : industry.label;
 }
 
 function caseScore(record: InternalCaseRecord, body: DeepenBody) {
@@ -944,48 +1245,235 @@ function selectMatchedCase(records: InternalCaseRecord[], body: DeepenBody) {
   return best && best.score >= 3 ? publicCase(best.record) : null;
 }
 
+const focusPhaseLabels = ["1〜2週目", "3〜6週目", "その後"] as const;
+const genericFocusTerms = [
+  "現状把握",
+  "現状分析",
+  "最適化設計",
+  "運用定着",
+  "整理",
+  "試作",
+  "運用化",
+  "小さく始める",
+  "ヒアリング",
+];
+
+function bodySpecificTerms(body: DeepenBody) {
+  return [
+    body.painPointRaw || "",
+    ...(body.signals || []),
+    body.analyzedSummary,
+    ...body.proposals.flatMap((proposal) => [proposal.title, proposal.body, proposal.rationale]),
+  ].filter(Boolean);
+}
+
+function primarySpecificTerm(body: DeepenBody) {
+  const fromRaw = body.painPointRaw?.trim();
+  if (fromRaw) return fromRaw.slice(0, 26);
+  const signal = (body.signals || []).find((item) => item && !/確認|チェック|調査/.test(item));
+  if (signal) return signal.slice(0, 26);
+  const proposal = body.proposals.find((item) => item.title)?.title;
+  return proposal ? proposal.slice(0, 26) : painLabel(body.painPoint);
+}
+
+function dataFoundationRequired(body: DeepenBody) {
+  const text = bodySpecificTerms(body).join(" ");
+  const hasScatterCue = /複数(媒体|チャネル|店舗|拠点|窓口)|Excel|エクセル|スプレッドシート|紙|台帳|帳票|記録.*分|データ.*散/.test(text);
+  const mediaChannelCount = [
+    /LINE|ライン/.test(text),
+    /Instagram|インスタ|SNS|媒体|チャネル/.test(text),
+    /店舗|拠点/.test(text),
+  ].filter(Boolean).length;
+  return (
+    body.painPoint === "data" ||
+    hasScatterCue ||
+    mediaChannelCount >= 2
+  );
+}
+
+function containsDataFoundation(text: string) {
+  return /データ基盤|AIが読める|共通基盤|一つの基盤|ひとつの基盤|集約|散らば/.test(text);
+}
+
+function hasGenericFocusTerm(text: string) {
+  return genericFocusTerms.some((term) => text.includes(term));
+}
+
+function focusFieldText(value: unknown, fallback: string, maxLength: number, env: Env) {
+  const text = shortText(value, fallback, maxLength);
+  if (!hasJapanese(text) || !lintText(text, env).ok) return fallback.slice(0, maxLength);
+  return text;
+}
+
+function questionText(value: unknown, fallback: string, maxLength: number, env: Env) {
+  const text = focusFieldText(value, fallback, maxLength, env);
+  return /[か？?]$/.test(text.trim()) ? text : fallback.slice(0, maxLength);
+}
+
+function restatementWithPainEcho(text: string, fallback: string, body: DeepenBody) {
+  const raw = body.painPointRaw?.trim();
+  if (!raw) return text;
+  if (text.includes(raw) || text.includes(raw.slice(0, 12))) return text;
+  return fallback;
+}
+
+function ensureDataFoundationText(text: string, body: DeepenBody) {
+  if (!dataFoundationRequired(body) || containsDataFoundation(text)) return text;
+  const addition = "複数媒体や記録はAIが読めるデータ基盤へ集めます。";
+  const base = text.replace(/。?$/, "。");
+  if (base.length + addition.length <= 100) return `${base}${addition}`;
+  return `${base.slice(0, Math.max(0, 100 - addition.length))}${addition}`;
+}
+
+function caseConnectionText(value: unknown, fallback: string, env: Env) {
+  const text = focusFieldText(value, fallback, 80, env);
+  if (/近いです|近い状況|似ています|類似/.test(text)) return fallback.slice(0, 80);
+  return text;
+}
+
+function riskTarget(action: string) {
+  return action
+    .replace(/^(電話とフォームに来た|直近の|過去の|まず|最初に)/, "")
+    .replace(/[。、].*$/, "")
+    .slice(0, 32) || "最初の対象業務";
+}
+
 function fallbackFocusPlan(body: DeepenBody, matchedCase: CaseRecord | null): FocusPlan {
   const chosenAxis = axisForPain(body);
-  const selectedProposal = body.proposals.find((proposal) => proposal.axis === chosenAxis);
-  const pain = painLabel(body.painPoint);
-  const axisHeadline = selectedProposal?.title || {
-    top_line: "問い合わせ前の疑問に答え、相談化率を高める",
-    bottom_line: "一次対応と定型確認をAIに寄せる",
-    fde: "現場の業務フローに合わせて小さく実装する",
-  }[chosenAxis];
-
-  const firstAction = body.painPoint === "support"
-    ? "問い合わせ内容を分類し、AIが回答できる範囲と人が見る範囲を分けます。"
-    : body.painPoint === "sales"
-      ? "公開サイトと既存問い合わせを見て、相談前の不安と離脱点を整理します。"
-      : body.painPoint === "backoffice"
-        ? "反復している確認・転記・書類作成を棚卸しし、AI化の入口を決めます。"
-        : "現場の判断と繰り返し作業を分け、最初に軽くできる業務を決めます。";
+  const term = primarySpecificTerm(body);
+  const rawPrefix = body.painPointRaw ? `「${body.painPointRaw.slice(0, 32)}」を起点に、` : "";
+  const needsData = dataFoundationRequired(body);
+  const templates: Record<PainCategory, Pick<FocusPlan, "restatement" | "steps" | "roles" | "prerequisites" | "agenda">> = {
+    data: {
+      restatement: `${rawPrefix}散らばったデータをAIが読める一つの基盤づくりから解きます`,
+      steps: [
+        { phase: focusPhaseLabels[0], action: `売上・顧客・問い合わせのデータがどのツールや表に分かれているかを特定します` },
+        { phase: focusPhaseLabels[1], action: `判断に効く一群からAIが読める共通基盤に集約し、担当の方が自分で聞ける状態を作ります` },
+        { phase: focusPhaseLabels[2], action: `基盤に載せる範囲を広げ、定例でAIに聞けば分かる数字を増やします` },
+      ],
+      roles: {
+        honkoma: "データの置き場、AIで読む形、現場で聞ける導線まで設計・実装します。",
+        client: "使っている表、紙、ツール、判断に使いたい数字を共有します。",
+      },
+      prerequisites: "売上・顧客・問い合わせなど、判断に使いたいデータの置き場。",
+      agenda: [
+        "数字を見たいとき、今は誰に頼んで何日かかっていますか",
+        "Excelやスプレッドシートは何種類くらい動いていますか",
+        "最初にAIへ聞けるようにしたい数字は何ですか",
+      ],
+    },
+    support: {
+      restatement: `${rawPrefix}問い合わせ対応を、AIが先に受けられる範囲から解きほぐします`,
+      steps: [
+        { phase: focusPhaseLabels[0], action: `電話・フォーム・FAQに来る質問を「概算・仕様・日程」などに分け、AIが先に受ける範囲を決めます` },
+        { phase: focusPhaseLabels[1], action: `${term}を回答の裏付けに使うAI一次窓口を実装し、問い合わせログもAIが読めるデータ基盤に集めます` },
+        { phase: focusPhaseLabels[2], action: `蓄積した問い合わせデータを営業と現場で共有し、次にAIへ移す書類や日程連絡を決めます` },
+      ],
+      roles: {
+        honkoma: "一次対応AI、FAQ整備、問い合わせログの基盤化まで実装します。",
+        client: "よくある質問、過去の返信、例外時に人が見る判断基準を共有します。",
+      },
+      prerequisites: "過去の問い合わせログ・FAQ・公開ページをAIが読める形に集める準備。",
+      agenda: [
+        "同じ質問は週にどれくらい来ていますか",
+        "過去の問い合わせ記録は今どこに残っていますか",
+        "人が見るべき例外は何ですか",
+      ],
+    },
+    backoffice: {
+      restatement: `${rawPrefix}請求・日程・書類などの反復業務をAIに寄せる順番を決めます`,
+      steps: [
+        { phase: focusPhaseLabels[0], action: `請求、日程調整、書類作成の中で毎週繰り返す入力と確認を特定します` },
+        { phase: focusPhaseLabels[1], action: `最も回数が多い書類や連絡文の下書きをAIに任せ、確認履歴をデータ基盤に残します` },
+        { phase: focusPhaseLabels[2], action: `空いた時間を判断・交渉・顧客対応へ戻し、次に任せる反復業務を増やします` },
+      ],
+      roles: {
+        honkoma: "反復業務の分解、AI下書き、既存ツールへの接続を担当します。",
+        client: "実際に使う帳票、文面、承認が必要な条件を共有します。",
+      },
+      prerequisites: "対象にする帳票、メール文、承認条件、既存の管理ツール。",
+      agenda: [
+        "毎週いちばん時間を取られる書類や連絡は何ですか",
+        "人の承認が必要な条件はどこですか",
+        "空いた時間を戻したい業務は何ですか",
+      ],
+    },
+    sales: {
+      restatement: `${rawPrefix}相談前の迷いをAIで受け、営業に渡す情報を揃えます`,
+      steps: [
+        { phase: focusPhaseLabels[0], action: `${term}を見た訪問者が問い合わせ前に知りたい質問を洗い出し、AIが聞く項目を決めます` },
+        { phase: focusPhaseLabels[1], action: `AIが課題・規模・検討状況を聞き取り、営業が初回から使えるメモにして渡します` },
+        { phase: focusPhaseLabels[2], action: `問い合わせ経路と商談メモをデータ基盤に集め、次の提案や追客に使える状態にします` },
+      ],
+      roles: {
+        honkoma: "サイト上のAI窓口、営業メモ、問い合わせデータの接続まで作ります。",
+        client: "よくある商談前質問、失注理由、営業が知りたい条件を共有します。",
+      },
+      prerequisites: "問い合わせフォーム、営業メモ、よくある質問、追客に使う情報。",
+      agenda: [
+        "問い合わせ前に多い質問は何ですか",
+        "初回商談までに営業が知りたい条件は何ですか",
+        "流入経路は今どこで見ていますか",
+      ],
+    },
+    staffing: {
+      restatement: `${rawPrefix}属人化しているノウハウをAIが読める形にし、人を判断に戻します`,
+      steps: [
+        { phase: focusPhaseLabels[0], action: `担当者しか分からない判断、手順、例外対応を具体的な業務名で書き出します` },
+        { phase: focusPhaseLabels[1], action: `${term}に関わるノウハウをデータ基盤に集め、AIが次の担当者へ説明できる形にします` },
+        { phase: focusPhaseLabels[2], action: `繰り返しの確認をAIへ移し、人は現場判断・交渉・育成に時間を戻します` },
+      ],
+      roles: {
+        honkoma: "属人ノウハウの構造化、AI検索、現場で使う導線を実装します。",
+        client: "ベテランの判断例、例外対応、引き継ぎで詰まる箇所を共有します。",
+      },
+      prerequisites: "手順書、過去対応、担当者の判断メモ、引き継ぎで使う資料。",
+      agenda: [
+        "その業務で一番その人に聞かないと分からない点は何ですか",
+        "新人が詰まりやすい判断はどこですか",
+        "人に戻したい時間は現場判断と育成のどちらですか",
+      ],
+    },
+    other: {
+      restatement: `${rawPrefix}${term}に近い課題を、共通AI基盤の入口として具体化します`,
+      steps: [
+        { phase: focusPhaseLabels[0], action: `${term}に関係する資料、問い合わせ、判断基準がどこに残っているかを特定します` },
+        { phase: focusPhaseLabels[1], action: `AIが読める共通基盤に必要な情報を集め、担当者が自分で聞ける導線を作ります` },
+        { phase: focusPhaseLabels[2], action: `使われた質問と回答をもとに、次にAIへ任せる業務面を広げます` },
+      ],
+      roles: {
+        honkoma: "課題の分解、AI基盤、現場で使う導線まで実装します。",
+        client: "課題の実例、使っている資料、判断者と確認フローを共有します。",
+      },
+      prerequisites: "対象業務の資料、過去対応、今使っているツール。",
+      agenda: [
+        "その課題はどの場面で一番困っていますか",
+        "判断に必要な情報は今どこにありますか",
+        "最初にAIへ聞けるようにしたいことは何ですか",
+      ],
+    },
+  };
+  const template = templates[body.painPoint] || templates.other;
+  const steps = template.steps.map((step, index) => ({ ...step, phase: focusPhaseLabels[index] }));
+  let prerequisites = template.prerequisites;
+  if (needsData && !containsDataFoundation([prerequisites, ...steps.map((step) => step.action)].join(" "))) {
+    prerequisites = `${prerequisites} 複数窓口や記録はAIが読めるデータ基盤へ集めます。`;
+  }
 
   const plan: FocusPlan = {
     schemaVersion: "1.0",
-    restatement: `${pain}を起点に、${axisHeadline}`.slice(0, 80),
+    restatement: template.restatement.slice(0, 80),
     chosenAxis,
-    steps: [
-      { phase: "整理", action: firstAction.slice(0, 80) },
-      { phase: "試作", action: "Slack、Notion、フォームなど既存導線に合わせて小さな試作を作ります。" },
-      { phase: "運用化", action: "担当者の確認点と改善サイクルを決め、使われる状態まで調整します。" },
-    ],
-    roles: {
-      honkoma: "業務整理、AI設計、実装、運用初期の改善まで伴走します。",
-      client: "現場の判断基準、既存資料、よくある問い合わせや例外対応を共有します。",
-    },
-    prerequisites: `規模: ${companySizeLabel(body.companySize)} / AI活用: ${maturityLabel(body.aiMaturity)}`,
-    agenda: [
-      "最初にAIへ任せる業務範囲",
-      "人が確認すべき例外と判断基準",
-      "既存ツールとのつなぎ方",
-    ],
-    riskNote: "初回は範囲を絞り、現場の確認を残した形で始めます。",
+    steps,
+    roles: template.roles,
+    prerequisites: `${prerequisites} 規模: ${companySizeLabel(body.companySize)} / AI活用: ${maturityLabel(body.aiMaturity)}`.slice(0, 100),
+    agenda: template.agenda,
+    riskNote: `期間は目安です。初回は${riskTarget(steps[0].action)}に範囲を絞って始めます。`.slice(0, 80),
   };
 
   if (matchedCase) {
-    plan.caseConnection = `${matchedCase.companySize || "近い規模"}の匿名事例と課題の入口が近いです。`.slice(0, 80);
+    const casePoint = matchedCase.situation || matchedCase.title || "課題の入口";
+    plan.caseConnection = `${matchedCase.companySize || "近い規模"}で、${casePoint}が重なる匿名事例があります。`.slice(0, 80);
   }
   return plan;
 }
@@ -1008,45 +1496,56 @@ function validateFocusPlan(raw: unknown, body: DeepenBody, matchedCase: CaseReco
   if (!raw || typeof raw !== "object") return null;
   const input = raw as Partial<FocusPlan>;
   const fallback = fallbackFocusPlan(body, matchedCase);
-  const chosenAxis = axisOrder.includes(input.chosenAxis as ProposalAxis)
-    ? input.chosenAxis as ProposalAxis
-    : fallback.chosenAxis;
 
   const rawSteps = Array.isArray(input.steps) ? input.steps : [];
   const steps = rawSteps.slice(0, 3).map((step, index) => {
     const source = step as Partial<FocusPlanStep>;
-    return {
-      phase: shortText(source.phase, fallback.steps[index]?.phase || "確認", 14),
-      action: shortText(source.action, fallback.steps[index]?.action || "実装範囲を確認します。", 80),
-    };
+    const action = focusFieldText(source.action, fallback.steps[index]?.action || "", 80, env);
+    if (hasGenericFocusTerm(action)) return null;
+    return { phase: focusPhaseLabels[index], action };
   });
-  while (steps.length < 3) steps.push(fallback.steps[steps.length]);
+  if (steps.some((step) => !step)) return null;
+  const normalizedSteps = steps.filter(Boolean) as FocusPlanStep[];
+  while (normalizedSteps.length < 3) normalizedSteps.push(fallback.steps[normalizedSteps.length]);
 
   const rawAgenda = Array.isArray(input.agenda) ? input.agenda : [];
   const agenda = rawAgenda.slice(0, 3).map((item, index) => (
-    shortText(item, fallback.agenda[index] || "相談で確認すること", 60)
+    questionText(item, fallback.agenda[index] || "最初に確認したいことは何ですか", 60, env)
   ));
   while (agenda.length < 2) agenda.push(fallback.agenda[agenda.length]);
 
+  const restatement = restatementWithPainEcho(
+    focusFieldText(input.restatement, fallback.restatement, 80, env),
+    fallback.restatement,
+    body,
+  );
+  const prerequisites = ensureDataFoundationText(
+    focusFieldText(input.prerequisites, fallback.prerequisites, 100, env),
+    body,
+  );
+
   const plan: FocusPlan = {
     schemaVersion: "1.0",
-    restatement: shortText(input.restatement, fallback.restatement, 80),
-    chosenAxis,
-    steps,
+    restatement,
+    chosenAxis: fallback.chosenAxis,
+    steps: normalizedSteps,
     roles: {
-      honkoma: shortText(input.roles?.honkoma, fallback.roles.honkoma, 100),
-      client: shortText(input.roles?.client, fallback.roles.client, 100),
+      honkoma: focusFieldText(input.roles?.honkoma, fallback.roles.honkoma, 100, env),
+      client: focusFieldText(input.roles?.client, fallback.roles.client, 100, env),
     },
-    prerequisites: shortText(input.prerequisites, fallback.prerequisites, 100),
+    prerequisites,
     agenda,
-    riskNote: shortText(input.riskNote, fallback.riskNote, 80),
+    riskNote: `期間は目安です。初回は${riskTarget(normalizedSteps[0].action)}に範囲を絞って始めます。`.slice(0, 80),
   };
 
   if (matchedCase) {
-    plan.caseConnection = shortText(input.caseConnection, fallback.caseConnection || "", 80);
+    plan.caseConnection = caseConnectionText(input.caseConnection, fallback.caseConnection || "", env);
   }
 
   if (!outputPassesLint(plan, env) || !focusPlanLanguageOk(plan)) return null;
+  if (dataFoundationRequired(body) && !containsDataFoundation([plan.prerequisites, ...plan.steps.map((step) => step.action)].join(" "))) {
+    return null;
+  }
   return plan;
 }
 
@@ -1058,6 +1557,28 @@ function deepSeekFocusPlanRequestBody(
 ) {
   const chosenAxis = axisForPain(body);
   const selectedProposal = body.proposals.find((proposal) => proposal.axis === chosenAxis);
+  const goodExample: FocusPlan = {
+    schemaVersion: "1.0",
+    restatement: "「問い合わせせずに離脱」を起点に、施工事例を読んだ人の概算相談をAIが先に受けます",
+    chosenAxis: "bottom_line",
+    steps: [
+      { phase: "1〜2週目", action: "施工事例を読んだ人が聞きたい概算・工期・対応エリアの質問を分類します" },
+      { phase: "3〜6週目", action: "電話とフォームの前にAI一次窓口を置き、問い合わせログをデータ基盤に残します" },
+      { phase: "その後", action: "蓄積した相談データを営業と現場で共有し、次にAIへ移す書類連絡を決めます" },
+    ],
+    roles: {
+      honkoma: "AI一次窓口、FAQ整備、問い合わせログの基盤化まで実装します。",
+      client: "過去の問い合わせ、よくある概算質問、人が見る例外条件を共有します。",
+    },
+    prerequisites: "過去の問い合わせログ・FAQ・公開ページをAIが読める形に集める準備。",
+    agenda: [
+      "見積もり前の概算質問は、今どなたが答えていますか",
+      "電話とフォームの問い合わせ記録はどこに残っていますか",
+      "AIではなく人が見るべき例外は何ですか",
+    ],
+    riskNote: "期間は目安です。初回は施工事例を読んだ人の質問に範囲を絞って始めます。",
+    caseConnection: "同規模で、電話とフォームの問い合わせ記録が分かれていた点が重なります。",
+  };
   return {
     model: env.DEEPSEEK_MODEL || DEEPSEEK_DEFAULT_MODEL,
     thinking: { type: "disabled" },
@@ -1068,12 +1589,19 @@ function deepSeekFocusPlanRequestBody(
       {
         role: "system",
         content: [
-          "You are honkoma's focus-plan generator.",
-          "Return valid JSON only. Do not wrap in markdown.",
-          "Generate only the FocusPlan object. Do not generate HTML.",
-          "Do not promise numeric outcomes, guaranteed results, urgency scarcity, or client names.",
-          "If a matched case is provided, do not rewrite its facts. Only write caseConnection within 80 Japanese characters.",
-          "Use concise, polite Japanese.",
+          "あなたはhonkomaのAI診断の進め方プラン生成エンジンです。",
+          "返答はFocusPlanのJSONだけ。MarkdownやHTMLは禁止。",
+          "phaseは必ず「1〜2週目」「3〜6週目」「その後」の3つをこの順で使う。",
+          "actionは各1文。現状把握、現状分析、最適化設計、運用定着、整理、試作、運用化、小さく始める、ヒアリングなど汎用語で逃げない。",
+          "painPointRaw、signals、selectedProposalの固有語をrestatementかstepsに再利用する。",
+          "agendaは必ず質問形にする。",
+          "riskNoteは「期間は目安です。初回は◯◯に範囲を絞って始めます。」の型にする。",
+          "数値効果、保証、実在顧客名、残枠/緊急性、断定的な成果表現は禁止。",
+          "matchedCaseがある場合、事例本文を書き換えず、caseConnectionで何が重なるかだけ80字以内で書く。「近いです」だけは禁止。",
+          dataFoundationRequired(body)
+            ? "今回の入力ではデータ基盤提案が必須。stepsまたはprerequisitesに「AIが読めるデータ基盤」「共通基盤」「集約」のいずれかを明示する。"
+            : "",
+          retry ? "前回は汎用語または検証違反で落ちた。期間ラベル固定、固有語、データ基盤条件を必ず守る。" : "",
         ].join("\n"),
       },
       {
@@ -1082,6 +1610,7 @@ function deepSeekFocusPlanRequestBody(
           painPoint: body.painPoint,
           painPointLabel: painLabel(body.painPoint),
           painPointRaw: body.painPointRaw || "",
+          signals: body.signals || [],
           companySize: body.companySize || null,
           companySizeLabel: companySizeLabel(body.companySize),
           aiMaturity: body.aiMaturity || null,
@@ -1101,7 +1630,7 @@ function deepSeekFocusPlanRequestBody(
             riskNote: "string <=80",
             caseConnection: "optional string <=80, only if matchedCase exists",
           },
-          example: fallbackFocusPlan(body, matchedCase),
+          goodExample,
         }),
       },
     ],
@@ -1141,8 +1670,12 @@ async function handleDeepen(body: DeepenBody, env: Env) {
   const normalized: DeepenBody = {
     ...body,
     painPoint: normalizePainCategory(body.painPoint),
+    painPointRaw: safeEchoText(body.painPointRaw, env, 64) || undefined,
     companySize: body.companySize || null,
     aiMaturity: body.aiMaturity || null,
+    signals: Array.isArray(body.signals)
+      ? body.signals.slice(0, 4).map((signal) => safeEchoText(signal, env, 40)).filter(Boolean)
+      : [],
     proposals: Array.isArray(body.proposals) ? body.proposals : [],
   };
   if (!normalized.sessionId) throw new Error("sessionId is required");
@@ -1691,8 +2224,8 @@ function leadHypotheses(payload: LeadBody) {
   if (payload.focusPlan) return payload.focusPlan.steps.map((step) => `${step.phase}: ${step.action}`).slice(0, 3);
   return [
     "問い合わせ前の不安を減らす導線を作る",
-    "一次対応や定型確認を整理する",
-    "既存ツールに合わせて小さく実装する",
+    "一次対応や定型確認をAIへ寄せる",
+    "既存ツールに合わせてデータ基盤へつなぐ",
   ];
 }
 
@@ -1705,9 +2238,9 @@ function diagnosisEmailContent(env: Env, payload: LeadBody) {
   const hypotheses = leadHypotheses(payload);
   const subject = `【honkoma】${companyName}のAI活用診断メモ`;
   const planItems = focusPlan?.steps || [
-    { phase: "整理", action: "最初にAIへ任せる業務範囲を決めます。" },
-    { phase: "試作", action: "既存のフォームやSlack/Notionに合わせて小さく試します。" },
-    { phase: "運用化", action: "人が確認する範囲を残しながら改善します。" },
+    { phase: "1〜2週目", action: "AIが先に受ける問い合わせや資料の置き場を特定します。" },
+    { phase: "3〜6週目", action: "既存のフォームやSlack/Notionに合わせてAI窓口を接続します。" },
+    { phase: "その後", action: "人が確認する例外条件を残し、次にAIへ任せる業務を増やします。" },
   ];
   const text = [
     `${companyName}のAI活用診断メモ`,
@@ -1978,9 +2511,9 @@ function fallbackMaterialDraft(payload: LeadBody): MaterialDraft {
   const proposals = proposedCaseLines(payload);
   const focusSteps = payload.focusPlan?.steps || [];
   const sceneTitles = proposals.length ? proposals : [
-    `${pain}の初動整理`,
+    `${pain}の最初の入口`,
     "定型確認の軽量化",
-    "現場に残る運用化",
+    "現場で使うAI基盤",
   ];
   const scenes = sceneTitles.slice(0, 2).map((title, index) => {
     const focusStep = focusSteps[index];
@@ -1992,13 +2525,13 @@ function fallbackMaterialDraft(payload: LeadBody): MaterialDraft {
         90,
       ),
       withAi: shortText(
-        focusStep?.action || "AIが一次整理を担い、人が確認すべき判断に集中できる状態を作ります。",
-        "AIが一次整理を担い、人が確認すべき判断に集中できる状態を作ります。",
+        focusStep?.action || "AIが一次対応を担い、人が確認すべき判断に集中できる状態を作ります。",
+        "AIが一次対応を担い、人が確認すべき判断に集中できる状態を作ります。",
         110,
       ),
       firstMove: shortText(
-        focusStep?.phase ? `${focusStep.phase}: ${focusStep.action}` : "まず対象業務を1つに絞り、既存ツールに合わせて試作します。",
-        "まず対象業務を1つに絞り、既存ツールに合わせて試作します。",
+        focusStep?.phase ? `${focusStep.phase}: ${focusStep.action}` : "まず対象業務を1つに絞り、既存ツールへAI窓口を接続します。",
+        "まず対象業務を1つに絞り、既存ツールへAI窓口を接続します。",
         80,
       ),
     };
@@ -2006,23 +2539,23 @@ function fallbackMaterialDraft(payload: LeadBody): MaterialDraft {
   return {
     schemaVersion: "1.0",
     opening: shortText(
-      payload.focusPlan?.restatement || `${pain}を起点に、公開情報とご回答から進め方を整理しました。`,
-      `${pain}を起点に、公開情報とご回答から進め方を整理しました。`,
+      payload.focusPlan?.restatement || `${pain}を起点に、公開情報とご回答から進め方を具体化しました。`,
+      `${pain}を起点に、公開情報とご回答から進め方を具体化しました。`,
       140,
     ),
     scenes,
     firstStep: shortText(
-      focusSteps[0]?.action || "最初の2〜6週間で、対象業務の棚卸しと小さな試作から始めます。",
-      "最初の2〜6週間で、対象業務の棚卸しと小さな試作から始めます。",
+      focusSteps[0]?.action || "最初の2〜6週間で、対象業務を特定しAIが読める共通基盤へつなぎます。",
+      "最初の2〜6週間で、対象業務を特定しAIが読める共通基盤へつなぎます。",
       120,
     ),
     caseConnection: payload.matchedCase
-      ? shortText(`${payload.matchedCase.companySize || "近い規模"}の匿名事例と、課題の入口が近いです。`, "", 80)
+      ? shortText(`${payload.matchedCase.companySize || "近い規模"}の匿名事例と、課題の入口が重なります。`, "", 80)
       : undefined,
     meetingTopics: (payload.focusPlan?.agenda || [
-      "最初にAIへ任せる業務範囲",
-      "人が確認すべき例外と判断基準",
-      "既存ツールとのつなぎ方",
+      "最初にAIへ任せたい業務は何ですか",
+      "人が確認すべき例外はどこですか",
+      "既存ツールはどこにつなぐべきですか",
     ]).slice(0, 3).map((item) => shortText(item, "相談で確認すること", 40)),
   };
 }

@@ -184,6 +184,10 @@ const CHAT_STYLE = `
 }
 .aichat-proposal h3 { margin: 0 0 0.5rem; font-size: 1rem; font-weight: 700; line-height: 1.5; }
 .aichat-proposal p { margin: 0; color: var(--text-secondary); font-size: 0.95rem; line-height: 1.85; }
+.aichat-rationale {
+  margin-top: 0.75rem !important; color: color-mix(in srgb, var(--text-primary) 55%, transparent) !important;
+  font-size: 0.8rem !important; line-height: 1.7 !important;
+}
 .aichat-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
 .aichat-chip {
   min-height: 2.75rem; border: 1px solid color-mix(in srgb, var(--text-primary) 16%, transparent);
@@ -404,6 +408,7 @@ function ProposalCard({ proposal }: { proposal: AiProposal }) {
       </div>
       <h3>{proposal.title}</h3>
       <p>{proposal.body}</p>
+      {proposal.rationale && <p className="aichat-rationale">根拠: {proposal.rationale}</p>}
     </article>
   );
 }

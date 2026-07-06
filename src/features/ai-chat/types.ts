@@ -104,6 +104,7 @@ export type DeepenRequest = {
   companySize?: CompanySize | null;
   aiMaturity?: AiMaturity | null;
   analyzedSummary: string;
+  signals?: string[];
   proposals: AiProposal[];
   referrer?: string;
   utm?: string;

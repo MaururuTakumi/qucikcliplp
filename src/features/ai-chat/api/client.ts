@@ -60,33 +60,33 @@ export function createMockAnalysis(companyUrl: string): AiChatAnalysis {
   return {
     companyName: domain,
     analyzedSummary:
-      `${domain} の公開サイトをもとに、問い合わせ・集客・現場業務の改善余地を仮説化しました。`,
+      `${domain} の公開サイトを起点に、問い合わせ前の迷いと反復対応の受け皿を仮説化しました。`,
     signals: [
-      `企業サイト: ${domain} を確認`,
-      "問い合わせ導線とサービス説明の有無を確認",
-      "売上向上・工数削減・現場実装の3軸で整理",
+      `公開サイト: ${domain}`,
+      "問い合わせ前の相談入口",
+      "反復対応と社内データの接続余地",
     ],
     proposals: [
       {
         axis: "top_line",
-        title: "問い合わせ前の不安をAIでほどき、相談化率を高める",
+        title: `${domain}の問い合わせ前相談をAIが受ける`,
         body:
-          "サイト訪問者の状況に合わせて提案を出し分け、問い合わせ前の疑問に即時回答する導線を作ります。",
-        rationale: "TOP LINEを伸ばす施策として、商談前の温度感を上げます。",
+          "公開サイトを見た人が、問い合わせ前に聞きたいことをAIが受けます。営業や担当者へ渡す前に、課題と温度感をそろえます。",
+        rationale: `${domain}の公開サイトから。`,
       },
       {
         axis: "bottom_line",
-        title: "一次対応と定型確認をAIに寄せ、対応工数を減らす",
+        title: "よくある質問と初動連絡をAIに寄せる",
         body:
-          "よくある質問、予約前確認、資料請求の初動をAIが受け、担当者は判断が必要な会話に集中します。",
-        rationale: "BOTTOM LINEを削る施策として、反復対応を圧縮します。",
+          "問い合わせの初動には、同じ確認が繰り返し出ます。AIが要件と質問を先に受け、人は判断が必要な会話に集中します。",
+        rationale: "問い合わせ前の相談入口から。",
       },
       {
         axis: "fde",
-        title: "現場の業務フローに合わせて小さく実装し、運用まで残す",
+        title: "問い合わせと社内メモをAIが読める基盤にまとめる",
         body:
-          "既存のフォーム、Slack、Notion、社内DBなどに合わせ、使われる状態までエンジニアが伴走します。",
-        rationale: "FDEとして、PoCで終わらせず実運用に接続します。",
+          "フォーム、Slack、Notion、社内DBが分かれると、対応の質が人の記憶に寄ります。AIが読める基盤に集め、次の対応へ使える状態を作ります。",
+        rationale: "反復対応と社内データの接続余地から。",
       },
     ],
     reportTeaser:
@@ -157,28 +157,67 @@ const painToAxis: Record<PainCategory, ProposalAxis> = {
   other: "top_line",
 };
 
+function safeMockFocusTerm(value?: string) {
+  const text = (value || "")
+    .replace(/```/g, "")
+    .replace(/\b\d+\s*(%|％)\b/g, "一定割合")
+    .trim()
+    .slice(0, 30);
+  if (!text) return "";
+  if (/必ず|保証|断言|確実に|残枠|カウントダウン|BUYSELL|BuySell|バイセル|SOBLUE|FIKA|貞栄会|慶洋/.test(text)) {
+    return "";
+  }
+  return text;
+}
+
+function mockDataFoundationRequired(request: DeepenRequest) {
+  const text = [
+    request.painPointRaw || "",
+    ...(request.signals || []),
+    request.analyzedSummary,
+    ...request.proposals.flatMap((proposal) => [proposal.title, proposal.body, proposal.rationale]),
+  ].join(" ");
+  const hasScatterCue = /複数(媒体|チャネル|店舗|拠点|窓口)|Excel|エクセル|スプレッドシート|紙|台帳|帳票|記録.*分|データ.*散/.test(text);
+  const mediaChannelCount = [
+    /LINE|ライン/.test(text),
+    /Instagram|インスタ|SNS|媒体|チャネル/.test(text),
+    /店舗|拠点/.test(text),
+  ].filter(Boolean).length;
+  return request.painPoint === "data" || hasScatterCue || mediaChannelCount >= 2;
+}
+
 /** LLM生成が失敗した時の決定論フォールバック・プラン(§3.5)。事例カードは別で表示可。 */
 export function createMockFocusPlan(request: DeepenRequest): FocusPlan {
   const axis =
     request.painPoint === "other"
       ? request.proposals[0]?.axis ?? "top_line"
       : painToAxis[request.painPoint];
+  const term = safeMockFocusTerm(request.painPointRaw) ||
+    safeMockFocusTerm(request.signals?.[0]) ||
+    safeMockFocusTerm(request.proposals.find((proposal) => proposal.axis === axis)?.title) ||
+    "公開サイトの相談入口";
+  const needsData = mockDataFoundationRequired(request);
+  const dataNote = needsData ? " 複数窓口や記録はAIが読めるデータ基盤へ集めます。" : "";
   return {
     schemaVersion: "1.0",
-    restatement: "いただいた課題を軸に、まず小さく始めて確かめる進め方を用意しました。",
+    restatement: `「${term}」を起点に、AIが先に受ける範囲と人が見る範囲を分けます`.slice(0, 80),
     chosenAxis: axis,
     steps: [
-      { phase: "1〜2週目", action: "現状の業務を一緒に棚卸しし、AIで効く一点を決める。" },
-      { phase: "3〜6週目", action: "その一点を小さく実装し、現場で使える形にして回す。" },
-      { phase: "その後", action: "効果を見ながら横に広げ、社内に定着・内製化する。" },
+      { phase: "1〜2週目", action: `${term}に関係する問い合わせ、資料、判断基準の置き場を特定します` },
+      { phase: "3〜6週目", action: `AIが読める共通基盤に必要情報を集め、担当者が自分で聞ける導線を作ります` },
+      { phase: "その後", action: `使われた質問と回答をもとに、次にAIへ任せる業務面を広げます` },
     ],
     roles: {
-      honkoma: "設計・実装・現場への伴走をエンジニアが担当します。",
-      client: "現場の実情の共有と、試す時間の確保をお願いします。",
+      honkoma: "AI窓口、共通基盤、既存ツールへの接続まで設計・実装します。",
+      client: "過去の問い合わせ、資料、例外時に人が見る判断基準を共有します。",
     },
-    prerequisites: "今使っているツール(Slack/表計算/基幹など)と、対象業務の担当者。",
-    agenda: ["いちばん効く一点はどこか", "誰が運用を持てるか", "最初の2週間で何を試すか"],
-    riskNote: "現場が使わない仕組みは残らない。小さく始めて、使われる形から広げます。",
+    prerequisites: (`今使っているツール、対象業務の担当者、過去の問い合わせや資料。${dataNote}`).slice(0, 100),
+    agenda: [
+      "同じ質問は週にどれくらい来ていますか",
+      "判断に必要な情報は今どこにありますか",
+      "人が見るべき例外は何ですか",
+    ],
+    riskNote: `期間は目安です。初回は${term}に範囲を絞って始めます。`.slice(0, 80),
   };
 }
 
