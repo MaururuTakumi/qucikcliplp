@@ -100,7 +100,7 @@ const CaseStudiesPage: React.FC = () => {
                 導入事例
               </h1>
               <p className="text-warm text-lg leading-relaxed max-w-2xl">
-                honkomaのAI秘書・業務自動化支援を導入いただいた企業様に、
+                honkomaの伴走でAI活用・業務自動化に取り組んだ企業様に、
                 導入前後の変化をお伺いしました。
               </p>
             </div>
