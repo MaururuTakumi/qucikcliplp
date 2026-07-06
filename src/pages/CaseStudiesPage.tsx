@@ -13,13 +13,10 @@ import { SectionShell } from "../components/Layout/SectionShell";
 import { SectionHeading } from "../components/ui/SectionHeading";
 import { StaggerGrid } from "../components/ui/StaggerGrid";
 import { Reveal } from "../components/motion/Reveal";
-import { ArrowCTA } from "../components/ui/ArrowCTA";
-import { useAiChat } from "../features/ai-chat/ChatProvider";
+import { AIStarterBand } from "../features/ai-chat/components/AIStarterBand";
 import { caseStudies } from "../data/caseStudies";
 
 const CaseStudiesPage = () => {
-  const { openChat } = useAiChat();
-
   useEffect(() => {
     document.title = "導入事例 | honkoma";
   }, []);
@@ -132,35 +129,16 @@ const CaseStudiesPage = () => {
         </StaggerGrid>
       </SectionShell>
 
-      {/* ===== BOTTOM CTA (fable動線設計で調整予定) — inverse ===== */}
-      <SectionShell theme="inverse" wedge="top" width="content">
-        <div style={{ maxWidth: 720 }}>
-          <SectionHeading enLabel="Your Case" title="次の事例は、御社かもしれない。" level={2} />
-          <Reveal variant="fadeUp">
-            <p
-              style={{
-                margin: "1.5rem 0 clamp(2rem, 4vw, 3rem)",
-                color: "var(--text-secondary)",
-                fontSize: "clamp(1rem, 1.3vw, 1.15rem)",
-                lineHeight: 1.9,
-                maxWidth: "44ch",
-              }}
-            >
-              「うちの場合はどうか」——その問いから始めましょう。
-              御社サイトのURLから、AIがその場で活用案を整理することもできます。
-            </p>
-            <div style={{ display: "flex", gap: "1.5rem", flexWrap: "wrap", alignItems: "center" }}>
-              <ArrowCTA
-                onClick={() => openChat({ source: "cases" })}
-                variant="outline"
-                withText="自社の場合をAIに聞く"
-                label="自社の場合をAIに聞く"
-              />
-              <ArrowCTA to="/contact" size="lg" variant="fill" withText="ご相談はこちら" label="ご相談はこちら" />
-            </div>
-          </Reveal>
-        </div>
-      </SectionShell>
+      {/* ===== BOTTOM (case-study-conversion §6: AIStarterBand 1本のみ・軽い着手。
+           一覧では/contact副は置かない=フッターContactと重複回避) ===== */}
+      <div style={{ borderTop: "1px solid color-mix(in srgb, var(--text-primary) 8%, transparent)" }}>
+        <AIStarterBand
+          source="cases"
+          compact
+          title="御社の場合をAIに聞く"
+          body="事例と同じ観点で、AIが御社サイトから活用案を3つ返します。"
+        />
+      </div>
     </div>
   );
 };

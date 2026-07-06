@@ -12,7 +12,7 @@ import { SectionShell } from "../components/Layout/SectionShell";
 import { SectionHeading } from "../components/ui/SectionHeading";
 import { Reveal } from "../components/motion/Reveal";
 import { ArrowCTA } from "../components/ui/ArrowCTA";
-import { useAiChat } from "../features/ai-chat/ChatProvider";
+import { AIStarterBand } from "../features/ai-chat/components/AIStarterBand";
 import { getCaseStudy } from "../data/caseStudies";
 
 function Block({ en, title, children }: { en: string; title: string; children: React.ReactNode }) {
@@ -53,7 +53,6 @@ const paraStyle: React.CSSProperties = {
 const CaseStudyDetailPage = () => {
   const { slug } = useParams<{ slug: string }>();
   const cs = slug ? getCaseStudy(slug) : undefined;
-  const { openChat } = useAiChat();
 
   useEffect(() => {
     if (cs) document.title = `${cs.company}｜導入事例 | honkoma`;
@@ -145,35 +144,32 @@ const CaseStudyDetailPage = () => {
         </div>
       </SectionShell>
 
-      {/* ===== CONVERSION CTA (fable設計 docs/case-study-conversion-design.md を反映予定) — inverse ===== */}
-      <SectionShell theme="inverse" wedge="top" width="content">
-        <div style={{ maxWidth: 720 }}>
-          <SectionHeading enLabel="Your Case" title="御社の場合は、どうだろう。" level={2} />
-          <Reveal variant="fadeUp">
-            <p
-              style={{
-                margin: "1.5rem 0 clamp(2rem, 4vw, 3rem)",
-                color: "var(--text-secondary)",
-                fontSize: "clamp(1rem, 1.3vw, 1.15rem)",
-                lineHeight: 1.9,
-                maxWidth: "44ch",
-              }}
-            >
-              この事例と同じように、御社の現場でも何ができるか——
-              まずはAIに聞くのも、人に相談するのも、入り口はどちらでも。
-            </p>
-            <div style={{ display: "flex", gap: "1.5rem", flexWrap: "wrap", alignItems: "center" }}>
-              <ArrowCTA
-                onClick={() => openChat({ source: "cases" })}
-                variant="outline"
-                withText="自社の場合をAIに聞く"
-                label="自社の場合をAIに聞く"
-              />
-              <ArrowCTA to="/contact" size="lg" variant="fill" withText="ご相談はこちら" label="ご相談はこちら" />
-            </div>
-          </Reveal>
-        </div>
-      </SectionShell>
+      {/* ===== CONVERSION (case-study-conversion-design §2.2) =====
+       * 主=記事末尾のインラインAI診断(source=cases)。inverseにしない=記事の余韻の
+       * まま静かに(売り込みモード切替に見せない)。副=/contactを下に1行・対等にしない。
+       * ghost=一覧へ(逃げ道=回遊)。読中CTAは置かない(証明力を守る)。 */}
+      <div style={{ borderTop: "1px solid color-mix(in srgb, var(--text-primary) 8%, transparent)" }}>
+        <AIStarterBand
+          source="cases"
+          compact
+          title="同じ問いを、御社の現場に。"
+          body={`${cs.industry}のこの事例と同じ観点で、AIが御社サイトを読み、活用案を3つ返します。無料・登録不要です。`}
+        />
+      </div>
+      <div
+        style={{
+          maxWidth: 1200,
+          margin: "0 auto",
+          padding: "0 var(--space-gutter) clamp(3.5rem, 7vw, 5.5rem)",
+          display: "flex",
+          flexDirection: "column",
+          gap: "1rem",
+          alignItems: "flex-start",
+        }}
+      >
+        <ArrowCTA to="/contact" variant="outline" withText="導入の進め方を相談する" label="導入の進め方を相談する" />
+        <ArrowCTA to="/case-studies" variant="ghost" withText="導入事例一覧へ" label="導入事例一覧へ" />
+      </div>
     </div>
   );
 };
