@@ -129,14 +129,14 @@ const HERO_TITLE_NARROW = ["スキルの差は、", "AIが埋める。", "熱意
 
 const RecruitPage = () => {
   const [heroTitle, setHeroTitle] = useState(() =>
-    typeof window !== "undefined" && window.matchMedia("(max-width: 600px)").matches
+    typeof window !== "undefined" && window.matchMedia("(max-width: 820px)").matches
       ? HERO_TITLE_NARROW
       : HERO_TITLE_WIDE,
   );
 
   useEffect(() => {
     document.title = "採用情報 | honkoma";
-    const mq = window.matchMedia("(max-width: 600px)");
+    const mq = window.matchMedia("(max-width: 820px)");
     const pick = () => setHeroTitle(mq.matches ? HERO_TITLE_NARROW : HERO_TITLE_WIDE);
     pick();
     mq.addEventListener("change", pick);
@@ -147,7 +147,12 @@ const RecruitPage = () => {
     <div style={{ background: "var(--surface-base)" }}>
       {/* ===== HERO — 旗 ===== */}
       <SectionShell>
+        {/* ヒーロー見出しは1文=1行で見せたい。--fs-hero(最大5.5rem)だと1行目
+         * 「スキルの差は、AIが埋める。」がコンテナ幅を超えて語中で割れるため、
+         * このヒーロー限定で最大値を抑える(820px以下は短い4行版に切替済み)。 */}
+        <style>{`.recruit-hero-heading h1 { font-size: clamp(2.1rem, 5vw, 4.4rem); word-break: keep-all; }`}</style>
         <SectionHeading
+          className="recruit-hero-heading"
           enLabel="Skills converge. Passion doesn't."
           title={heroTitle}
           level={1}
