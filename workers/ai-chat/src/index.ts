@@ -379,12 +379,52 @@ function stripHtml(html: string) {
     .slice(0, 9000);
 }
 
-async function fetchWebsiteText(companyUrl: string) {
-  const safeUrl = assertPublicHttpUrl(companyUrl);
+function htmlAttr(html: string, pattern: RegExp) {
+  const match = html.match(pattern);
+  return match ? match[1].trim() : "";
+}
+
+/**
+ * meta(title/description/og:title/og:description)とJSON-LD(Organization/LocalBusiness の
+ * name/description)を抽出し、text先頭に連結する用の短い文字列を作る（D方針）。
+ * fetch薄（HTML本文がSPA等でスカスカ）でも、metaだけは実在情報として観測に使える。
+ */
+function extractMetaAndJsonLd(html: string): string {
+  const parts: string[] = [];
+  const title = htmlAttr(html, /<title[^>]*>([^<]*)<\/title>/i);
+  if (title) parts.push(title);
+  const description = htmlAttr(html, /<meta[^>]+name=["']description["'][^>]*content=["']([^"']*)["']/i);
+  if (description) parts.push(description);
+  const ogTitle = htmlAttr(html, /<meta[^>]+property=["']og:title["'][^>]*content=["']([^"']*)["']/i);
+  if (ogTitle) parts.push(ogTitle);
+  const ogDescription = htmlAttr(html, /<meta[^>]+property=["']og:description["'][^>]*content=["']([^"']*)["']/i);
+  if (ogDescription) parts.push(ogDescription);
+
+  const jsonLdBlocks = html.match(/<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi) || [];
+  for (const block of jsonLdBlocks) {
+    const inner = block.replace(/^[\s\S]*?>/, "").replace(/<\/script>$/i, "");
+    try {
+      const parsed = JSON.parse(inner.trim());
+      const candidates = Array.isArray(parsed) ? parsed : [parsed];
+      for (const candidate of candidates) {
+        const type = typeof candidate?.["@type"] === "string" ? candidate["@type"] : "";
+        if (/Organization|LocalBusiness/i.test(type)) {
+          if (typeof candidate.name === "string") parts.push(candidate.name);
+          if (typeof candidate.description === "string") parts.push(candidate.description);
+        }
+      }
+    } catch {
+      // JSON-LDが壊れている場合は無視する。
+    }
+  }
+  return parts.filter(Boolean).join(" ");
+}
+
+async function fetchRawHtml(url: string, timeoutMs: number): Promise<string> {
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 7000);
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
-    const response = await fetch(safeUrl, {
+    const response = await fetch(url, {
       headers: {
         "User-Agent": "honkoma-ai-chat/1.0",
         "Accept": "text/html,application/xhtml+xml,text/plain;q=0.8,*/*;q=0.5",
@@ -395,10 +435,56 @@ async function fetchWebsiteText(companyUrl: string) {
     if (!response.ok) throw new Error(`URL fetch failed: ${response.status}`);
     const length = Number(response.headers.get("content-length") || 0);
     if (length > 750_000) throw new Error("URL response is too large");
-    return stripHtml(await response.text());
+    return await response.text();
   } finally {
     clearTimeout(timer);
   }
+}
+
+const SUBPAGE_CANDIDATES = ["/company", "/about", "/service", "/recruit"];
+
+function japaneseCharCount(text: string) {
+  return (text.match(/[ぁ-んァ-ヶ一-龠]/g) || []).length;
+}
+
+async function fetchSubpageText(baseUrl: string, path: string): Promise<string> {
+  try {
+    const target = new URL(path, baseUrl).toString();
+    const html = await fetchRawHtml(target, 3000);
+    return stripHtml(html);
+  } catch {
+    return "";
+  }
+}
+
+type WebsiteTextResult = { text: string; thin: boolean };
+
+/**
+ * メインページ取得→meta/JSON-LDをtext先頭に連結→日本語400字未満ならサブページを最大2本追加取得。
+ * thin(300字未満)フラグを返す。スキーマは変えない（呼び出し側でtext/thinを取り出して使う）。
+ */
+async function fetchWebsiteText(companyUrl: string): Promise<WebsiteTextResult> {
+  const safeUrl = assertPublicHttpUrl(companyUrl);
+  const html = await fetchRawHtml(safeUrl, 7000);
+  const metaText = extractMetaAndJsonLd(html);
+  const bodyText = stripHtml(html);
+  let combined = [metaText, bodyText].filter(Boolean).join(" ").trim();
+
+  if (japaneseCharCount(combined) < 400) {
+    let subpagesFetched = 0;
+    for (const path of SUBPAGE_CANDIDATES) {
+      if (subpagesFetched >= 2) break;
+      const subText = await fetchSubpageText(safeUrl, path);
+      if (subText) {
+        combined = `${combined} ${subText}`.trim();
+        subpagesFetched += 1;
+      }
+      if (japaneseCharCount(combined) >= 400) break;
+    }
+  }
+
+  const text = combined.slice(0, 9000);
+  return { text, thin: text.length < 300 };
 }
 
 type IndustryKey =
@@ -415,6 +501,7 @@ type SiteFacts = {
   domain: string;
   industry: IndustryKey;
   industryLabel: string;
+  industryConfident: boolean;
   signals: string[];
   specificTerms: string[];
   hasMultipleChannels: boolean;
@@ -423,18 +510,59 @@ type SiteFacts = {
   hasDataScatteringSignal: boolean;
 };
 
-const industryRules: Array<{ key: IndustryKey; label: string; pattern: RegExp }> = [
-  { key: "construction", label: "建設・施工", pattern: /建設|工務店|施工|工事|注文住宅|リフォーム|現場|職人|外壁|内装/ },
-  { key: "healthcare", label: "医療・介護", pattern: /医療|介護|クリニック|病院|歯科|初診|予約|レセプト|福祉|看護/ },
-  { key: "retail", label: "小売・EC", pattern: /EC|通販|オンラインショップ|小売|店舗|在庫|商品|レビュー|購入|カート/ },
-  { key: "professional", label: "士業・専門サービス", pattern: /士業|法律|会計|税理士|社労士|行政書士|相談|顧問|コンサル/ },
-  { key: "manufacturing", label: "製造・BtoB", pattern: /製造|工場|生産|部品|加工|図面|品質|設備|見積|BtoB/ },
-  { key: "it", label: "IT・SaaS", pattern: /IT|SaaS|システム|ソフトウェア|アプリ|クラウド|API|開発|DX/ },
-  { key: "hospitality", label: "宿泊・観光", pattern: /ホテル|宿泊|旅館|観光|予約|客室|旅行|インバウンド|多言語/ },
+/**
+ * strong = その業種にほぼ固有の語（他業種にまず出ない）。weak = 業種に寄せるが他業種でも出うる語。
+ * 「予約」「事例」「実績」「DX」「システム」は業種を跨いで頻出し誤爆源になるため、
+ * どの業種のstrong/weakからも除外する（B方針）。signalRules側には残してよい。
+ */
+const industryRules: Array<{ key: IndustryKey; label: string; strong: RegExp; weak: RegExp }> = [
+  {
+    key: "construction",
+    label: "建設・施工",
+    strong: /建設業|工務店|施工管理|注文住宅|リフォーム|外壁塗装|内装工事/g,
+    weak: /建設|施工|工事|現場|職人|外壁|内装/g,
+  },
+  {
+    key: "healthcare",
+    label: "医療・介護",
+    strong: /クリニック|歯科医院|病院|レセプト|看護師|診療科|訪問介護|デイサービス/g,
+    weak: /医療|介護|福祉|診療|治療|通院|入院/g,
+  },
+  {
+    key: "retail",
+    label: "小売・EC",
+    strong: /オンラインショップ|通信販売|ネットショップ|在庫管理|ショッピングカート/g,
+    weak: /EC|通販|小売|店舗|在庫|商品|レビュー|購入|カート/g,
+  },
+  {
+    key: "professional",
+    label: "士業・専門サービス",
+    strong: /税理士|社会保険労務士|社労士|行政書士|弁護士|公認会計士/g,
+    weak: /士業|法律|会計|顧問|コンサル/g,
+  },
+  {
+    key: "manufacturing",
+    label: "製造・BtoB",
+    strong: /製造業|工場|生産ライン|部品加工|図面|品質管理/g,
+    weak: /製造|生産|部品|加工|設備|BtoB/g,
+  },
+  {
+    key: "it",
+    label: "IT・SaaS",
+    strong: /SaaS|クラウドサービス|ソフトウェア開発|API連携/g,
+    weak: /ソフトウェア|クラウド|API|エンジニア|開発/g,
+  },
+  {
+    key: "hospitality",
+    label: "宿泊・観光",
+    strong: /ホテル|旅館|客室|インバウンド|多言語対応/g,
+    weak: /宿泊|観光|旅行|客室|多言語/g,
+  },
 ];
 
 const signalRules: Array<{ signal: string; terms: string[]; pattern: RegExp }> = [
-  { signal: "施工事例・実績を掲載", terms: ["施工事例", "実績"], pattern: /施工事例|施工実績|実績紹介|導入事例|事例/ },
+  { signal: "施工事例・実績を掲載", terms: ["施工事例"], pattern: /施工事例|施工実績/ },
+  { signal: "導入事例を掲載", terms: ["導入事例"], pattern: /導入事例/ },
   { signal: "症例・診療メニューを掲載", terms: ["症例", "診療メニュー"], pattern: /症例|診療メニュー|診療案内|初診|治療/ },
   { signal: "商品・レビュー情報を掲載", terms: ["商品", "レビュー"], pattern: /商品|レビュー|口コミ|購入|カート|オンラインショップ/ },
   { signal: "料金・見積もり導線あり", terms: ["料金", "見積もり"], pattern: /料金|価格|費用|見積|お見積もり/ },
@@ -448,9 +576,28 @@ const signalRules: Array<{ signal: string; terms: string[]; pattern: RegExp }> =
   { signal: "Excel・紙の管理語がある", terms: ["Excel", "紙"], pattern: /Excel|エクセル|スプレッドシート|紙|台帳|帳票/ },
 ];
 
-function detectIndustryFromText(text: string): { key: IndustryKey; label: string } {
-  const matched = industryRules.find((rule) => rule.pattern.test(text));
-  return matched ? { key: matched.key, label: matched.label } : { key: "generic", label: "公開サイト" };
+function distinctMatchCount(text: string, pattern: RegExp) {
+  const flagged = new RegExp(pattern.source, pattern.flags.includes("g") ? pattern.flags : `${pattern.flags}g`);
+  const matches = text.match(flagged) || [];
+  return new Set(matches).size;
+}
+
+/**
+ * score = 2×strong distinct matches + 1×weak distinct matches。
+ * 採用条件: score>=3 かつ 1位と2位の差>=2。満たさなければgeneric（B方針・過剰確信の防止）。
+ */
+function detectIndustryFromText(text: string): { key: IndustryKey; label: string; confident: boolean } {
+  const scored = industryRules
+    .map((rule) => ({
+      rule,
+      score: 2 * distinctMatchCount(text, rule.strong) + 1 * distinctMatchCount(text, rule.weak),
+    }))
+    .sort((left, right) => right.score - left.score);
+  const top = scored[0];
+  const second = scored[1];
+  const confident = Boolean(top && top.score >= 3 && (!second || top.score - second.score >= 2));
+  if (!confident || !top) return { key: "generic", label: "公開サイト", confident: false };
+  return { key: top.rule.key, label: top.rule.label, confident: true };
 }
 
 function compactSignal(signal: string) {
@@ -487,6 +634,7 @@ function analyzeSiteFacts(companyUrl: string, websiteText = ""): SiteFacts {
     domain,
     industry: industry.key,
     industryLabel: industry.label,
+    industryConfident: industry.confident,
     signals,
     specificTerms: [...new Set(specificTerms)].slice(0, 12),
     hasMultipleChannels: channelCount >= 2 || /複数|多店舗|各店舗|チャネル|媒体|SNS/.test(text),
@@ -496,8 +644,21 @@ function analyzeSiteFacts(companyUrl: string, websiteText = ""): SiteFacts {
   };
 }
 
+/**
+ * テレメトリ＋retryトリガ専用（差し替え判定には使わない）。
+ * facts.specificTerms はプロンプトテンプレ内の語彙も含むため、これで「サイト由来かどうか」を
+ * 判定して丸ごと差し替えると、業種テンプレの語がヒットして無関係な差し替えが起きる（B/eval参照）。
+ * サイト由来かどうかの実判定は textMatchesWebsiteText で websiteText に直接照合する。
+ */
 function containsSiteCue(text: string, facts: SiteFacts) {
   return facts.specificTerms.some((term) => term.length >= 2 && text.includes(term));
+}
+
+/** 文中の語が実際にwebsiteTextへ出現するか（差し替え判定はこちらを使う）。短い共通語は除外。 */
+function textMatchesWebsiteText(text: string, websiteText: string) {
+  if (!websiteText) return false;
+  const candidates = text.match(/[一-龠ぁ-んァ-ヶA-Za-z0-9]{2,}/g) || [];
+  return candidates.some((token) => token.length >= 2 && websiteText.includes(token));
 }
 
 function proposalAssetLabel(signal: string) {
@@ -508,8 +669,34 @@ function proposalAssetLabel(signal: string) {
     .trim();
 }
 
+/**
+ * 業種ごとに asset 補間で使ってよい signal 原文のホワイトリスト（C方針）。
+ * ここにない signal は業種テンプレの asset に使わない（他業種の資産語が紛れ込むのを防ぐ）。
+ * generic は業種非依存資産（FAQ/フォーム/採用/お知らせ）に限定する。
+ */
+const industryAssetWhitelist: Record<IndustryKey, string[]> = {
+  construction: ["施工事例・実績を掲載", "導入事例を掲載", "店舗・拠点情報を掲載", "FAQ・よくある質問を掲載"],
+  healthcare: ["症例・診療メニューを掲載", "FAQ・よくある質問を掲載", "店舗・拠点情報を掲載"],
+  retail: ["商品・レビュー情報を掲載", "料金・見積もり導線あり", "FAQ・よくある質問を掲載"],
+  professional: ["導入事例を掲載", "FAQ・よくある質問を掲載", "料金・見積もり導線あり"],
+  manufacturing: ["導入事例を掲載", "料金・見積もり導線あり", "FAQ・よくある質問を掲載"],
+  it: ["導入事例を掲載", "FAQ・よくある質問を掲載", "料金・見積もり導線あり"],
+  hospitality: ["店舗・拠点情報を掲載", "FAQ・よくある質問を掲載", "お知らせ・ブログを運用"],
+  generic: ["FAQ・よくある質問を掲載", "フォーム窓口を掲載", "採用・募集ページあり", "お知らせ・ブログを運用"],
+};
+
+const genericAssetFallback = "公開情報";
+
+function whitelistedAsset(facts: SiteFacts): string {
+  const allowed = industryAssetWhitelist[facts.industry] || industryAssetWhitelist.generic;
+  // facts.signalsは既にcompactSignal済みなので、ホワイトリストのsignal原文もcompactSignalして比較する。
+  const compactAllowed = allowed.map((entry) => compactSignal(entry));
+  const hit = facts.signals.find((signal) => compactAllowed.includes(signal));
+  return proposalAssetLabel(hit || genericAssetFallback);
+}
+
 function fallbackProposalSet(facts: SiteFacts): AiProposal[] {
-  const asset = proposalAssetLabel(facts.signals[0] || facts.industryLabel);
+  const asset = whitelistedAsset(facts);
   const channel = facts.hasMultipleChannels ? "電話・フォーム・LINEなど複数窓口" : "問い合わせ窓口";
   const templates: Record<IndustryKey, AiProposal[]> = {
     construction: [
@@ -535,20 +722,20 @@ function fallbackProposalSet(facts: SiteFacts): AiProposal[] {
     healthcare: [
       {
         axis: "top_line",
-        title: `${asset}を、初診前の不安解消に使う`,
-        body: `${asset}は、来院前の判断材料になります。予約前の質問をAIが受け、症状や持ち物の不安を相談へつなげます。`,
-        rationale: `${asset}と予約前導線から。`,
+        title: "予約前・利用前の不安を、AIの事前相談で受け止める",
+        body: `${asset}は、来院・利用を検討する方の判断材料になります。予約や申し込みの前に浮かぶ疑問をAIが先に受け、相談への一歩を後押しします。`,
+        rationale: `${asset}と予約・申し込み導線から。`,
       },
       {
         axis: "bottom_line",
         title: "予約変更・書類案内をAIに寄せる",
-        body: `医療・介護では定型の案内が何度も発生します。予約変更、持ち物、書類の初動をAIが受け、スタッフは人の確認に集中します。`,
-        rationale: "予約・診療案内の業務語から。",
+        body: `医療・介護の現場では、定型の案内や確認が繰り返し発生します。予約変更、持ち物、書類の初動をAIが受け、スタッフは人の判断が要る対応に集中します。`,
+        rationale: "予約・案内まわりの業務語から。",
       },
       {
         axis: "fde",
         title: "予約・記録・FAQを共通データに整える",
-        body: `予約、問い合わせ、FAQが分かれると回答品質が人に寄ります。AIが読める共通基盤に整え、同じ答えを全員で使える状態にします。`,
+        body: `予約、問い合わせ、FAQが分かれると回答の質が担当者に寄ります。AIが読める共通基盤に整え、誰が対応しても同じ水準の案内ができる状態にします。`,
         rationale: "予約導線とFAQ資産から。",
       },
     ],
@@ -693,6 +880,25 @@ function mockAnalysis(companyUrl: string, reason?: string, websiteText = ""): Ai
   };
 }
 
+/**
+ * fetch薄（websiteTextが120字未満）のときの誠実generic mock（D方針）。
+ * 業種断定をしない・neutralAxisText（業種非依存の固定文）のみを使う。捏造リスクゼロで、
+ * 「公開情報が少なく仮説の割合が大きい」ことを正直に伝える。
+ */
+function honestThinMockAnalysis(companyUrl: string): AiChatAnalysis {
+  const domain = hostnameFor(companyUrl);
+  const proposals = axisOrder.map((axis) => neutralAxisText[axis]);
+  return {
+    companyName: domain,
+    analyzedSummary: `${domain} の公開情報が少なく、事業内容を十分に読み取れませんでした。以下は一般的なAI活用の切り口としての仮説です。詳しい状況を教えていただければ、精度を上げてご提案します。`,
+    signals: [`${domain}の公開情報が限定的`, "業種の断定はできていません"],
+    proposals,
+    reportTeaser: "課題を1つ選んでいただければ、御社の状況をお伺いしながら具体化します。",
+    shareUrl: `https://ltdhonkoma.com/contact?ai_chat=${encodeURIComponent(domain)}`,
+    mode: "mock",
+  };
+}
+
 function cleanText(value: unknown, fallback: string) {
   if (typeof value !== "string") return fallback;
   return value
@@ -799,45 +1005,109 @@ function signalLooksLikeObservation(signal: string) {
   return Boolean(signal.trim()) && !/確認|チェック|調査|分析しました|見ました/.test(signal);
 }
 
+/**
+ * lint(hard)違反を「文単位」で除去する。。区切りで文を割り、違反する文だけを落として残りを結合する。
+ * 丸ごと差し替えを避けるための最初の手段（A方針）。空文字や記号だけの断片は捨てる。
+ */
+function dropViolatingSentences(text: string, env: Env): string {
+  if (!text.trim()) return "";
+  const sentences = text.split("。").map((part) => part.trim()).filter(Boolean);
+  const kept = sentences.filter((sentence) => lintText(sentence, env).ok);
+  if (!kept.length) return "";
+  return kept.map((sentence) => `${sentence}。`).join("");
+}
+
+/**
+ * 業種非依存・asset補間なしの固定文（3軸 × title/body/rationale = 9本）。
+ * lint違反文をdropViolatingSentencesで削っても最小長に届かない、または全文が違反のときの最終防波堤。
+ * どの業種のサイトにも当てはまる一般論のみで構成し、固有語・数値・断定は一切使わない。
+ */
+const neutralAxisText: Record<ProposalAxis, AiProposal> = {
+  top_line: {
+    axis: "top_line",
+    title: "問い合わせ前の相談をAIが受け止める",
+    body: "検討中の方が抱く小さな疑問は、問い合わせをためらう理由になりがちです。AIが先に話を聞き、相談への入口を広げます。",
+    rationale: "公開情報から読み取れる問い合わせ導線の構造から。",
+  },
+  bottom_line: {
+    axis: "bottom_line",
+    title: "繰り返しの確認業務をAIに寄せる",
+    body: "同じ内容の確認や案内が積み重なると、担当者の時間を圧迫します。定型的な初動をAIに任せ、人は判断が必要な対応に集中します。",
+    rationale: "問い合わせ・案内の業務構造から。",
+  },
+  fde: {
+    axis: "fde",
+    title: "散らばった記録をAIが読める形にまとめる",
+    body: "窓口や記録が複数に分かれると、次の一手が経験頼みになりがちです。AIが読める一つの基盤に集め、誰でも過去の経緯を確認できる状態を作ります。",
+    rationale: "複数の窓口・記録が存在する構造から。",
+  },
+};
+
+/**
+ * フィールド単位のrepair（A方針）。丸ごとfallback差し替えは行わない。
+ * 手順: ①lint通過ならそのまま採用 ②違反なら文単位で違反文だけ落とす
+ * ③それでも空/最小長未満、または全文違反ならneutralAxisText（業種非依存の固定文）へ。
+ * containsSiteCue/textMatchesWebsiteTextは判定に使わない（差し替えトリガではなくテレメトリ専用）。
+ */
+function repairField(
+  value: string,
+  neutralValue: string,
+  env: Env,
+  minLength: number,
+): string {
+  if (validOutputText(value, env) && value.trim().length >= minLength) return value;
+  const dropped = dropViolatingSentences(value, env);
+  if (dropped.trim().length >= minLength && validOutputText(dropped, env)) return dropped;
+  return neutralValue;
+}
+
 function repairProposal(
   proposal: AiProposal,
-  fallback: AiProposal,
-  facts: SiteFacts,
+  domain: string,
+  websiteText: string,
   env: Env,
 ): AiProposal {
-  const candidate = {
-    axis: proposal.axis,
-    title: validOutputText(proposal.title, env) ? proposal.title : fallback.title,
-    body: validOutputText(proposal.body, env) ? proposal.body : fallback.body,
-    rationale: validOutputText(proposal.rationale, env) ? proposal.rationale : fallback.rationale,
-  };
-  const combined = `${candidate.title} ${candidate.body}`;
-  if (!containsSiteCue(combined, facts)) {
-    return fallback;
+  const neutral = neutralAxisText[proposal.axis] || neutralAxisText.fde;
+  const title = repairField(proposal.title, neutral.title, env, 6);
+  const body = repairField(proposal.body, neutral.body, env, 20);
+  const rationale = repairField(proposal.rationale, neutral.rationale, env, 4);
+  // テレメトリ専用: 差し替え判定には使わない。retryトリガ材料として観測するだけ（判定はwebsiteText照合）。
+  const combined = `${title} ${body}`;
+  if (!textMatchesWebsiteText(combined, websiteText)) {
+    console.log(JSON.stringify({
+      event: "proposal_no_site_cue",
+      axis: proposal.axis,
+      domain,
+    }));
   }
-  return candidate;
+  return { axis: proposal.axis, title, body, rationale };
 }
 
 function validateAnalysisWithLint(raw: unknown, companyUrl: string, env: Env, websiteText = ""): AiChatAnalysis {
-  const facts = analyzeSiteFacts(companyUrl, websiteText);
+  const domain = hostnameFor(companyUrl);
   const fallback = mockAnalysis(companyUrl, "出力検証で安全な文面に切り替え", websiteText);
   const analysis = validateAnalysis(raw, companyUrl, websiteText);
-  const proposals = analysis.proposals.map((proposal, index) => (
-    repairProposal(proposal, fallback.proposals[index], facts, env)
+  const proposals = analysis.proposals.map((proposal) => (
+    repairProposal(proposal, domain, websiteText, env)
   ));
   const signals = analysis.signals
     .map(compactSignal)
     .filter((signal) => signalLooksLikeObservation(signal) && validOutputText(signal, env));
+  // summaryはcue条件を撤廃: lintを通過すれば採用。違反時のみ文単位除去→なお不可ならfallbackへ。
+  const summaryRepaired = repairField(analysis.analyzedSummary, fallback.analyzedSummary, env, 20);
+  if (!textMatchesWebsiteText(summaryRepaired, websiteText)) {
+    console.log(JSON.stringify({ event: "summary_no_site_cue", domain }));
+  }
   const repaired: AiChatAnalysis = {
     ...analysis,
-    analyzedSummary: validOutputText(analysis.analyzedSummary, env) && containsSiteCue(analysis.analyzedSummary, facts)
-      ? analysis.analyzedSummary
-      : fallback.analyzedSummary,
+    analyzedSummary: summaryRepaired,
     signals: signals.length ? signals.slice(0, 4) : fallback.signals,
     proposals,
     reportTeaser: validOutputText(analysis.reportTeaser, env) ? analysis.reportTeaser : fallback.reportTeaser,
   };
-  return outputPassesLint(repaired, env) ? repaired : fallback;
+  // 最終ゲートの mock 全損は廃止。ここまでで各フィールドは既にlint保証済みのため、
+  // これ以降 outputPassesLint に落ちることは構造上ない（保険としてのみ残す）。
+  return repaired;
 }
 
 function extractJson(content: string) {
@@ -846,7 +1116,7 @@ function extractJson(content: string) {
   return JSON.parse(fenced ? fenced[1] : trimmed);
 }
 
-function deepSeekRequestBody(env: Env, companyUrl: string, websiteText: string, retry = false) {
+function deepSeekRequestBody(env: Env, companyUrl: string, websiteText: string, retry = false, thin = false) {
   const domain = hostnameFor(companyUrl);
   const facts = analyzeSiteFacts(companyUrl, websiteText);
   return {
@@ -870,11 +1140,14 @@ function deepSeekRequestBody(env: Env, companyUrl: string, websiteText: string, 
             "各proposal: titleは30字前後、bodyは2文、title+bodyにwebsiteText由来の固有語を最低1つ入れる。rationaleは「どこからそう読んだか」1文。",
             "honkomaの背骨: ①散らばったデータをAIが読める基盤に整える ②全員がAIでその基盤に触れる ③バックオフィスと繰り返し業務をAIに任せる ④人は判断・交渉・創造に集中する。",
             "軸プレイブック: 建設/施工=概算対応・事例営業活用、日報写真書類、現場事務所の情報一元化。医療/介護=予約前不安、レセプト書類日程、記録基盤。EC/小売=レビュー接客データ、受注在庫問い合わせ、チャネル横断データ。士業=相談前不安、書類ドラフト、ナレッジ属人解消。製造BtoB=技術問い合わせ、見積図面帳票、基幹データ接続。IT/SaaS=リード一次選別、サポートナレッジ、顧客データ分析。宿泊観光=予約前質問多言語、予約変更定型連絡、口コミ料金稼働データ。",
+            "summaryの末尾で、3案のうち最も効くと考える一点を仮説形で1回だけ指名する（例:「特に◯◯の取りこぼしが気になります」）。3案並列の「どれでもどうぞ」感を出さない。",
+            "websiteTextに固有名詞（商品名・サービス名・機能名）があれば、それを一般名詞に置き換えず、最低1つのproposalのtitleにそのまま使う。",
             retry ? "前回は汎用または安全検証で落ちた。signalsとproposalにサイト由来の固有語を増やす。" : "",
+            thin ? "今回の観測はmeta情報（title/description/OGP等）由来に限定されている。内側の状況は仮説形に徹し、断定しない。" : "",
             "架空の良例:",
             JSON.stringify({
               companyName: "サンプル工務店（架空の例）",
-              analyzedSummary: "注文住宅とリフォームの2本柱で、施工事例を80件以上公開されているとお見受けしました。一方で窓口は電話とフォームのみ——事例で温まった見込み客を営業時間の外で取りこぼしていないでしょうか。",
+              analyzedSummary: "注文住宅とリフォームの2本柱で、施工事例を80件以上公開されているとお見受けしました。一方で窓口は電話とフォームのみ——事例で温まった見込み客を営業時間の外で取りこぼしていないでしょうか。特に、夜間や休日に温度が上がる見込み客の取りこぼしが気になります。",
               signals: ["施工事例80件超を掲載", "窓口は電話とフォームの2つ", "採用ページで施工管理を募集中"],
               proposals: [
                 {
@@ -905,7 +1178,7 @@ function deepSeekRequestBody(env: Env, companyUrl: string, websiteText: string, 
         content: JSON.stringify({
           companyUrl,
           domain,
-          detectedIndustry: facts.industryLabel,
+          detectedIndustry: facts.industryConfident ? facts.industryLabel : "不明(本文から判断)",
           deterministicSignals: facts.signals,
           websiteText,
           outputSchema: {
@@ -944,11 +1217,25 @@ function messageContent(message: { content?: unknown } | undefined) {
   return "";
 }
 
-async function callDeepSeek(env: Env, companyUrl: string, websiteText: string) {
+/** repair後のproposalがwebsiteText由来の語を含むか（retryトリガ・テレメトリ専用、A方針）。 */
+function analysisLacksSiteCue(analysis: AiChatAnalysis, companyUrl: string, websiteText: string) {
+  const combined = analysis.proposals.map((proposal) => `${proposal.title} ${proposal.body}`).join(" ");
+  const facts = analyzeSiteFacts(companyUrl, websiteText);
+  // 判定の主軸はwebsiteText直接照合。containsSiteCueはテレメトリの参考値としてのみ併記する。
+  const hasWebsiteCue = textMatchesWebsiteText(combined, websiteText);
+  const hasFactsCue = containsSiteCue(combined, facts);
+  if (!hasWebsiteCue) {
+    console.log(JSON.stringify({ event: "site_cue_telemetry", hasWebsiteCue, hasFactsCue, domain: facts.domain }));
+  }
+  return !hasWebsiteCue;
+}
+
+async function callDeepSeek(env: Env, companyUrl: string, websiteText: string, thin = false) {
   const apiKey = env.DEEPSEEK_API_KEY || env.XAI_API_KEY;
   if (!apiKey) return mockAnalysis(companyUrl, undefined, websiteText);
 
   let lastError = "DeepSeek response did not include content";
+  let lastAnalysis: AiChatAnalysis | undefined;
   for (let attempt = 0; attempt < 2; attempt += 1) {
     const response = await fetch(DEEPSEEK_BASE_URL, {
       method: "POST",
@@ -956,7 +1243,7 @@ async function callDeepSeek(env: Env, companyUrl: string, websiteText: string) {
         "Authorization": `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(deepSeekRequestBody(env, companyUrl, websiteText, attempt > 0)),
+      body: JSON.stringify(deepSeekRequestBody(env, companyUrl, websiteText, attempt > 0, thin)),
     });
 
     if (!response.ok) {
@@ -967,10 +1254,23 @@ async function callDeepSeek(env: Env, companyUrl: string, websiteText: string) {
       choices?: Array<{ message?: { content?: unknown } }>;
     };
     const content = messageContent(data.choices?.[0]?.message);
-    if (content.trim()) return validateAnalysisWithLint(extractJson(content), companyUrl, env, websiteText);
+    if (content.trim()) {
+      const analysis = validateAnalysisWithLint(extractJson(content), companyUrl, env, websiteText);
+      // A方針: containsSiteCueは判定ではなくretryトリガ＋テレメトリ専用。
+      // 1回目でサイト由来の手がかりが弱ければ2回目（temperature低）を試し、それでも弱ければそのまま返す
+      // （丸ごとfallback差し替えはしない）。
+      const lacksCue = analysisLacksSiteCue(analysis, companyUrl, websiteText);
+      if (lacksCue) {
+        console.log(JSON.stringify({ event: "analysis_retry_trigger", attempt, domain: hostnameFor(companyUrl) }));
+      }
+      lastAnalysis = analysis;
+      if (!lacksCue || attempt === 1) return analysis;
+      continue;
+    }
     lastError = "DeepSeek response did not include content";
   }
 
+  if (lastAnalysis) return lastAnalysis;
   throw new Error(lastError);
 }
 
@@ -1331,16 +1631,34 @@ function caseConnectionText(value: unknown, fallback: string, env: Env) {
   return text;
 }
 
-function riskTarget(action: string) {
+/**
+ * 42字上限で区切り境界（読点等）まで戻す。境界が見つからなければそのまま切る。
+ * 「アプリ」のような1語だけが残る事故を防ぐため、8字未満ならprimarySpecificTerm(body)へ（E方針）。
+ */
+function truncateAtBoundary(text: string, maxLength: number) {
+  if (text.length <= maxLength) return text;
+  const window = text.slice(0, maxLength);
+  const lastBoundary = Math.max(
+    window.lastIndexOf("、"),
+    window.lastIndexOf("・"),
+    window.lastIndexOf(" "),
+  );
+  if (lastBoundary >= 8) return window.slice(0, lastBoundary);
+  return window;
+}
+
+function riskTarget(action: string, body?: DeepenBody) {
   const base = action
     .replace(/^(電話とフォームに来た|直近の|過去の|まず|最初に)/, "")
-    .replace(/[。、].*$/, "")
+    /* 読点では切らず、。のみで文を区切る（読点切り捨てを廃止・E方針） */
+    .replace(/。.*$/, "")
     /* 末尾の動詞句(「〜を特定します」等)を落として名詞止めにする */
     .replace(/を(特定|整理|分類|実装|集約|作成|確認|設計|統合|一元化|見直し|準備|検討|把握)(します|する|し)?$/, "")
     /* ぶら下がり助詞を除去。「」で囲むので語尾の不自然さは吸収される */
-    .replace(/[をにがはでとへの]$/, "")
-    .slice(0, 40);
-  return base || "最初の対象業務";
+    .replace(/[をにがはでとへの]$/, "");
+  const bounded = truncateAtBoundary(base, 42);
+  if (bounded.trim().length < 8 && body) return primarySpecificTerm(body).slice(0, 42);
+  return bounded || "最初の対象業務";
 }
 
 function fallbackFocusPlan(body: DeepenBody, matchedCase: CaseRecord | null): FocusPlan {
@@ -1473,7 +1791,7 @@ function fallbackFocusPlan(body: DeepenBody, matchedCase: CaseRecord | null): Fo
     roles: template.roles,
     prerequisites: `${prerequisites} 規模: ${companySizeLabel(body.companySize)} / AI活用: ${maturityLabel(body.aiMaturity)}`.slice(0, 100),
     agenda: template.agenda,
-    riskNote: `期間は目安です。初回は「${riskTarget(steps[0].action)}」に範囲を絞って始めます。`.slice(0, 80),
+    riskNote: `期間は目安です。初回は「${riskTarget(steps[0].action, body)}」に範囲を絞って始めます。`.slice(0, 80),
   };
 
   if (matchedCase) {
@@ -1540,7 +1858,7 @@ function validateFocusPlan(raw: unknown, body: DeepenBody, matchedCase: CaseReco
     },
     prerequisites,
     agenda,
-    riskNote: `期間は目安です。初回は「${riskTarget(normalizedSteps[0].action)}」に範囲を絞って始めます。`.slice(0, 80),
+    riskNote: `期間は目安です。初回は「${riskTarget(normalizedSteps[0].action, body)}」に範囲を絞って始めます。`.slice(0, 80),
   };
 
   if (matchedCase) {
@@ -3588,8 +3906,13 @@ async function persistLead(env: Env, payload: LeadBody | PartialLeadBody, ctx?: 
 async function handleAnalyze(body: AnalyzeBody, env: Env) {
   const companyUrl = normalizeCompanyUrl(body.companyUrl);
   try {
-    const websiteText = await fetchWebsiteText(companyUrl);
-    const analysis = await callDeepSeek(env, companyUrl, websiteText);
+    const { text: websiteText, thin } = await fetchWebsiteText(companyUrl);
+    // D方針: fetch薄（120字未満）は業種断定を避け、誠実generic mockで正直に伝える。
+    // 120字以上ならDeepSeekは呼ぶが、systemに「観測はmeta由来に限定」の1行を追加する（thinフラグ）。
+    if (thin && websiteText.length < 120) {
+      return { ok: true, analysis: honestThinMockAnalysis(companyUrl) };
+    }
+    const analysis = await callDeepSeek(env, companyUrl, websiteText, thin);
     return { ok: true, analysis };
   } catch (error) {
     const message = error instanceof Error ? error.message : "analysis failed";
