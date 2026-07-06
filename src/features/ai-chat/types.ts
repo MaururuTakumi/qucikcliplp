@@ -1,4 +1,11 @@
-export type ChatSource = "hero" | "float" | "whatwedo" | "cases" | "exit";
+export type ChatSource =
+  | "hero"
+  | "float"
+  | "whatwedo"
+  | "cases"
+  | "exit"
+  | "header"
+  | "footer";
 
 export type ChatPhase =
   | "idle"

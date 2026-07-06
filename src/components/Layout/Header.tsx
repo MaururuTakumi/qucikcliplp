@@ -30,37 +30,53 @@ import { AnimatePresence, m } from "framer-motion";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { dur, ease, stagger, dist, scroll } from "../../design/tokens";
 import ArrowCTA from "../ui/ArrowCTA";
+import { useAiChat } from "../../features/ai-chat/ChatProvider";
 
 /* ------------------------------------------------------------------ data --- */
 
 type NavChild = { label: string; to: string };
 type NavItem = { label: string; to: string; children?: NavChild[] };
 
+/* site-ia-design §1.2: 4 top items. "ホーム" is carried by the logo.
+ * 私たちについて▾ bundles the company set (原則3); サービス▾ keeps only the
+ * two strong destinations (D2C/口コミAI removed with their pages, M10). */
 const NAV: NavItem[] = [
-  { label: "ホーム", to: "/" },
-  { label: "会社概要", to: "/about" },
+  {
+    label: "私たちについて",
+    to: "/about",
+    children: [
+      { label: "ミッション・行動指針", to: "/about" },
+      { label: "会社概要", to: "/about#profile" },
+      { label: "メンバー", to: "/team" },
+    ],
+  },
   {
     label: "サービス",
     to: "/product",
     children: [
-      { label: "サービス紹介", to: "/product" },
-      { label: "ホテル向けソリューション", to: "/hotel" },
+      { label: "サービス一覧", to: "/product" },
+      { label: "ホテル向け", to: "/hotel" },
     ],
   },
-  { label: "メンバー", to: "/team" },
+  { label: "導入事例", to: "/case-studies" },
+  { label: "採用情報", to: "/recruit" },
 ];
 
 /** Overlay lists every destination flat (mobile users get no dropdown). */
 const OVERLAY_LINKS: { label: string; en: string; to: string }[] = [
   { label: "ホーム", en: "Home", to: "/" },
-  { label: "会社概要", en: "About", to: "/about" },
-  { label: "サービス紹介", en: "Service", to: "/product" },
+  { label: "私たちについて", en: "About", to: "/about" },
+  { label: "メンバー", en: "Members", to: "/team" },
+  { label: "サービス", en: "Services", to: "/product" },
   { label: "ホテル向け", en: "For Hotels", to: "/hotel" },
   { label: "導入事例", en: "Case Studies", to: "/case-studies" },
-  { label: "メンバー", en: "Members", to: "/team" },
+  { label: "採用情報", en: "Careers", to: "/recruit" },
 ];
 
-const CTA_SECONDARY = { label: "導入事例", to: "/case-studies" };
+/* CTA階層(§0-1): outlineピル=商談リード用のAIチャット起動(source=header・
+ * 起動点F)。fillピル=「もう決めた人」の最短経路=/contact。採用はピルに置かず
+ * ナビ一等地に譲る（営業装置としての最短経路を殺さないため）。 */
+const CTA_AI_LABEL = "AIに聞いてみる";
 const CTA_PRIMARY = { label: "ご相談はこちら", to: "/contact" };
 
 /* ------------------------------------------------------- scroll morph hook --- */
@@ -580,6 +596,7 @@ const Header: React.FC = () => {
   useNavStyles();
   const location = useLocation();
   const phase = useNavPhase();
+  const { openChat } = useAiChat();
 
   const [overlayOpen, setOverlayOpen] = React.useState(false);
   const overlayRef = React.useRef<HTMLDivElement>(null);
@@ -686,15 +703,13 @@ const Header: React.FC = () => {
 
             {/* Desktop CTA pills (LayerX dual-pill slot) */}
             <div className="hidden items-center gap-3 xl:flex">
-              <Link
-                to={CTA_SECONDARY.to}
+              <button
+                type="button"
                 className="hknav-pill hknav-pill--outline"
-                aria-current={
-                  location.pathname === CTA_SECONDARY.to ? "page" : undefined
-                }
+                onClick={() => openChat({ source: "header" })}
               >
-                <span>{CTA_SECONDARY.label}</span>
-              </Link>
+                <span>{CTA_AI_LABEL}</span>
+              </button>
               <Link to={CTA_PRIMARY.to} className="hknav-pill hknav-pill--fill">
                 <span>{CTA_PRIMARY.label}</span>
               </Link>
@@ -836,13 +851,16 @@ const Header: React.FC = () => {
                   variants={overlayItem}
                   className="mt-10 flex flex-wrap items-center gap-3"
                 >
-                  <Link
-                    to={CTA_SECONDARY.to}
-                    onClick={closeOverlay}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      closeOverlay();
+                      openChat({ source: "header" });
+                    }}
                     className="hknav-pill hknav-pill--outline"
                   >
-                    <span>{CTA_SECONDARY.label}</span>
-                  </Link>
+                    <span>{CTA_AI_LABEL}</span>
+                  </button>
                   <Link
                     to={CTA_PRIMARY.to}
                     onClick={closeOverlay}
