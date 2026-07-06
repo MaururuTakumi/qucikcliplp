@@ -17,7 +17,7 @@
  * the triangle never eats the screen.
  * ========================================================================== */
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { useLocation } from "react-router-dom";
 import { m, AnimatePresence, useReducedMotion } from "framer-motion";
 import { dur, ease, stagger as staggerTokens } from "../../design/tokens";
@@ -120,24 +120,28 @@ export function WedgeOverlay({ children, bars = 2, skipOn }: WedgeOverlayProps) 
   const location = useLocation();
   const reduce = useReducedMotion();
   const prevPath = useRef(location.pathname);
+  const mounted = useRef(false);
   const mainRef = useRef<HTMLDivElement>(null);
 
-  // The sweep is keyed off `navKey`, which is null on first render. A hard load /
-  // reload therefore shows NO overlay wipe — the wedge is set only when the route
-  // actually CHANGES (in the effect below), so it plays on navigation and never on
-  // initial mount. It is cleared when the last bar finishes so no off-screen layer
-  // lingers. (Previously the overlay was keyed on location.pathname and mounted on
-  // first load, which made the signature wipe run on every page load/reload.)
+  // The sweep is keyed off `navKey` (null on first render → NO wipe on a hard load /
+  // reload). We set it in a useLayoutEffect, which runs synchronously BEFORE the
+  // browser paints — so the wipe mounts in the same paint as the swapped route and
+  // starts flowing the instant the link is pressed. (The earlier version used a
+  // post-paint useEffect, so the new page painted first and the wipe ran a beat
+  // LATER, over already-swapped content — the "late animation" the user reported.)
   const [navKey, setNavKey] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (prevPath.current === location.pathname) return; // initial mount: do nothing
+  useLayoutEffect(() => {
+    if (!mounted.current) {
+      mounted.current = true;
+      return; // initial mount: no scroll reset, no wipe
+    }
     const from = prevPath.current;
     prevPath.current = location.pathname;
-    // Scroll reset + focus move on every committed navigation.
+    // Scroll reset + focus move on the committed navigation.
     window.scrollTo({ top: 0, left: 0, behavior: "auto" });
     mainRef.current?.focus({ preventScroll: true });
-    // Trigger the sweep unless this specific transition is opted out.
+    // Fire the sweep (before paint) unless this transition is opted out.
     if (!(skipOn && skipOn(from, location.pathname))) {
       setNavKey(location.pathname);
     }
