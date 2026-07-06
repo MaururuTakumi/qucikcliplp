@@ -67,10 +67,13 @@
   --color-accent-soft: color-mix(in srgb, var(--brand-400) 22%, transparent);
 
   --surface-base: var(--navy-900);
-  --surface-raised: color-mix(in srgb, var(--navy-900) 82%, #ffffff);
+  --surface-raised: color-mix(in srgb, var(--navy-900) 78%, #ffffff);
 
-  --text-primary: var(--text-on-inverse);
-  --text-secondary: color-mix(in srgb, #f2f5f9 68%, transparent);
+  /* Light text on navy. NOTE: must be a literal light value — referencing
+     --text-on-inverse here would resolve to navy (it is repurposed below as the
+     pill "fill contrast" color), leaving headings dark-on-dark. */
+  --text-primary: #f2f5f9;
+  --text-secondary: color-mix(in srgb, #f2f5f9 70%, transparent);
   /* --text-on-inverse stays the "fill contrast" color: on inverse the pill
      fill is bright blue, so the swept arrow reads against navy again. */
   --text-on-inverse: var(--navy-900);

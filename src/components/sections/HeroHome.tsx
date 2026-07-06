@@ -85,7 +85,7 @@ export function HeroHome() {
 
             <TextReveal
               as="h1"
-              orientation="vertical-md"
+              orientation="horizontal"
               text={["誰かが作った", "時代を、", "生きるな。"]}
               className="hero-title font-jp"
             />
@@ -140,18 +140,15 @@ export function HeroHome() {
           gap: clamp(2rem, 5vw, 4rem);
           align-items: start;
         }
-        /* Horizontal (mobile fallback of vertical-md): larger, bolder hero. */
-        .hero-title { font-size: clamp(2.5rem, 10vw, 3.75rem); font-weight: 700; line-height: 1.12; }
+        /* Horizontal manifesto — 3 short stacked lines (LayerX-style). */
+        .hero-title { font-size: clamp(2.5rem, 10vw, 3.5rem); font-weight: 700; line-height: 1.14; }
         .hero-visual { order: -1; height: min(56vh, 480px); }
         .hero-canvas { width: 100%; height: 100%; display: block; }
         @media (min-width: 768px) {
-          /* Give the 3D visual the larger share; content stays readable at ~44ch. */
-          .hero-grid { grid-template-columns: 0.9fr 1.1fr; }
+          /* Balanced split: horizontal heading needs copy width; 3D stays large. */
+          .hero-grid { grid-template-columns: 1fr 1fr; }
           .hero-visual { order: 0; height: min(82vh, 760px); }
-          /* Vertical writing multiplies font-size into column height. align-start
-           * + top padding lets a big heading flow (page scrolls) without hitting
-           * the sticky header, so we can push the manifesto much larger here. */
-          .hero-title { font-size: clamp(3rem, 4.6vw, 4.75rem); line-height: 1.2; }
+          .hero-title { font-size: clamp(2.75rem, 4vw, 4.25rem); line-height: 1.16; }
         }
       `}</style>
     </section>
