@@ -1337,9 +1337,9 @@ function riskTarget(action: string) {
     .replace(/[。、].*$/, "")
     /* 末尾の動詞句(「〜を特定します」等)を落として名詞止めにする */
     .replace(/を(特定|整理|分類|実装|集約|作成|確認|設計|統合|一元化|見直し|準備|検討|把握)(します|する|し)?$/, "")
-    .slice(0, 30)
-    /* slice でぶら下がった助詞を除去(「…をに範囲」防止) */
-    .replace(/[をにがはでとへの]$/, "");
+    /* ぶら下がり助詞を除去。「」で囲むので語尾の不自然さは吸収される */
+    .replace(/[をにがはでとへの]$/, "")
+    .slice(0, 40);
   return base || "最初の対象業務";
 }
 
@@ -1473,7 +1473,7 @@ function fallbackFocusPlan(body: DeepenBody, matchedCase: CaseRecord | null): Fo
     roles: template.roles,
     prerequisites: `${prerequisites} 規模: ${companySizeLabel(body.companySize)} / AI活用: ${maturityLabel(body.aiMaturity)}`.slice(0, 100),
     agenda: template.agenda,
-    riskNote: `期間は目安です。初回は${riskTarget(steps[0].action)}に範囲を絞って始めます。`.slice(0, 80),
+    riskNote: `期間は目安です。初回は「${riskTarget(steps[0].action)}」に範囲を絞って始めます。`.slice(0, 80),
   };
 
   if (matchedCase) {
@@ -1540,7 +1540,7 @@ function validateFocusPlan(raw: unknown, body: DeepenBody, matchedCase: CaseReco
     },
     prerequisites,
     agenda,
-    riskNote: `期間は目安です。初回は${riskTarget(normalizedSteps[0].action)}に範囲を絞って始めます。`.slice(0, 80),
+    riskNote: `期間は目安です。初回は「${riskTarget(normalizedSteps[0].action)}」に範囲を絞って始めます。`.slice(0, 80),
   };
 
   if (matchedCase) {
