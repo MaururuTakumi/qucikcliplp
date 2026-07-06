@@ -77,6 +77,19 @@ export type LeadResponse = {
   error?: string;
 };
 
+export type ContactFormPayload = {
+  inquiryType: string;
+  company: string;
+  name: string;
+  email: string;
+  employeeCount?: string;
+  message: string;
+  consent: boolean;
+  timestamp: string;
+  referrer?: string;
+  utm?: string;
+};
+
 export type PartialLeadPayload = Partial<LeadPayload> & {
   source: ChatSource;
   sessionId: string;

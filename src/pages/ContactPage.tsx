@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Mail, Phone, MessageSquare, Calendar, ArrowRight, ArrowLeft, CheckCircle } from 'lucide-react';
 import { AIStarterBand } from '../features/ai-chat/components/AIStarterBand';
+import { submitContactFormNotification } from '../features/ai-chat/api/client';
 
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbxVMYEL9aJS124xpDj-bpynGYH_QbyEsb0yGqUznlTALT6OreAjCSS7oth4f7ETDciQ/exec';
 
@@ -16,6 +17,17 @@ const inquiryOptions = [
 ];
 
 const employeeCountOptions = ['1〜10名', '11〜50名', '51〜100名', '100名以上'];
+
+function currentUtm() {
+  const params = new URLSearchParams(window.location.search);
+  return ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term']
+    .map((key) => {
+      const value = params.get(key);
+      return value ? `${key}=${value}` : '';
+    })
+    .filter(Boolean)
+    .join('&') || undefined;
+}
 
 const ContactPage: React.FC = () => {
   const [step, setStep] = useState(1);
@@ -66,22 +78,34 @@ const ContactPage: React.FC = () => {
       timestamp: new Date().toISOString(),
     };
 
-    try {
-      await fetch(GAS_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-    } catch (error) {
-      console.error('Error submitting form:', error);
-    } finally {
-      setIsSubmitting(false);
-      if (window.gtag) {
-        window.gtag('event', 'form_submit', { event_category: 'engagement', event_label: 'contact_form' });
-      }
-      goToStep(3);
+    const gasSubmission = fetch(GAS_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+
+    const slackNotification = submitContactFormNotification({
+      ...data,
+      referrer: document.referrer || undefined,
+      utm: currentUtm(),
+    });
+
+    const [gasResult, slackResult] = await Promise.allSettled([gasSubmission, slackNotification]);
+    if (gasResult.status === 'rejected') {
+      console.error('Error submitting form:', gasResult.reason);
     }
+    if (slackResult.status === 'rejected') {
+      console.error('Error notifying contact form:', slackResult.reason);
+    } else if (!slackResult.value.slackNotified) {
+      console.warn('Contact form Slack notification was not sent:', slackResult.value.error);
+    }
+
+    setIsSubmitting(false);
+    if (window.gtag) {
+      window.gtag('event', 'form_submit', { event_category: 'engagement', event_label: 'contact_form' });
+    }
+    goToStep(3);
   };
 
   return (

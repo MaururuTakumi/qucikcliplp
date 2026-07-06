@@ -3,6 +3,7 @@ import type {
   AiProposal,
   AnalyzeRequest,
   AnalyzeResponse,
+  ContactFormPayload,
   LeadPayload,
   LeadResponse,
   PartialLeadPayload,
@@ -170,5 +171,24 @@ export async function submitPartialLead(payload: PartialLeadPayload): Promise<Le
     );
   } catch {
     return { ok: true, dryRun: true };
+  }
+}
+
+export async function submitContactFormNotification(payload: ContactFormPayload): Promise<LeadResponse> {
+  try {
+    return await postJson<ContactFormPayload & { action: "contact_form" }, LeadResponse>(
+      {
+        ...payload,
+        action: "contact_form",
+      },
+      8_000,
+    );
+  } catch (error) {
+    return {
+      ok: true,
+      dryRun: true,
+      slackNotified: false,
+      error: error instanceof Error ? error.message : "Contact form notification unavailable",
+    };
   }
 }

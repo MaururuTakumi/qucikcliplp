@@ -60,6 +60,20 @@ type PartialLeadBody = Omit<LeadBody, "action"> & {
   stage: string;
 };
 
+type ContactFormBody = {
+  action: "contact_form";
+  inquiryType: string;
+  company: string;
+  name: string;
+  email: string;
+  employeeCount?: string;
+  message: string;
+  consent: boolean;
+  timestamp?: string;
+  referrer?: string;
+  utm?: string;
+};
+
 const DEEPSEEK_BASE_URL = "https://api.deepseek.com/chat/completions";
 const DEEPSEEK_DEFAULT_MODEL = "deepseek-v4-pro";
 const NOTION_VERSION = "2022-06-28";
@@ -494,6 +508,59 @@ async function notifySlack(env: Env, payload: LeadBody | PartialLeadBody) {
   return true;
 }
 
+function slackLine(label: string, value: unknown) {
+  if (typeof value !== "string" || !value.trim()) return "";
+  return `${label}: ${value.trim().slice(0, 1200)}`;
+}
+
+async function notifyContactFormSlack(env: Env, payload: ContactFormBody) {
+  if (!env.SLACK_WEBHOOK_URL) return false;
+  const fields = [
+    slackLine("種別", payload.inquiryType),
+    slackLine("会社名", payload.company),
+    slackLine("お名前", payload.name),
+    slackLine("メール", payload.email),
+    slackLine("従業員数", payload.employeeCount),
+    slackLine("内容", payload.message),
+    `同意: ${payload.consent ? "yes" : "no"}`,
+    slackLine("utm", payload.utm),
+    slackLine("referrer", payload.referrer),
+  ].filter(Boolean);
+
+  const response = await fetch(env.SLACK_WEBHOOK_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      text: `通常問い合わせフォーム\n${fields.join("\n")}`,
+    }),
+  });
+  if (!response.ok) throw new Error(`Slack webhook failed: ${response.status}`);
+  return true;
+}
+
+async function persistContactForm(env: Env, payload: ContactFormBody) {
+  const dryRun = !env.SLACK_WEBHOOK_URL;
+  const result = {
+    ok: true,
+    dryRun,
+    notionSaved: false,
+    slackNotified: false,
+    emailSent: false,
+    integrationErrors: [] as string[],
+  };
+
+  try {
+    result.slackNotified = await notifyContactFormSlack(env, payload);
+  } catch (error) {
+    result.ok = false;
+    result.integrationErrors.push(
+      error instanceof Error ? error.message : "Contact form Slack notification failed",
+    );
+  }
+
+  return result;
+}
+
 async function persistLead(env: Env, payload: LeadBody | PartialLeadBody) {
   const dryRun = !env.NOTION_TOKEN && !env.SLACK_WEBHOOK_URL;
   const result = {
@@ -561,9 +628,17 @@ export default {
     }
 
     try {
-      const body = await request.json() as AnalyzeBody | LeadBody | PartialLeadBody;
+      const body = await request.json() as AnalyzeBody | LeadBody | PartialLeadBody | ContactFormBody;
       if (body.action === "analyze") {
         const result = await handleAnalyze(body, env);
+        return jsonResponse(result, request, env);
+      }
+
+      if (body.action === "contact_form") {
+        const result = await persistContactForm(env, {
+          ...body,
+          timestamp: body.timestamp || new Date().toISOString(),
+        });
         return jsonResponse(result, request, env);
       }
 
