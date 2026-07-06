@@ -1,0 +1,61 @@
+/* ListRow (blueprint §2 C-4). Hover lives here (CSS :hover can't be inline).
+ * Durations mirror tokens dur.fast (0.3s) / ease.soft — kept as literals since
+ * motion timing is TS-side and not exposed as CSS vars. */
+.ds-list-row {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 1.25rem clamp(0.5rem, 2vw, 1rem);
+  border-top: 1px solid color-mix(in srgb, var(--text-primary) 12%, transparent);
+  color: var(--text-primary);
+  text-decoration: none;
+  position: relative;
+  transition: background 0.3s cubic-bezier(0.33, 1, 0.68, 1);
+}
+.ds-list-row:last-child {
+  border-bottom: 1px solid color-mix(in srgb, var(--text-primary) 12%, transparent);
+}
+.ds-list-row__meta {
+  font-size: var(--fs-label);
+  color: var(--text-secondary);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.ds-list-row__pill {
+  font-size: 0.75rem;
+  padding: 0.2em 0.7em;
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
+}
+.ds-list-row__thumb {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+.ds-list-row__title {
+  flex: 1;
+  min-width: 0;
+  font-weight: 600;
+  transition: transform 0.3s cubic-bezier(0.33, 1, 0.68, 1);
+}
+.ds-list-row__icon {
+  color: var(--color-accent);
+  display: flex;
+  flex-shrink: 0;
+  transition: transform 0.3s cubic-bezier(0.33, 1, 0.68, 1);
+}
+@media (hover: hover) {
+  .ds-list-row:hover {
+    background: var(--surface-raised);
+  }
+  .ds-list-row:hover .ds-list-row__title {
+    transform: translateX(8px);
+  }
+  .ds-list-row:hover .ds-list-row__icon {
+    transform: translateX(4px);
+  }
+}
+.ds-list-row:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: -2px;
+}

@@ -1,0 +1,118 @@
+/* =============================================================================
+ * honkoma Design System — Foundation tokens (blueprint §1)
+ *
+ * SINGLE SOURCE OF TRUTH for color / spacing / radius / typography scale.
+ * - Layer 1 (primitive): raw brand values. Names carry NO color word so a
+ *   rebrand (LayerX indigo -> honkoma blue -> future) is a one-file swap.
+ * - Layer 2 (semantic): the ONLY layer components/Tailwind may reference.
+ * - [data-theme="inverse"]: re-defines the semantic layer for navy sections
+ *   (Join Us) so children (ArrowCTA, SectionHeading, ...) flip WITHOUT props.
+ *
+ * These tokens live in a NEW namespace. Legacy cream/ink/orange Tailwind
+ * tokens are intentionally NOT touched here (old pages must keep working).
+ * ========================================================================== */
+
+:root {
+  /* --- Layer 1: primitives (brand raw values) ---------------------------- */
+  --brand-600: #0462cb; /* logo deep blue   */
+  --brand-400: #2f9bff; /* logo bright blue */
+  --brand-100: #dceeff; /* derived: soft wedge / pill bg */
+  --navy-900: #0a1b2e;  /* derived: inverse section (Join Us). LayerX #1E2530 slot */
+  --gray-050: #f4f6f8;  /* page background. LayerX #F4F4F6 slot */
+  --ink-900: #0e1116;
+
+  /* --- Layer 2: semantic (components reference THIS only) ----------------- */
+  --color-accent: var(--brand-600);
+  --color-accent-bright: var(--brand-400);
+  --color-accent-soft: var(--brand-100);
+
+  --surface-base: var(--gray-050);
+  --surface-raised: #ffffff;
+  --surface-inverse: var(--navy-900);
+
+  --text-primary: var(--ink-900);
+  --text-secondary: color-mix(in srgb, var(--ink-900) 62%, transparent);
+  --text-on-inverse: #f2f5f9;
+
+  --focus-ring: var(--brand-400);
+
+  /* --- Typography (§1.4) -------------------------------------------------- */
+  --font-en: "Space Grotesk", "Noto Sans JP", ui-sans-serif, system-ui, sans-serif;
+  --font-jp: "Noto Sans JP", ui-sans-serif, system-ui, sans-serif;
+
+  /* fluid heading scale (4 steps: hero / h2 / h3 / label) */
+  --fs-hero: clamp(2.5rem, 6vw, 5.5rem);
+  --fs-h2: clamp(2.25rem, 5vw, 4rem);
+  --fs-h3: clamp(1.35rem, 2.4vw, 1.9rem);
+  --fs-label: clamp(0.75rem, 1vw, 0.875rem);
+
+  /* --- Spacing / rhythm / radius ----------------------------------------- */
+  --section-py: clamp(5rem, 12vh, 10rem); /* vertical section rhythm */
+  --space-gutter: clamp(1rem, 4vw, 3rem);
+
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-pill: 999px;
+}
+
+/* -----------------------------------------------------------------------------
+ * Inverse theme: navy sections. Re-declare the SEMANTIC layer so descendants
+ * auto-flip. Set via <section data-theme="inverse"> / class="theme-inverse".
+ * -------------------------------------------------------------------------- */
+[data-theme="inverse"],
+.theme-inverse {
+  --color-accent: var(--brand-400);
+  --color-accent-bright: #7cc0ff;
+  --color-accent-soft: color-mix(in srgb, var(--brand-400) 22%, transparent);
+
+  --surface-base: var(--navy-900);
+  --surface-raised: color-mix(in srgb, var(--navy-900) 78%, #ffffff);
+
+  /* Light text on navy. NOTE: must be a literal light value — referencing
+     --text-on-inverse here would resolve to navy (it is repurposed below as the
+     pill "fill contrast" color), leaving headings dark-on-dark. */
+  --text-primary: #f2f5f9;
+  --text-secondary: color-mix(in srgb, #f2f5f9 70%, transparent);
+  /* --text-on-inverse stays the "fill contrast" color: on inverse the pill
+     fill is bright blue, so the swept arrow reads against navy again. */
+  --text-on-inverse: var(--navy-900);
+
+  --focus-ring: #7cc0ff;
+}
+
+/* -----------------------------------------------------------------------------
+ * Utilities
+ * -------------------------------------------------------------------------- */
+
+/* Vertical Japanese writing (§1.4). Mixed orientation (no upright), LayerX-style. */
+.writing-vertical {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+}
+
+/* Vertical only at >=768px; horizontal (default) on mobile (TextReveal vertical-md). */
+@media (min-width: 768px) {
+  .writing-vertical-md {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+  }
+}
+
+/* English accent label helper: Space Grotesk + wide tracking. */
+.font-en {
+  font-family: var(--font-en);
+}
+
+/* Visually hidden but available to screen readers / copy-paste (TextReveal). */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

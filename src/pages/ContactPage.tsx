@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
 import { Mail, Phone, MessageSquare, Calendar, ArrowRight, ArrowLeft, CheckCircle } from 'lucide-react';
+import { AIStarterBand } from '../features/ai-chat/components/AIStarterBand';
 
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbxVMYEL9aJS124xpDj-bpynGYH_QbyEsb0yGqUznlTALT6OreAjCSS7oth4f7ETDciQ/exec';
 
+/* site-ia-design §3.6 / 経営方針: プラン制(AI顧問/AI秘書)・口コミAIは廃止。
+ * 選択肢を新ポジショニング(AIネイティブ化の伴走)へ整理し、採用導線を追加。 */
 const inquiryOptions = [
+  { emoji: '🚀', label: '会社をAIネイティブにしたい（AI導入・伴走）' },
+  { emoji: '⚡', label: '業務を自動化したい' },
+  { emoji: '💻', label: 'プロダクト開発を依頼したい' },
   { emoji: '🏨', label: 'ホテル向けRevenue Intelligenceを相談したい' },
-  { emoji: '🤖', label: 'AI秘書の導入を検討したい' },
-  { emoji: '⚡', label: '業務自動化について相談したい' },
-  { emoji: '📊', label: '口コミAI（宿泊・飲食向け）を試したい' },
-  { emoji: '💻', label: '開発を依頼したい' },
+  { emoji: '🧑‍💻', label: '採用・カジュアル面談を希望する' },
   { emoji: '💬', label: 'その他' },
 ];
 
@@ -25,10 +28,17 @@ const ContactPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [employeeCount, setEmployeeCount] = useState('');
   const [message, setMessage] = useState('');
+  const [consent, setConsent] = useState(false);
   const isHotelInquiry = inquiryType.includes('ホテル向け');
 
   React.useEffect(() => {
     document.title = 'お問い合わせ | honkoma';
+    /* /recruit からの採用導線: ?type=recruit で種別=採用をプリセットしStep2へ。 */
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('type') === 'recruit') {
+      setInquiryType('採用・カジュアル面談を希望する');
+      setStep(2);
+    }
   }, []);
 
   const goToStep = (next: number) => {
@@ -52,6 +62,7 @@ const ContactPage: React.FC = () => {
       email,
       employeeCount,
       message,
+      consent,
       timestamp: new Date().toISOString(),
     };
 
@@ -92,6 +103,13 @@ const ContactPage: React.FC = () => {
           </div>
         </div>
       </section>
+
+      <AIStarterBand
+        source="float"
+        compact
+        title="フォームの前に、AIで自社活用案を見てみる。"
+        body="会社サイトのURLから、honkomaならどこを自動化・売上化できるかを先に整理できます。"
+      />
 
       {/* Contact Info */}
       <section className="border-b border-subtle">
@@ -264,7 +282,22 @@ const ContactPage: React.FC = () => {
                     />
                   </div>
 
-                  <div className="flex gap-4 pt-4">
+                  {/* 同意チェック(#38 §4.5 と共通の線引き。未同意では送信不可) */}
+                  <label className="flex items-start gap-3 text-xs text-warm cursor-pointer">
+                    <input
+                      type="checkbox"
+                      required
+                      checked={consent}
+                      onChange={(e) => setConsent(e.target.checked)}
+                      className="mt-0.5 h-4 w-4 accent-[color:var(--color-accent)]"
+                    />
+                    <span>
+                      <a href="/privacy" className="text-accent hover:underline">プライバシーポリシー</a>
+                      に同意の上で送信します。ご入力の個人情報は本ポリシーに基づき適切に管理いたします。
+                    </span>
+                  </label>
+
+                  <div className="flex gap-4 pt-2">
                     <button
                       type="button"
                       onClick={() => goToStep(1)}
@@ -275,7 +308,7 @@ const ContactPage: React.FC = () => {
                     </button>
                     <button
                       type="submit"
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || !consent}
                       className="flex-1 bg-ink text-cream py-4 font-medium tracking-wide hover:bg-accent transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
                       {isSubmitting ? (
@@ -291,12 +324,6 @@ const ContactPage: React.FC = () => {
                       )}
                     </button>
                   </div>
-
-                  <p className="text-xs text-warm text-center">
-                    送信いただいた個人情報は、当社の
-                    <a href="/privacy" className="text-accent hover:underline">プライバシーポリシー</a>
-                    に基づいて適切に管理いたします。
-                  </p>
                 </form>
               </div>
             )}
@@ -315,7 +342,7 @@ const ContactPage: React.FC = () => {
                 <div className="border border-subtle p-8 md:p-10">
                   <p className="text-warm mb-4">すぐにオンライン相談をご希望の方</p>
                   <a
-                    href="https://cal.com/takumi-honkoma-mljb0f/honkoma-meeting?overlayCalendar=true"
+                    href="https://calendar.app.google/DcGsqPYBvRf3dvZJ8"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="group inline-flex items-center justify-center px-8 py-4 bg-ink text-cream text-base font-medium tracking-wide hover:bg-accent transition-colors duration-300"

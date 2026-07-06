@@ -5,6 +5,10 @@
   "outputDirectory": "dist",
   "rewrites": [
     {
+      "source": "/api/ai-chat",
+      "destination": "https://honkoma-ai-chat.quickclip.workers.dev/api/ai-chat"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

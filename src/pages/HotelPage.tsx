@@ -1,7 +1,5 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, type ReactNode } from 'react';
 import {
-  ArrowRight,
   BellRing,
   CalendarDays,
   CheckCircle2,
@@ -13,6 +11,11 @@ import {
   TrendingUp,
   UsersRound,
 } from 'lucide-react';
+import { SectionShell } from '../components/Layout/SectionShell';
+import { SectionHeading } from '../components/ui/SectionHeading';
+import { StaggerGrid } from '../components/ui/StaggerGrid';
+import { Reveal } from '../components/motion/Reveal';
+import { ArrowCTA } from '../components/ui/ArrowCTA';
 
 const signalCards = [
   { label: '需要変化', value: 'Event', note: 'イベント・連休・周辺需要を注視' },
@@ -61,14 +64,14 @@ const capabilities = [
   },
 ];
 
-const workflows = [
+const workflows: [string, string, string][] = [
   ['01', '変化を検知', 'イベント日程、競合料金、需要シグナルから、見るべき日付を抽出します。'],
   ['02', '担当者へ通知', 'GM、Revenue、宿泊販売、本部など、確認すべき人に必要な粒度で共有します。'],
   ['03', '対応を検討', '料金見直し、在庫配分、販売チャネル、パリティ確認の論点を整理します。'],
   ['04', '履歴を残す', '誰が確認し、何を判断したかを残し、次回の収益会議につなげます。'],
 ];
 
-const roles = [
+const roles: [string, string][] = [
   ['GM / 宿泊支配人', '収益会議で見るべき変化と対応状況を短時間で把握します。'],
   ['Revenue Manager', '需要期・競合変化・料金機会を日次で確認し、対応優先度を決めます。'],
   ['宿泊販売 / OTA担当', '販売チャネル上の表示差分やパリティ確認を業務に組み込みます。'],
@@ -105,38 +108,29 @@ const faq = [
   },
 ];
 
-function SectionLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="font-mono text-xs tracking-[0.22em] uppercase text-warm">
-      {children}
-    </span>
-  );
-}
+const ANCHOR = { scrollMarginTop: '6rem' } as const;
 
-function ContactButton({
-  className = '',
-  inverted = false,
-}: {
-  className?: string;
-  inverted?: boolean;
-}) {
+function Card({ children, style }: { children: ReactNode; style?: React.CSSProperties }) {
   return (
-    <Link
-      to="/contact"
-      className={`group inline-flex items-center justify-center px-7 py-4 text-sm font-semibold tracking-wide transition-colors duration-300 ${
-        inverted
-          ? 'bg-white text-[#003B86] hover:bg-[#EAF3FF]'
-          : 'bg-[#0462CB] text-white hover:bg-[#003B86]'
-      } ${className}`}
+    <div
+      style={{
+        background: 'var(--surface-raised)',
+        borderRadius: 'var(--radius-lg)',
+        padding: 'clamp(1.6rem, 3vw, 2.25rem)',
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+        ...style,
+      }}
     >
-      デモを依頼する
-      <ArrowRight className="ml-3 h-4 w-4 transition-transform group-hover:translate-x-1" />
-    </Link>
+      {children}
+    </div>
   );
 }
 
 const HotelPage: React.FC = () => {
-  React.useEffect(() => {
+  useEffect(() => {
     document.title = 'ホテル向けRevenue Intelligence | honkoma';
 
     const description =
@@ -158,275 +152,424 @@ const HotelPage: React.FC = () => {
       canonical.setAttribute('rel', 'canonical');
       document.head.appendChild(canonical);
     }
-    canonical.setAttribute('href', 'https://quickclip.honkoma.jp/hotel');
+    canonical.setAttribute('href', 'https://ltdhonkoma.com/hotel');
   }, []);
 
   return (
-    <div className="bg-cream text-ink">
-      <section className="relative overflow-hidden border-b border-subtle bg-[#F6FAFF]">
-        <div className="absolute right-0 top-0 hidden h-full w-[34%] bg-[#EAF3FF] lg:block" />
-        <div className="relative mx-auto grid max-w-[1200px] grid-cols-1 gap-12 px-6 py-20 lg:grid-cols-12 lg:px-8 lg:py-28">
-          <div className="lg:col-span-7">
-            <SectionLabel>Revenue Intelligence for Hotels</SectionLabel>
-            <h1 className="mt-6 font-serif text-4xl font-bold leading-[1.12] tracking-tight text-ink sm:text-5xl lg:text-6xl">
-              需要・競合・<span className="whitespace-nowrap">料金機会を、</span>
-              <span className="whitespace-nowrap text-[#0462CB]">次の打ち手</span>
-              につなぐ。
-            </h1>
-            <p className="mt-7 max-w-2xl text-base leading-relaxed text-muted sm:text-lg">
-              HASIPは、イベント開催、周辺需要の変化、競合料金の動き、販売条件の差分を整理し、
-              料金見直し・在庫配分・パリティ確認までを日々の収益運用に落とし込む、
-              ホテル向けRevenue Intelligence基盤です。
-            </p>
-            <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-              <ContactButton />
-              <Link
-                to="/contact"
-                className="inline-flex items-center justify-center border border-[#0462CB] px-7 py-4 text-sm font-semibold tracking-wide text-[#0462CB] transition-colors duration-300 hover:bg-white"
+    <div style={{ background: 'var(--surface-base)' }}>
+      {/* ===== HERO ===== */}
+      <SectionShell>
+        <div style={{ display: 'grid', gap: 'clamp(2.5rem, 5vw, 4rem)', gridTemplateColumns: '1fr' }} className="hotel-hero-grid">
+          <div>
+            <SectionHeading
+              enLabel="Revenue Intelligence for Hotels"
+              title={['需要・競合・料金機会を、', '次の打ち手につなぐ。']}
+              level={1}
+            />
+            <Reveal variant="fade">
+              <p
+                style={{
+                  maxWidth: '52ch',
+                  margin: '1.75rem 0 clamp(2rem, 4vw, 3rem)',
+                  color: 'var(--text-secondary)',
+                  fontSize: 'clamp(1.05rem, 1.4vw, 1.25rem)',
+                  lineHeight: 1.9,
+                }}
               >
-                自館での活用を相談
-              </Link>
-            </div>
-            <div className="mt-8 grid max-w-2xl grid-cols-1 gap-3 text-xs text-muted sm:grid-cols-3">
-              {['イベント需要アラート', '競合料金の変化検知', '対応ワークフロー'].map((item) => (
-                <div key={item} className="border border-[#C8D7EA] bg-white px-4 py-3 text-center font-semibold text-[#0462CB]">
-                  {item}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="lg:col-span-5">
-            <div className="border border-[#C8D7EA] bg-white p-4 shadow-[0_24px_60px_rgba(4,98,203,0.12)]">
-              <img
-                src="/assets/hotel/hasip-report-preview.png"
-                alt="ホテル向けRevenue Intelligenceダッシュボードのサンプル"
-                className="hidden w-full border border-[#E0E8F4] bg-white sm:block"
-              />
-              <div className="border border-[#E0E8F4] bg-[#F7FAFF] p-5 sm:hidden">
-                <p className="font-mono text-[11px] font-semibold tracking-[0.18em] text-[#0462CB]">
-                  TODAY'S REVENUE ALERT
-                </p>
-                <h2 className="mt-3 font-serif text-2xl font-bold leading-tight text-ink">
-                  今日は、04/27・05/03・05/04を確認。
-                </h2>
-                <div className="mt-5 space-y-3 text-sm text-muted">
-                  <div className="flex items-start gap-3">
-                    <BellRing className="mt-0.5 h-4 w-4 flex-none text-[#0462CB]" />
-                    <span>競合料金の上昇をRevenue担当へ通知</span>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <CalendarDays className="mt-0.5 h-4 w-4 flex-none text-[#0462CB]" />
-                    <span>イベント日程の在庫配分をGMへ共有</span>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <ClipboardCheck className="mt-0.5 h-4 w-4 flex-none text-[#0462CB]" />
-                    <span>販路確認と対応完了までを記録</span>
-                  </div>
-                </div>
+                HASIPは、イベント開催、周辺需要の変化、競合料金の動き、販売条件の差分を整理し、
+                料金見直し・在庫配分・パリティ確認までを日々の収益運用に落とし込む、
+                ホテル向けRevenue Intelligence基盤です。
+              </p>
+              <div style={{ display: 'flex', gap: '1.25rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                <ArrowCTA to="/contact" size="lg" variant="fill" withText="デモを依頼する" label="デモを依頼する" />
+                <ArrowCTA to="/contact" variant="outline" withText="自館での活用を相談" label="自館での活用を相談" />
               </div>
-              <div className="grid grid-cols-1 gap-px bg-[#C8D7EA] sm:grid-cols-3">
-                {signalCards.map((item) => (
-                  <div key={item.label} className="bg-[#F7FAFF] p-4">
-                    <p className="text-[11px] font-semibold text-muted">{item.label}</p>
-                    <p className="mt-2 text-xl font-bold text-[#003B86]">{item.value}</p>
-                    <p className="mt-2 text-[11px] leading-relaxed text-muted">{item.note}</p>
+              <div
+                style={{
+                  marginTop: '2.5rem',
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
+                  gap: '0.75rem',
+                  maxWidth: '640px',
+                }}
+              >
+                {['イベント需要アラート', '競合料金の変化検知', '対応ワークフロー'].map((item) => (
+                  <div
+                    key={item}
+                    style={{
+                      background: 'var(--surface-raised)',
+                      borderRadius: 'var(--radius-md)',
+                      padding: '0.85rem 1rem',
+                      textAlign: 'center',
+                      fontSize: '0.8rem',
+                      fontWeight: 600,
+                      color: 'var(--color-accent)',
+                      boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+                    }}
+                  >
+                    {item}
                   </div>
                 ))}
               </div>
-            </div>
+            </Reveal>
+          </div>
+
+          <div>
+            <Reveal variant="fadeUp">
+              <div
+                style={{
+                  background: 'var(--surface-raised)',
+                  borderRadius: 'var(--radius-lg)',
+                  padding: 'clamp(1.25rem, 2vw, 1.5rem)',
+                  boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+                }}
+              >
+                <img
+                  src="/assets/hotel/hasip-report-preview.png"
+                  alt="ホテル向けRevenue Intelligenceダッシュボードのサンプル"
+                  className="hidden w-full sm:block"
+                  style={{ borderRadius: 'var(--radius-md)' }}
+                />
+                <div className="sm:hidden" style={{ padding: '0.25rem' }}>
+                  <p
+                    className="font-en"
+                    style={{
+                      fontSize: '0.7rem',
+                      fontWeight: 600,
+                      letterSpacing: '0.12em',
+                      textTransform: 'uppercase',
+                      color: 'var(--color-accent)',
+                    }}
+                  >
+                    Today's Revenue Alert
+                  </p>
+                  <h2
+                    style={{
+                      marginTop: '0.75rem',
+                      fontSize: 'clamp(1.4rem, 3vw, 1.7rem)',
+                      fontWeight: 700,
+                      lineHeight: 1.4,
+                      color: 'var(--text-primary)',
+                    }}
+                  >
+                    今日は、04/27・05/03・05/04を確認。
+                  </h2>
+                  <div style={{ marginTop: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                    {[
+                      { icon: <BellRing className="h-4 w-4" />, text: '競合料金の上昇をRevenue担当へ通知' },
+                      { icon: <CalendarDays className="h-4 w-4" />, text: 'イベント日程の在庫配分をGMへ共有' },
+                      { icon: <ClipboardCheck className="h-4 w-4" />, text: '販路確認と対応完了までを記録' },
+                    ].map((row, i) => (
+                      <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+                        <span style={{ color: 'var(--color-accent)', flex: 'none', marginTop: '0.15rem' }}>{row.icon}</span>
+                        <span>{row.text}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div
+                  style={{
+                    marginTop: '1rem',
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(3, 1fr)',
+                    gap: '1px',
+                    background: 'color-mix(in srgb, var(--text-primary) 10%, transparent)',
+                    borderRadius: 'var(--radius-md)',
+                    overflow: 'hidden',
+                  }}
+                >
+                  {signalCards.map((item) => (
+                    <div key={item.label} style={{ background: 'var(--surface-base)', padding: '1rem' }}>
+                      <p style={{ fontSize: '0.7rem', fontWeight: 600, color: 'var(--text-secondary)' }}>{item.label}</p>
+                      <p style={{ marginTop: '0.4rem', fontSize: '1.1rem', fontWeight: 700, color: 'var(--color-accent)' }}>{item.value}</p>
+                      <p style={{ marginTop: '0.4rem', fontSize: '0.7rem', lineHeight: 1.6, color: 'var(--text-secondary)' }}>{item.note}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </Reveal>
           </div>
         </div>
-      </section>
+      </SectionShell>
 
-      <section className="border-b border-subtle py-16 md:py-24">
-        <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-10 px-6 lg:grid-cols-12 lg:px-8">
-          <div className="lg:col-span-3">
-            <SectionLabel>Problem</SectionLabel>
-            <h2 className="mt-3 font-serif text-3xl font-bold leading-tight text-ink">
-              市場は動いているのに、気づくタイミングが遅れている。
-            </h2>
-          </div>
-          <div className="grid gap-4 md:grid-cols-3 lg:col-span-9">
+      {/* ===== Problem ===== */}
+      <SectionShell wedge="top" style={ANCHOR}>
+        <SectionHeading enLabel="Problem" title="市場は動いているのに、気づくタイミングが遅れている。" level={2} />
+        <div style={{ marginTop: 'clamp(2.5rem, 5vw, 4rem)' }}>
+          <StaggerGrid columns={{ base: 1, md: 3 }} gap="md">
             {problems.map((item) => (
-              <div key={item.title} className="border border-subtle bg-white p-7">
-                <div className="mb-5 inline-flex h-10 w-10 items-center justify-center bg-[#EAF3FF] text-[#0462CB]">
+              <Card key={item.title}>
+                <div
+                  style={{
+                    marginBottom: '1.25rem',
+                    display: 'inline-flex',
+                    height: '2.5rem',
+                    width: '2.5rem',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderRadius: 'var(--radius-md)',
+                    background: 'var(--color-accent-soft)',
+                    color: 'var(--color-accent)',
+                  }}
+                >
                   {item.icon}
                 </div>
-                <h3 className="font-serif text-xl font-bold text-ink">{item.title}</h3>
-                <p className="mt-4 text-sm leading-relaxed text-muted">{item.body}</p>
+                <h3 style={{ fontSize: 'var(--fs-h3)', fontWeight: 700, color: 'var(--text-primary)' }}>{item.title}</h3>
+                <p style={{ marginTop: '1rem', fontSize: '0.95rem', lineHeight: 1.85, color: 'var(--text-secondary)', flex: 1 }}>
+                  {item.body}
+                </p>
+              </Card>
+            ))}
+          </StaggerGrid>
+        </div>
+      </SectionShell>
+
+      {/* ===== Capabilities ===== */}
+      <SectionShell wedge="top" style={ANCHOR}>
+        <SectionHeading enLabel="Capabilities" title="収益判断に必要な変化を、対応できる形で可視化。" level={2} />
+        <Reveal variant="fade">
+          <p
+            style={{
+              maxWidth: '52ch',
+              margin: '1.5rem 0 clamp(2.5rem, 5vw, 4rem)',
+              color: 'var(--text-secondary)',
+              fontSize: 'clamp(1rem, 1.3vw, 1.15rem)',
+              lineHeight: 1.9,
+            }}
+          >
+            単なるレポートではなく、どの日付を見るべきか、どの競合変化に注意すべきか、
+            誰が確認し、どう対応するかまでを業務に組み込みます。
+          </p>
+        </Reveal>
+        <StaggerGrid columns={{ base: 1, md: 2 }} gap="md">
+          {capabilities.map((item) => (
+            <Card key={item.title}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem', color: 'var(--color-accent)' }}>
+                {item.icon}
+                <h3 style={{ fontSize: 'var(--fs-h3)', fontWeight: 700, color: 'var(--text-primary)' }}>{item.title}</h3>
+              </div>
+              <p style={{ fontSize: '0.95rem', lineHeight: 1.85, color: 'var(--text-secondary)', flex: 1 }}>{item.body}</p>
+            </Card>
+          ))}
+        </StaggerGrid>
+      </SectionShell>
+
+      {/* ===== Alerts & Workflow — inverse ===== */}
+      <SectionShell theme="inverse" wedge="top" style={ANCHOR}>
+        <SectionHeading enLabel="Alerts & Workflow" title="需要の変化を、対応すべきタイミングで知らせる。" level={2} />
+        <Reveal variant="fade">
+          <p
+            style={{
+              maxWidth: '56ch',
+              margin: '1.5rem 0 clamp(2.5rem, 5vw, 4rem)',
+              color: 'var(--text-secondary)',
+              fontSize: 'clamp(1rem, 1.3vw, 1.15rem)',
+              lineHeight: 1.9,
+            }}
+          >
+            イベント開催、需要が高まりやすい日程、競合価格の変化、料金機会を検知し、
+            確認すべき日付や条件をアラートとして提示します。
+            通知だけで終わらせず、確認・共有・対応完了までをチームで管理します。
+          </p>
+        </Reveal>
+        <StaggerGrid columns={{ base: 1, md: 2 }} gap="md">
+          {workflows.map(([num, title, body]) => (
+            <div
+              key={num}
+              style={{
+                background: 'var(--surface-raised)',
+                borderRadius: 'var(--radius-lg)',
+                padding: 'clamp(1.5rem, 3vw, 2rem)',
+                boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+              }}
+            >
+              <span className="font-en" style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--color-accent)' }}>
+                {num}
+              </span>
+              <h3 style={{ marginTop: '0.75rem', fontSize: 'var(--fs-h3)', fontWeight: 700, color: 'var(--text-primary)' }}>{title}</h3>
+              <p style={{ marginTop: '0.75rem', fontSize: '0.95rem', lineHeight: 1.85, color: 'var(--text-secondary)' }}>{body}</p>
+            </div>
+          ))}
+        </StaggerGrid>
+      </SectionShell>
+
+      {/* ===== Teams ===== */}
+      <SectionShell wedge="top" style={ANCHOR}>
+        <SectionHeading enLabel="Teams" title="現場と本部の両方で、同じ判断基準を持つ。" level={2} />
+        <Reveal variant="fade">
+          <p
+            style={{
+              maxWidth: '52ch',
+              margin: '1.5rem 0 clamp(2.5rem, 5vw, 4rem)',
+              color: 'var(--text-secondary)',
+              fontSize: 'clamp(1rem, 1.3vw, 1.15rem)',
+              lineHeight: 1.9,
+            }}
+          >
+            HASIPはRevenue担当だけの画面ではなく、GM、宿泊販売、本部が同じ変化を見て、
+            日次運用と収益会議の判断を揃えるための基盤です。
+          </p>
+        </Reveal>
+        <div style={{ display: 'grid', gap: 'clamp(2rem, 4vw, 3rem)', gridTemplateColumns: '1fr' }} className="hotel-teams-grid">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
+            {trustItems.map((item) => (
+              <div key={item} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '0.95rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+                <CheckCircle2 className="h-5 w-5 flex-none" style={{ color: 'var(--color-accent)' }} />
+                {item}
+              </div>
+            ))}
+          </div>
+          <div
+            style={{
+              display: 'grid',
+              gap: '1px',
+              background: 'color-mix(in srgb, var(--text-primary) 10%, transparent)',
+              borderRadius: 'var(--radius-lg)',
+              overflow: 'hidden',
+            }}
+          >
+            {roles.map(([role, body]) => (
+              <div
+                key={role}
+                style={{
+                  display: 'grid',
+                  gap: '0.75rem',
+                  background: 'var(--surface-raised)',
+                  padding: '1.5rem',
+                  gridTemplateColumns: '1fr',
+                }}
+                className="hotel-role-row"
+              >
+                <div style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--color-accent)' }}>{role}</div>
+                <p style={{ fontSize: '0.9rem', lineHeight: 1.8, color: 'var(--text-secondary)' }}>{body}</p>
               </div>
             ))}
           </div>
         </div>
-      </section>
+      </SectionShell>
 
-      <section className="border-b border-subtle bg-white py-16 md:py-24">
-        <div className="mx-auto max-w-[1200px] px-6 lg:px-8">
-          <div className="grid grid-cols-1 gap-10 lg:grid-cols-12">
-            <div className="lg:col-span-4">
-              <SectionLabel>Capabilities</SectionLabel>
-              <h2 className="mt-3 font-serif text-3xl font-bold leading-tight text-ink">
-                収益判断に必要な変化を、対応できる形で可視化。
-              </h2>
-              <p className="mt-5 text-sm leading-relaxed text-muted">
-                単なるレポートではなく、どの日付を見るべきか、どの競合変化に注意すべきか、
-                誰が確認し、どう対応するかまでを業務に組み込みます。
-              </p>
-            </div>
-            <div className="grid gap-px bg-subtle md:grid-cols-2 lg:col-span-8">
-              {capabilities.map((item) => (
-                <div key={item.title} className="bg-cream p-7">
-                  <div className="mb-4 flex items-center gap-3 text-[#0462CB]">
-                    {item.icon}
-                    <h3 className="font-serif text-xl font-bold text-ink">{item.title}</h3>
-                  </div>
-                  <p className="text-sm leading-relaxed text-muted">{item.body}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="border-b border-subtle bg-[#F6FAFF] py-16 md:py-24">
-        <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-12 px-6 lg:grid-cols-12 lg:px-8">
-          <div className="lg:col-span-5">
-            <SectionLabel>Alerts & Workflow</SectionLabel>
-            <h2 className="mt-3 font-serif text-3xl font-bold leading-tight text-ink">
-              需要の変化を、対応すべきタイミングで知らせる。
-            </h2>
-            <p className="mt-5 text-sm leading-relaxed text-muted">
-              イベント開催、需要が高まりやすい日程、競合価格の変化、料金機会を検知し、
-              確認すべき日付や条件をアラートとして提示します。
-              通知だけで終わらせず、確認・共有・対応完了までをチームで管理します。
-            </p>
-          </div>
-          <div className="grid gap-4 md:grid-cols-2 lg:col-span-7">
-            {workflows.map(([num, title, body]) => (
-              <div key={num} className="border border-[#C8D7EA] bg-white p-6">
-                <div className="font-mono text-xs font-bold tracking-[0.2em] text-[#0462CB]">{num}</div>
-                <h3 className="mt-4 font-serif text-xl font-bold text-ink">{title}</h3>
-                <p className="mt-4 text-sm leading-relaxed text-muted">{body}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="border-b border-subtle py-16 md:py-24">
-        <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-12 px-6 lg:grid-cols-12 lg:px-8">
-          <div className="lg:col-span-5">
-            <SectionLabel>Teams</SectionLabel>
-            <h2 className="mt-3 font-serif text-3xl font-bold leading-tight text-ink">
-              現場と本部の両方で、同じ判断基準を持つ。
-            </h2>
-            <p className="mt-5 text-sm leading-relaxed text-muted">
-              HASIPはRevenue担当だけの画面ではなく、GM、宿泊販売、本部が同じ変化を見て、
-              日次運用と収益会議の判断を揃えるための基盤です。
-            </p>
-            <div className="mt-8 space-y-3">
-              {trustItems.map((item) => (
-                <div key={item} className="flex items-center gap-3 text-sm font-semibold text-ink">
-                  <CheckCircle2 className="h-5 w-5 flex-none text-[#0462CB]" />
-                  {item}
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="lg:col-span-7">
-            <div className="grid gap-px bg-[#C8D7EA]">
-              {roles.map(([role, body]) => (
-                <div key={role} className="grid gap-3 bg-white p-6 md:grid-cols-[220px_1fr] md:items-center">
-                  <div className="font-serif text-lg font-bold text-[#003B86]">{role}</div>
-                  <p className="text-sm leading-relaxed text-muted">{body}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="border-b border-subtle bg-white py-16 md:py-24">
-        <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-10 px-6 lg:grid-cols-12 lg:px-8">
-          <div className="lg:col-span-4">
-            <SectionLabel>Operational Fit</SectionLabel>
-            <h2 className="mt-3 font-serif text-3xl font-bold leading-tight text-ink">
-              小さく始め、運用に合わせて拡張する。
-            </h2>
-          </div>
-          <div className="grid gap-4 md:grid-cols-2 lg:col-span-8">
-            <div className="border border-[#C8D7EA] bg-[#F7FAFF] p-7">
-              <div className="mb-5 inline-flex h-10 w-10 items-center justify-center bg-white text-[#0462CB]">
+      {/* ===== Operational Fit ===== */}
+      <SectionShell wedge="top" style={ANCHOR}>
+        <SectionHeading enLabel="Operational Fit" title="小さく始め、運用に合わせて拡張する。" level={2} />
+        <div style={{ marginTop: 'clamp(2.5rem, 5vw, 4rem)' }}>
+          <StaggerGrid columns={{ base: 1, md: 2 }} gap="md">
+            <Card>
+              <div
+                style={{
+                  marginBottom: '1.25rem',
+                  display: 'inline-flex',
+                  height: '2.5rem',
+                  width: '2.5rem',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: 'var(--radius-md)',
+                  background: 'var(--color-accent-soft)',
+                  color: 'var(--color-accent)',
+                }}
+              >
                 <Network className="h-5 w-5" />
               </div>
-              <h3 className="font-serif text-2xl font-bold text-ink">初期導入</h3>
-              <p className="mt-5 text-sm leading-relaxed text-muted">
+              <h3 style={{ fontSize: 'var(--fs-h3)', fontWeight: 700, color: 'var(--text-primary)' }}>初期導入</h3>
+              <p style={{ marginTop: '1.25rem', fontSize: '0.95rem', lineHeight: 1.85, color: 'var(--text-secondary)', flex: 1 }}>
                 競合セット、注視日程、通知先、会議フォーマットを決め、
                 外部市場データを中心に収益判断の型を作ります。
               </p>
-            </div>
-            <div className="border border-subtle bg-cream p-7">
-              <div className="mb-5 inline-flex h-10 w-10 items-center justify-center bg-white text-ink">
+            </Card>
+            <Card>
+              <div
+                style={{
+                  marginBottom: '1.25rem',
+                  display: 'inline-flex',
+                  height: '2.5rem',
+                  width: '2.5rem',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: 'var(--radius-md)',
+                  background: 'var(--color-accent-soft)',
+                  color: 'var(--color-accent)',
+                }}
+              >
                 <ShieldCheck className="h-5 w-5" />
               </div>
-              <h3 className="font-serif text-2xl font-bold text-ink">拡張導入</h3>
-              <p className="mt-5 text-sm leading-relaxed text-muted">
+              <h3 style={{ fontSize: 'var(--fs-h3)', fontWeight: 700, color: 'var(--text-primary)' }}>拡張導入</h3>
+              <p style={{ marginTop: '1.25rem', fontSize: '0.95rem', lineHeight: 1.85, color: 'var(--text-secondary)', flex: 1 }}>
                 予約システム、PMS、サイトコントローラー等との連携範囲に応じて、
                 自館データを用いた分析やアラートを段階的に広げます。
               </p>
-            </div>
-          </div>
+            </Card>
+          </StaggerGrid>
         </div>
-      </section>
+      </SectionShell>
 
-      <section className="border-b border-subtle py-16 md:py-24">
-        <div className="mx-auto grid max-w-[1200px] grid-cols-1 gap-10 px-6 lg:grid-cols-12 lg:px-8">
-          <div className="lg:col-span-4">
-            <SectionLabel>FAQ</SectionLabel>
-            <h2 className="mt-3 font-serif text-3xl font-bold text-ink">
-              よくある確認事項
-            </h2>
-          </div>
-          <div className="space-y-px bg-subtle lg:col-span-8">
-            {faq.map((item) => (
-              <details key={item.q} className="group bg-white p-6">
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-serif text-lg font-bold text-ink">
-                  {item.q}
-                  <span className="text-[#0462CB] transition-transform group-open:rotate-45">＋</span>
-                </summary>
-                <p className="mt-4 text-sm leading-relaxed text-muted">{item.a}</p>
-              </details>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-[#0B1F3A] py-16 text-white md:py-24">
-        <div className="mx-auto max-w-[1200px] px-6 lg:px-8">
-          <div className="grid grid-cols-1 gap-10 lg:grid-cols-12 lg:items-center">
-            <div className="lg:col-span-8">
-              <SectionLabel>Book a Revenue Intelligence Demo</SectionLabel>
-              <h2 className="mt-4 font-serif text-3xl font-bold leading-tight md:text-5xl">
-                貴館の収益運用で、どの変化を通知すべきか一緒に設計します。
-              </h2>
-              <p className="mt-6 max-w-2xl text-sm leading-relaxed text-white/70 md:text-base">
-                導入前提ではなく、対象エリア、比較対象施設、イベント日程、会議フローを伺い、
-                貴館で使えるアラートとレポートの形を短時間で確認します。
-              </p>
-            </div>
-            <div className="flex flex-col gap-3 lg:col-span-4">
-              <ContactButton inverted />
-              <Link
-                to="/contact"
-                className="inline-flex items-center justify-center border border-white/30 px-7 py-4 text-sm font-semibold tracking-wide text-white transition-colors duration-300 hover:bg-white/10"
+      {/* ===== FAQ ===== */}
+      <SectionShell wedge="top" style={ANCHOR}>
+        <SectionHeading enLabel="FAQ" title="よくある確認事項" level={2} />
+        <div style={{ marginTop: 'clamp(2rem, 4vw, 3rem)', maxWidth: 820 }}>
+          {faq.map((item, i) => (
+            <Reveal key={item.q} variant="fadeUp">
+              <details
+                style={{
+                  padding: '1.5rem 0',
+                  borderTop: i === 0 ? 'none' : '1px solid color-mix(in srgb, var(--text-primary) 10%, transparent)',
+                }}
               >
-                自館での活用を相談
-              </Link>
-            </div>
-          </div>
+                <summary
+                  style={{
+                    display: 'flex',
+                    cursor: 'pointer',
+                    listStyle: 'none',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: '1rem',
+                    fontSize: 'clamp(1.05rem, 1.6vw, 1.2rem)',
+                    fontWeight: 700,
+                    color: 'var(--text-primary)',
+                  }}
+                >
+                  {item.q}
+                  <span className="font-en" style={{ color: 'var(--color-accent)', flex: 'none' }}>＋</span>
+                </summary>
+                <p style={{ marginTop: '1rem', fontSize: '0.95rem', lineHeight: 1.9, color: 'var(--text-secondary)' }}>
+                  {item.a}
+                </p>
+              </details>
+            </Reveal>
+          ))}
         </div>
-      </section>
+      </SectionShell>
+
+      {/* ===== CTA — inverse ===== */}
+      <SectionShell theme="inverse" wedge="top" width="content" style={ANCHOR}>
+        <div style={{ maxWidth: 760 }}>
+          <SectionHeading enLabel="Book a Revenue Intelligence Demo" title="貴館の収益運用で、どの変化を通知すべきか一緒に設計します。" level={2} />
+          <Reveal variant="fadeUp">
+            <p
+              style={{
+                margin: '1.5rem 0 clamp(2rem, 4vw, 3rem)',
+                color: 'var(--text-secondary)',
+                fontSize: 'clamp(1rem, 1.3vw, 1.15rem)',
+                lineHeight: 1.9,
+                maxWidth: '48ch',
+              }}
+            >
+              導入前提ではなく、対象エリア、比較対象施設、イベント日程、会議フローを伺い、
+              貴館で使えるアラートとレポートの形を短時間で確認します。
+            </p>
+            <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+              <ArrowCTA to="/contact" size="lg" variant="fill" withText="デモを依頼する" label="デモを依頼する" />
+              <ArrowCTA to="/contact" variant="outline" withText="自館での活用を相談" label="自館での活用を相談" />
+            </div>
+          </Reveal>
+        </div>
+      </SectionShell>
+
+      <style>{`
+        @media (min-width: 1024px) {
+          .hotel-hero-grid { grid-template-columns: 7fr 5fr; align-items: start; }
+          .hotel-teams-grid { grid-template-columns: 5fr 7fr; }
+          .hotel-role-row { grid-template-columns: 220px 1fr; align-items: center; }
+        }
+      `}</style>
     </div>
   );
 };

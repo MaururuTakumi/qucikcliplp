@@ -22,6 +22,19 @@ module.exports = {
         '2xl': '1536px',
       },
       colors: {
+        // === Design System (blueprint §1.2) — NEW namespace, references semantic
+        // CSS vars from src/design/tokens.css. Legacy tokens below are untouched. ===
+        ds: {
+          accent: 'var(--color-accent)',
+          'accent-bright': 'var(--color-accent-bright)',
+          'accent-soft': 'var(--color-accent-soft)',
+          surface: 'var(--surface-base)',
+          'surface-raised': 'var(--surface-raised)',
+          'surface-inverse': 'var(--surface-inverse)',
+          ink: 'var(--text-primary)',
+          'ink-secondary': 'var(--text-secondary)',
+          'on-inverse': 'var(--text-on-inverse)',
+        },
         cream: '#F7F6F3',
         ink: '#111111',
         accent: {
@@ -74,6 +87,8 @@ module.exports = {
         sm: "2px",
       },
       fontFamily: {
+        // Design system English accent face (Space Grotesk). §5②
+        en: ['var(--font-en)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         serif: [
           '"Noto Serif JP"',
           '"Georgia"',
