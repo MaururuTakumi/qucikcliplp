@@ -2343,15 +2343,28 @@ async function sendEmailContent(
   const fromName = env.EMAIL_FROM_NAME || "honkoma";
   const replyTo = env.EMAIL_REPLY_TO || fromEmail;
 
-  if (env.EMAIL) {
-    await env.EMAIL.send({
-      to,
-      from: { email: fromEmail, name: fromName },
-      replyTo: { email: replyTo, name: fromName },
-      subject: content.subject,
-      html: content.html,
-      text: content.text,
+  /* 送信優先順位: Resend → Cloudflare Email API → EMAIL(send_email)バインディング。
+   * Resendを最優先にする理由: ドメインltdhonkoma.comはDMARC=p=reject・SPF/DKIMが
+   * Google専用のため、Cloudflareのsend_emailバインディング(env.EMAIL)経由だと不特定
+   * リード宛は認証非整合で拒否される。Resendでドメイン認証(DKIM)すればp=rejectでも
+   * 整合して届く。RESEND_API_KEY未設定なら従来どおりEMAILバインディングへフォールバック。 */
+  if (env.RESEND_API_KEY) {
+    const response = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${env.RESEND_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: `${fromName} <${fromEmail}>`,
+        to: [to],
+        reply_to: replyTo,
+        subject: content.subject,
+        html: content.html,
+        text: content.text,
+      }),
     });
+    if (!response.ok) throw new Error(`Resend email failed: ${response.status}`);
     return true;
   }
 
@@ -2378,23 +2391,15 @@ async function sendEmailContent(
     return true;
   }
 
-  if (env.RESEND_API_KEY) {
-    const response = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${env.RESEND_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        from: `${fromName} <${fromEmail}>`,
-        to: [to],
-        reply_to: replyTo,
-        subject: content.subject,
-        html: content.html,
-        text: content.text,
-      }),
+  if (env.EMAIL) {
+    await env.EMAIL.send({
+      to,
+      from: { email: fromEmail, name: fromName },
+      replyTo: { email: replyTo, name: fromName },
+      subject: content.subject,
+      html: content.html,
+      text: content.text,
     });
-    if (!response.ok) throw new Error(`Resend email failed: ${response.status}`);
     return true;
   }
 
