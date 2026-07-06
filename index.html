@@ -53,8 +53,21 @@
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=Noto+Sans+JP:wght@300;400;500;600;700&family=Noto+Serif+JP:wght@400;500;600;700;900&display=swap" rel="stylesheet" />
 
+    <!-- Initial route hint for critical pre-mount paint. -->
+    <script>
+      if (window.location.pathname === "/") {
+        document.documentElement.dataset.initialRoute = "home";
+      }
+    </script>
+
     <!-- Stylesheets -->
     <link href="tailwind.css" rel="stylesheet" />
+    <style>
+      html[data-initial-route="home"] #app:empty {
+        min-height: 100svh;
+        background: var(--surface-inverse);
+      }
+    </style>
 
     <!-- Structured Data -->
     <script type="application/ld+json">
