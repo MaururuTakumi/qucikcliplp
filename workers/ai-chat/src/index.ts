@@ -5,6 +5,7 @@ type Env = {
   NOTION_TOKEN?: string;
   NOTION_LEADS_DB_ID?: string;
   NOTION_CASES_DB_ID?: string;
+  NOTION_CASES_CACHE_VERSION?: string;
   SLACK_WEBHOOK_URL?: string;
   SLACK_NOTIFY_PARTIAL_LEADS?: string;
   ALLOWED_ORIGIN?: string;
@@ -769,7 +770,8 @@ async function fetchCaseRecords(env: Env): Promise<InternalCaseRecord[]> {
   if (!env.NOTION_TOKEN || !env.NOTION_CASES_DB_ID) return [];
 
   const cache = defaultWorkerCache();
-  const cacheKey = new Request(`https://honkoma.local/notion-case-studies/${env.NOTION_CASES_DB_ID}`);
+  const cacheVersion = env.NOTION_CASES_CACHE_VERSION || "v1";
+  const cacheKey = new Request(`https://honkoma.local/notion-case-studies/${env.NOTION_CASES_DB_ID}/${cacheVersion}`);
   if (cache) {
     const cached = await cache.match(cacheKey);
     if (cached) {
