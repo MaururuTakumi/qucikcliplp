@@ -17,6 +17,7 @@ import TeamPage from "./pages/TeamPage";
 import ContactPage from "./pages/ContactPage";
 import PrivacyPage from "./pages/PrivacyPage";
 import CaseStudiesPage from "./pages/CaseStudiesPage";
+import CaseStudyDetailPage from "./pages/CaseStudyDetailPage";
 import HotelPage from "./pages/HotelPage";
 import RecruitPage from "./pages/RecruitPage";
 
@@ -39,6 +40,7 @@ createRoot(document.getElementById("app") as HTMLElement).render(
             <Route path="/team" element={<TeamPage />} />
             <Route path="/recruit" element={<RecruitPage />} />
             <Route path="/case-studies" element={<CaseStudiesPage />} />
+            <Route path="/case-studies/:slug" element={<CaseStudyDetailPage />} />
             <Route path="/hotel" element={<HotelPage />} />
             <Route path="/hotels" element={<HotelPage />} />
             <Route path="/hasip" element={<HotelPage />} />
