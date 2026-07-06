@@ -11,8 +11,12 @@ export type ChatPhase =
   | "idle"
   | "analyzing"
   | "insightsShown"
+  | "bookingStarted" // ai-chat-funnel-ux-redesign §A: 予約ファースト
+  | "booked" // webhook確定で遷移(将来)。v1はbookingStartedで案内
   | "emailRequested"
   | "leadCaptured"
+  | "enriching" // 取得後エンリッチ(将来)
+  | "completed"
   | "analysisFailed"
   | "emailDeclined";
 

@@ -1,6 +1,8 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { ArrowCTA } from "../../../components/ui/ArrowCTA";
 import { dur, ease } from "../../../design/tokens";
+import { normalizeCompanyUrl } from "../api/client";
 import { useAiChat } from "../ChatProvider";
 import type { ChatSource } from "../types";
 
@@ -71,6 +73,25 @@ const BAND_STYLE = `
 .aistarter-input::placeholder {
   color: color-mix(in srgb, var(--text-primary) 42%, transparent);
 }
+.aistarter-input:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+.aistarter-error {
+  margin: 0.6rem 0 0;
+  color: var(--color-accent-bright);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+.aistarter-micro {
+  margin: 0.55rem 0 0;
+  color: color-mix(in srgb, var(--text-primary) 55%, transparent);
+  font-size: 0.78rem;
+  line-height: 1.65;
+}
+.aistarter-microlink {
+  color: var(--color-accent);
+}
 @media (min-width: 900px) {
   .aistarter-inner {
     grid-template-columns: minmax(0, 0.92fr) minmax(420px, 1fr);
@@ -104,11 +125,12 @@ function useStarterStyles() {
 export function AIStarterBand({
   source,
   title = "御社サイトから、AI活用案を3つ出します。",
-  body = "URLを入れるだけで、売上を伸ばす施策・コストを削る施策・現場に実装する一手を整理します。",
+  body = "URLを入れるだけ。売上を伸ばす・コストを削る・現場に実装する、の3軸で整理します。",
   compact = false,
 }: AIStarterBandProps) {
   const { startAnalysis, state } = useAiChat();
   const [url, setUrl] = React.useState(state.companyUrl);
+  const [error, setError] = React.useState<string | null>(null);
 
   useStarterStyles();
 
@@ -118,6 +140,13 @@ export function AIStarterBand({
   }, [state.companyUrl]);
 
   const submit = () => {
+    /* §E.1-1 バグ修正: 無効URLはドロワーを開かず、Band内にインラインで差し戻す
+     * (旧: startAnalysisがleadFailをdispatchするだけ→ドロワー未開で無反応)。 */
+    if (!normalizeCompanyUrl(url)) {
+      setError("会社サイトのURLを入力してください。");
+      return;
+    }
+    setError(null);
     void startAnalysis(source, url);
   };
 
@@ -137,18 +166,37 @@ export function AIStarterBand({
           <h2>{title}</h2>
           <p>{body}</p>
         </div>
-        <form className="aistarter-form" onSubmit={onSubmit}>
-          <input
-            className="aistarter-input"
-            type="url"
-            inputMode="url"
-            autoComplete="url"
-            placeholder="https://example.com"
-            value={url}
-            onChange={(event) => setUrl(event.target.value)}
-          />
-          <ArrowCTA onClick={submit} size="md" variant="fill" withText="AIに聞いてみる" label="AIに聞いてみる" />
-        </form>
+        <div>
+          <form className="aistarter-form" onSubmit={onSubmit}>
+            <input
+              className="aistarter-input"
+              type="url"
+              inputMode="url"
+              autoComplete="url"
+              placeholder="https://example.com"
+              value={url}
+              onChange={(event) => {
+                setUrl(event.target.value);
+                if (error) setError(null);
+              }}
+              disabled={state.isBusy}
+              aria-invalid={error ? true : undefined}
+            />
+            <ArrowCTA onClick={submit} size="md" variant="fill" withText="AIに聞いてみる" label="AIに聞いてみる" />
+          </form>
+          {error && (
+            <p className="aistarter-error" role="alert">
+              {error}
+            </p>
+          )}
+          <p className="aistarter-micro">
+            無料・登録不要・約30秒。入力内容は途中でも品質向上のため保存されます（
+            <Link to="/privacy" className="aistarter-microlink">
+              プライバシーポリシー
+            </Link>
+            ）。
+          </p>
+        </div>
       </div>
     </section>
   );

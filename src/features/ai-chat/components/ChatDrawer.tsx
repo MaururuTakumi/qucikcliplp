@@ -7,13 +7,31 @@ import { ArrowCTA } from "../../../components/ui/ArrowCTA";
 import { useAiChat } from "../ChatProvider";
 import type { AiProposal, ProposalAxis } from "../types";
 
-const painPoints = [
-  "人手不足",
-  "問い合わせ対応",
-  "データ活用",
-  "新規事業",
-  "まだ不明",
-];
+/** cal.com 予約(ChatProvider と同一・完了画面の戻り導線用)。 */
+const CAL_BOOKING_URL =
+  "https://cal.com/takumi-honkoma-mljb0f/honkoma-meeting?overlayCalendar=true";
+
+/** phase連動ヘッダー(§E.2-1: 静的タイトルの陳腐化を解消)。 */
+function headerFor(phase: string, companyName?: string): { kicker: string; title: string } {
+  switch (phase) {
+    case "insightsShown":
+    case "analysisFailed":
+      return {
+        kicker: "3 Hypotheses",
+        title: `${companyName ? companyName : "御社"}への、3つの仮説。`,
+      };
+    case "bookingStarted":
+      return { kicker: "Booking", title: "日程調整を、別タブで開きました。" };
+    case "emailRequested":
+      return { kicker: "Email", title: "この3案を、メールでお送りします。" };
+    case "leadCaptured":
+      return { kicker: "Sent", title: "診断メモを送信しました。" };
+    case "emailDeclined":
+      return { kicker: "Share", title: "共有用の受け皿を用意しました。" };
+    default:
+      return { kicker: "AI Diagnosis", title: "御社ならAIをどう使えるか、30秒で3案にします。" };
+  }
+}
 
 const analysisHints = [
   "公開サイトを読み込んでいます",
@@ -369,7 +387,8 @@ export function ChatDrawer() {
     state,
     closeChat,
     startAnalysis,
-    choosePainPoint,
+    startBooking,
+    requestEmail,
     updateEmail,
     updateConsent,
     submitEmailLead,
@@ -455,9 +474,16 @@ export function ChatDrawer() {
 
   const hasAnalysis =
     state.analysis &&
-    ["insightsShown", "emailRequested", "leadCaptured", "analysisFailed", "emailDeclined"].includes(
-      state.phase,
-    );
+    [
+      "insightsShown",
+      "bookingStarted",
+      "emailRequested",
+      "leadCaptured",
+      "analysisFailed",
+      "emailDeclined",
+    ].includes(state.phase);
+
+  const head = headerFor(state.phase, state.analysis?.companyName);
 
   return (
     <AnimatePresence>
@@ -469,6 +495,10 @@ export function ChatDrawer() {
           exit={{ opacity: 0 }}
           transition={{ duration: dur.fast, ease: ease.soft }}
           role="presentation"
+          onClick={(event) => {
+            /* §E.2-2: オーバーレイ(パネル外)クリックで閉じる。状態は保持される。 */
+            if (event.target === event.currentTarget) closeChat();
+          }}
         >
           <m.aside
             ref={panelRef}
@@ -484,9 +514,9 @@ export function ChatDrawer() {
           >
             <header className="aichat-head">
               <div>
-                <span className="aichat-kicker">AI Diagnosis</span>
+                <span className="aichat-kicker">{head.kicker}</span>
                 <h2 id="aichat-title" className="aichat-title">
-                  御社ならAIをどう使えるか、30秒で3案にします。
+                  {head.title}
                 </h2>
               </div>
               <button className="aichat-close" type="button" onClick={closeChat} aria-label="AI診断を閉じる">
@@ -555,34 +585,65 @@ export function ChatDrawer() {
                     ))}
                   </div>
 
-                  {state.phase === "insightsShown" || state.phase === "analysisFailed" ? (
-                    <section className="aichat-question" aria-label="課題選択">
-                      <h3>今いちばん困っているのは？</h3>
-                      <div className="aichat-chips">
-                        {painPoints.map((painPoint) => (
-                          <button
-                            className="aichat-chip"
-                            key={painPoint}
-                            type="button"
-                            onClick={() => void choosePainPoint(painPoint)}
-                          >
-                            {painPoint}
-                          </button>
-                        ))}
+                  {(state.phase === "insightsShown" || state.phase === "analysisFailed") && (
+                    <section className="aichat-question" aria-label="次の一歩">
+                      <h3>この3案、合っていますか。</h3>
+                      <p className="aichat-intro">
+                        {state.phase === "analysisFailed"
+                          ? "今回は公開情報が少なく、仮説の割合が大きめです。30分あれば、実情ベースで作り直せます。オンライン・無料で、売り込みはしません。"
+                          : "公開サイトから立てた仮説なので、実情とずれている部分があるはずです。30分の壁打ちで、そのずれごと御社仕様に組み直します。オンライン・無料で、売り込みはしません。"}
+                      </p>
+                      <div className="aichat-actions">
+                        <ArrowCTA
+                          onClick={startBooking}
+                          variant="fill"
+                          direction="external"
+                          withText="日程を選ぶ"
+                          label="担当との30分壁打ちを予約する"
+                        />
+                        <small className="aichat-note" style={{ margin: 0 }}>
+                          30分・オンライン・無料
+                        </small>
                       </div>
+                      <button className="aichat-textbutton" type="button" onClick={requestEmail} style={{ marginTop: "0.9rem" }}>
+                        今は話すほどではない方へ——この3案をメールで残す
+                      </button>
                     </section>
-                  ) : null}
+                  )}
+
+                  {state.phase === "bookingStarted" && (
+                    <section className="aichat-success" aria-live="polite">
+                      <h3>予約画面を、別タブで開きました。</h3>
+                      <p className="aichat-note">
+                        日程を選ぶと確定します。開かなかった場合は、下のボタンからどうぞ。
+                      </p>
+                      <div className="aichat-actions">
+                        <ArrowCTA
+                          href={CAL_BOOKING_URL}
+                          variant="fill"
+                          direction="external"
+                          withText="日程調整をもう一度開く"
+                          label="日程調整をもう一度開く"
+                        />
+                      </div>
+                      <button className="aichat-textbutton" type="button" onClick={requestEmail} style={{ marginTop: "0.9rem" }}>
+                        日程が合わなければ、この3案をメールで残す
+                      </button>
+                    </section>
+                  )}
 
                   {state.phase === "emailRequested" && (
                     <form className="aichat-emailform" onSubmit={onEmailSubmit}>
-                      <h3>{state.painPoint}に合わせた診断レポートを受け取る</h3>
-                      <p className="aichat-intro">{state.analysis.reportTeaser}</p>
+                      <h3>この3案を、メールでそのまま。</h3>
+                      <p className="aichat-intro">
+                        いま画面にある3案と診断メモをお送りします。不要なご案内は差し上げません。
+                      </p>
                       <input
                         className="aichat-field"
                         type="email"
                         value={state.email}
                         onChange={(event) => updateEmail(event.target.value)}
-                        placeholder="name@example.com"
+                        placeholder="name@company.co.jp"
                         autoComplete="email"
                       />
                       <label className="aichat-consent">
@@ -595,28 +656,37 @@ export function ChatDrawer() {
                           <Link to="/privacy" className="aichat-link" onClick={closeChat}>
                             プライバシーポリシー
                           </Link>
-                          に同意して、診断レポートを受け取ります。
+                          に同意します。
                         </span>
                       </label>
                       <button className="aichat-submit" type="submit" disabled={state.isBusy}>
-                        {state.isBusy ? "送信中" : "レポートを受け取る"}
+                        {state.isBusy ? "送信中" : "メールで受け取る"}
                       </button>
                       <button className="aichat-textbutton" type="button" onClick={() => void declineEmail()}>
-                        メールではなく、この3案の共有リンクを使う
+                        メールは使わず、共有リンクで残す
                       </button>
                     </form>
                   )}
 
                   {state.phase === "leadCaptured" && (
                     <section className="aichat-success" aria-live="polite">
-                      <h3>送信しました。</h3>
+                      <h3>送信しました。数分で届きます。</h3>
                       <p className="aichat-note">
                         {state.leadDryRun
                           ? "ローカル確認のため、外部保存はdry-runです。Secrets設定後はNotionとSlackに連携されます。"
-                          : "診断内容を保存し、担当者にも通知しました。"}
+                          : "診断メモをお送りしました。"}
+                      </p>
+                      <p className="aichat-note">
+                        内容を見て話したくなったら、30分の枠をどうぞ。
                       </p>
                       <div className="aichat-actions">
-                        <ArrowCTA to="/contact" variant="fill" withText="担当と話す" label="担当と話す" />
+                        <ArrowCTA
+                          href={CAL_BOOKING_URL}
+                          variant="outline"
+                          direction="external"
+                          withText="日程を選ぶ"
+                          label="日程を選ぶ"
+                        />
                         <button className="aichat-textbutton" type="button" onClick={resetChat}>
                           別のURLで診断する
                         </button>
@@ -628,7 +698,7 @@ export function ChatDrawer() {
                     <section className="aichat-success" aria-live="polite">
                       <h3>共有用の受け皿を用意しました。</h3>
                       <p className="aichat-note">
-                        URLと課題は部分リードとして記録されます。あとで相談する場合は、通常のお問い合わせから進められます。
+                        URLと診断結果は部分リードとして記録されます。気が向いたら、日程はこちらからいつでも。
                       </p>
                       <div className="aichat-actions">
                         {state.analysis.shareUrl && (
@@ -636,7 +706,14 @@ export function ChatDrawer() {
                             共有リンクを開く
                           </a>
                         )}
-                        <ArrowCTA to="/contact" variant="outline" withText="問い合わせへ" label="問い合わせへ" />
+                        <a
+                          className="aichat-link"
+                          href={CAL_BOOKING_URL}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          日程を選ぶ
+                        </a>
                       </div>
                     </section>
                   )}

@@ -44,7 +44,10 @@ type AiChatContextValue = {
   openChat: (options: OpenOptions) => void;
   closeChat: () => void;
   startAnalysis: (source: ChatSource, companyUrl: string) => Promise<void>;
-  choosePainPoint: (painPoint: string) => Promise<void>;
+  /** 3案直後の主導線: cal.com日程予約を新規タブで開き bookingStarted へ。 */
+  startBooking: () => void;
+  /** 副導線: 「この3案をメールで残す」pull型ask → emailRequested。 */
+  requestEmail: () => void;
   updateEmail: (email: string) => void;
   updateConsent: (consent: boolean) => void;
   submitEmailLead: () => Promise<void>;
@@ -53,6 +56,9 @@ type AiChatContextValue = {
 };
 
 const STORAGE_KEY = "honkoma-ai-chat-v1";
+
+/** 担当との30分壁打ち予約(ai-chat-funnel-ux-redesign §G)。ContactPage完了画面と同一。 */
+const CAL_BOOKING_URL = "https://cal.com/takumi-honkoma-mljb0f/honkoma-meeting";
 
 const initialState: ChatState = {
   isOpen: false,
@@ -75,7 +81,8 @@ type Action =
   | { type: "analysisStart"; payload: { source: ChatSource; companyUrl: string } }
   | { type: "analysisSuccess"; payload: AiChatAnalysis }
   | { type: "analysisFail"; payload: { error: string; fallback: AiChatAnalysis } }
-  | { type: "painPoint"; payload: string }
+  | { type: "startBooking" }
+  | { type: "requestEmail" }
   | { type: "email"; payload: string }
   | { type: "consent"; payload: boolean }
   | { type: "leadStart" }
@@ -167,13 +174,10 @@ function reducer(state: ChatState, action: Action): ChatState {
         analysis: action.payload.fallback,
         error: action.payload.error,
       };
-    case "painPoint":
-      return {
-        ...state,
-        painPoint: action.payload,
-        phase: "emailRequested",
-        error: undefined,
-      };
+    case "startBooking":
+      return { ...state, phase: "bookingStarted", error: undefined };
+    case "requestEmail":
+      return { ...state, phase: "emailRequested", error: undefined };
     case "email":
       return { ...state, email: action.payload, error: undefined };
     case "consent":
@@ -304,11 +308,29 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  const choosePainPoint = React.useCallback(async (painPoint: string) => {
-    dispatch({ type: "painPoint", payload: painPoint });
-    trackAiChat("ai_chat_pain_point", painPoint);
-    const nextState = { ...stateRef.current, painPoint, phase: "emailRequested" as ChatPhase };
-    void submitPartialLead(buildPartialLead(nextState, "painPointSelected"));
+  const startBooking = React.useCallback(() => {
+    const current = stateRef.current;
+    trackAiChat("ai_chat_booking_click", current.source);
+    dispatch({ type: "startBooking" });
+    /* partial: 予約画面まで進んだ=hot-partial(webhook確定までの一次記録)。 */
+    void submitPartialLead(
+      buildPartialLead({ ...current, phase: "bookingStarted" }, "painPointSelected"),
+    );
+    /* v1: cal.com を新規タブで開く(§G-5 フォールバック)。webhookが予約を真値化。
+     * embed popup + bookingSuccessful イベント + Worker webhook は後続で追加。 */
+    if (typeof window !== "undefined") {
+      const url = new URL(CAL_BOOKING_URL);
+      url.searchParams.set("overlayCalendar", "true");
+      url.searchParams.set("metadata[sessionId]", current.sessionId);
+      url.searchParams.set("metadata[source]", current.source);
+      if (current.companyUrl) url.searchParams.set("metadata[companyUrl]", current.companyUrl);
+      window.open(url.toString(), "_blank", "noopener,noreferrer");
+    }
+  }, []);
+
+  const requestEmail = React.useCallback(() => {
+    trackAiChat("ai_chat_email_ask_shown", stateRef.current.source);
+    dispatch({ type: "requestEmail" });
   }, []);
 
   const updateEmail = React.useCallback((email: string) => {
@@ -384,7 +406,8 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
       openChat,
       closeChat,
       startAnalysis,
-      choosePainPoint,
+      startBooking,
+      requestEmail,
       updateEmail,
       updateConsent,
       submitEmailLead,
@@ -396,7 +419,8 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
       openChat,
       closeChat,
       startAnalysis,
-      choosePainPoint,
+      startBooking,
+      requestEmail,
       updateEmail,
       updateConsent,
       submitEmailLead,
