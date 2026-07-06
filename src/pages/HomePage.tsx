@@ -286,28 +286,86 @@ const HomePage = () => {
         </div>
       </SectionShell>
 
-      {/* ===== WE / RECRUIT hook ===== */}
-      <SectionShell wedge="top">
-        <SectionHeading enLabel="Our Mission" title="時代を、つくる側に回る。" level={2} />
-        <Reveal variant="fadeUp">
-          <p
-            style={{
-              maxWidth: "52ch",
-              margin: "1.5rem 0 clamp(2rem, 4vw, 3rem)",
-              color: "var(--text-secondary)",
-              fontSize: "clamp(1rem, 1.3vw, 1.15rem)",
-              lineHeight: 2,
-            }}
-          >
-            東京大学運動会硬式野球部での挫折、マッキンゼーの内定辞退——
-            代表の林拓海は、AI時代の変化の速さに胸を躍らせ、自らの手で未来を切り拓く道を選んだ。
-            「自分事」を合言葉に、私たちは今日も現場で時代を立ち上げている。
-          </p>
-          <div style={{ display: "flex", gap: "1.5rem", flexWrap: "wrap", alignItems: "center" }}>
-            <ArrowCTA to="/team" variant="outline" withText="メンバーを見る" label="メンバーを見る" />
-            <ArrowCTA to="/about" variant="ghost" withText="会社概要" label="会社概要" />
+      {/* ===== JOIN US (site-ia-design §2.1-#6) — Our Mission を吸収改組 ===== *
+       * inverse で「ここから体温が変わる」を視覚宣言。顧客には実行部隊の実在証明、
+       * 候補者には仲間の顔として同じ1セクションが二重に働く。写真は将来10名の
+       * マソンリーへ拡張可能（HERO同様に差し替え点をコメント化）。 */}
+      <SectionShell theme="inverse" wedge="top">
+        <div
+          className="grid grid-cols-1 items-center md:grid-cols-2"
+          style={{ gap: "clamp(2.5rem, 5vw, 4.5rem)" }}
+        >
+          <div>
+            <SectionHeading enLabel="Join Us" title="時代を、つくる側に回る。" level={2} />
+            <Reveal variant="fadeUp">
+              <p
+                style={{
+                  maxWidth: "48ch",
+                  margin: "1.5rem 0 clamp(2rem, 4vw, 2.75rem)",
+                  color: "var(--text-secondary)",
+                  fontSize: "clamp(1rem, 1.3vw, 1.15rem)",
+                  lineHeight: 2,
+                }}
+              >
+                東京大学運動会硬式野球部での挫折、マッキンゼーの内定辞退——
+                代表の林拓海は、AI時代の変化の速さに胸を躍らせ、自らの手で未来を切り拓く道を選んだ。
+                「自分事」を合言葉に、10人のチームが今日も現場で時代を立ち上げている。
+              </p>
+              <div style={{ display: "flex", gap: "1.5rem", flexWrap: "wrap", alignItems: "center" }}>
+                <ArrowCTA to="/recruit" size="lg" variant="fill" withText="採用情報へ" label="採用情報へ" />
+                <ArrowCTA to="/team" variant="outline" withText="メンバーを見る" label="メンバーを見る" />
+              </div>
+            </Reveal>
           </div>
-        </Reveal>
+
+          {/* Team collage — swap point: replace with a 10-person masonry when
+           * real photos are shot (see HERO_IMAGE for the same pattern). */}
+          <Reveal variant="fade">
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gridAutoRows: "1fr",
+                gap: "0.75rem",
+              }}
+            >
+              <img
+                src="/assets/hero-workspace.png"
+                alt="honkoma のチームが現場で議論する様子"
+                loading="lazy"
+                style={{
+                  gridColumn: "1 / -1",
+                  width: "100%",
+                  aspectRatio: "16 / 9",
+                  objectFit: "cover",
+                  borderRadius: "var(--radius-md)",
+                }}
+              />
+              <img
+                src="/team/hayashi_img.jpg"
+                alt="代表 林拓海"
+                loading="lazy"
+                style={{
+                  width: "100%",
+                  aspectRatio: "3 / 4",
+                  objectFit: "cover",
+                  borderRadius: "var(--radius-md)",
+                }}
+              />
+              <img
+                src="/team/nakajima_img.jpg"
+                alt="共同創業者 中島幸祐"
+                loading="lazy"
+                style={{
+                  width: "100%",
+                  aspectRatio: "3 / 4",
+                  objectFit: "cover",
+                  borderRadius: "var(--radius-md)",
+                }}
+              />
+            </div>
+          </Reveal>
+        </div>
       </SectionShell>
 
       {/* ===== BOTTOM CTA (inverse) ===== */}
