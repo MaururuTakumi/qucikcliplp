@@ -8,9 +8,9 @@
  * セクション: Hero(旗) → 創業ストーリー(感情→協働→大義) → 行動指針(再掲) →
  *   こんな人を探している(人物像) → 働き方・カルチャー → 応募CTA(カジュアル面談一本化)。
  *
- * TODO(founder): §9-4 行動指針の残り2原則が未確定。#principles は「自分事」＋
- *   暫定2枠で置いており、確定後にcoピーを差し替える（M3の/about原本と同期）。
- *   旗コピー「時代を、自分事にしろ。」は3案比較の第一候補（実装時決裁）。
+ * 行動指針(#principles)は4原則で確定済み（docs/product-and-principles-design.md
+ * §1.1）。本文は /about の原本（#principles）と一字一句同一。改訂時は /about を
+ * 先に直し、ここへ同期すること。
  * ========================================================================== */
 
 import { useEffect } from "react";
@@ -36,6 +36,31 @@ const STORY: { en: string; title: string; body: string }[] = [
     en: "03 — Cause",
     title: "誰かが作った時代を、生きない。",
     body: "与えられた時代をなぞるのではなく、自分の手でつくる側に回る。honkomaが目指すのは、一人ひとりが「自分事」として時代を立ち上げる世界。その最前線を、一緒に走る仲間を探している。",
+  },
+];
+
+/* 行動指針(#principles) — /about の原本と本文を完全一致させる（言い換え禁止）。
+ * docs/product-and-principles-design.md §1.1 確定コピー。 */
+const PRINCIPLES: { en: string; title: string; body: string }[] = [
+  {
+    en: "Ownership",
+    title: "「自分事」",
+    body: "クライアントの課題も、チームの課題も、時代の課題も、自分の課題として引き受ける。「誰かがやるだろう」を、honkomaに置かない。",
+  },
+  {
+    en: "Solve First",
+    title: "まず、解く。",
+    body: "AIは手段で、目的はいつも課題解決。何を使ったかではなく、何が解けたかで、仕事を測ろう。",
+  },
+  {
+    en: "Stay at the Edge",
+    title: "最先端に、立ち続ける。",
+    body: "誰よりも早く試して、昨日までの正解を疑う。従来のやり方は、参考にしても前提にしない。",
+  },
+  {
+    en: "Today, Not Tomorrow",
+    title: "今日、やる。",
+    body: "明日に回すと、時代のほうが先に行く。小さくてもいい、今日動かして、今日学ぼう。",
   },
 ];
 
@@ -157,6 +182,75 @@ const RecruitPage = () => {
               </div>
             ))}
           </StaggerGrid>
+        </div>
+      </SectionShell>
+
+      {/* ===== 行動指針（再掲） — 本文は /about#principles の原本と完全一致 ===== */}
+      <SectionShell id="principles" wedge="top">
+        <SectionHeading
+          enLabel="Our Principles"
+          title="honkomaの、行動指針。"
+          level={2}
+        />
+        <div style={{ marginTop: "clamp(2.5rem, 5vw, 4rem)" }}>
+          <StaggerGrid columns={{ base: 1, md: 2 }} gap="md">
+            {PRINCIPLES.map((p, i) => (
+              <div
+                key={p.en}
+                style={{
+                  background: "var(--surface-raised)",
+                  borderRadius: "var(--radius-lg)",
+                  padding: "clamp(1.75rem, 3vw, 2.5rem)",
+                  height: "100%",
+                  boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
+                }}
+              >
+                <span
+                  className="font-en"
+                  style={{
+                    fontSize: "0.85rem",
+                    color: "var(--color-accent)",
+                    fontWeight: 700,
+                  }}
+                >
+                  {String(i + 1).padStart(2, "0")} / 04
+                </span>
+                <div
+                  className="font-en"
+                  style={{
+                    marginTop: "0.5rem",
+                    fontSize: "0.75rem",
+                    letterSpacing: "0.1em",
+                    textTransform: "uppercase",
+                    color: "var(--text-secondary)",
+                  }}
+                >
+                  {p.en}
+                </div>
+                <h3
+                  style={{
+                    fontSize: "var(--fs-h3)",
+                    fontWeight: 700,
+                    margin: "0.75rem 0 0.75rem",
+                    color: "var(--text-primary)",
+                  }}
+                >
+                  {p.title}
+                </h3>
+                <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem", lineHeight: 1.85 }}>
+                  {p.body}
+                </p>
+              </div>
+            ))}
+          </StaggerGrid>
+        </div>
+        <div style={{ marginTop: "clamp(2.5rem, 5vw, 3.5rem)" }}>
+          <ArrowCTA
+            to="/about#principles"
+            variant="outline"
+            withText="行動指針の原本へ"
+            label="行動指針の原本へ"
+          />
         </div>
       </SectionShell>
 

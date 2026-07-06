@@ -36,6 +36,38 @@ const metrics = [
   { value: "2025.6", label: "設立" },
 ];
 
+/* 行動指針 — 4原則（docs/product-and-principles-design.md §1.1 確定コピー）。
+ * /recruit のコンパクト再掲と本文を完全一致させること（言い換え禁止）。 */
+const principles = [
+  {
+    en: "Ownership",
+    title: "「自分事」",
+    body: "クライアントの課題も、チームの課題も、時代の課題も、自分の課題として引き受ける。「誰かがやるだろう」を、honkomaに置かない。",
+  },
+  {
+    en: "Solve First",
+    title: "まず、解く。",
+    body: "AIは手段で、目的はいつも課題解決。何を使ったかではなく、何が解けたかで、仕事を測ろう。",
+  },
+  {
+    en: "Stay at the Edge",
+    title: "最先端に、立ち続ける。",
+    body: "誰よりも早く試して、昨日までの正解を疑う。従来のやり方は、参考にしても前提にしない。",
+  },
+  {
+    en: "Today, Not Tomorrow",
+    title: "今日、やる。",
+    body: "明日に回すと、時代のほうが先に行く。小さくてもいい、今日動かして、今日学ぼう。",
+  },
+];
+
+/* アンカーナビ（Hero直下）。#profile は COMPANY INFO セクションに付与。 */
+const anchorNav: { label: string; href: string }[] = [
+  { label: "ミッション", href: "#philosophy" },
+  { label: "行動指針", href: "#principles" },
+  { label: "会社概要", href: "#profile" },
+];
+
 const companyInfo: [string, string][] = [
   ["商号", "株式会社honkoma"],
   ["設立", "2025年6月"],
@@ -84,11 +116,37 @@ const AboutPage = () => {
           >
             テクノロジーの力で企業の課題を解決し、AIと自動化で日本のビジネスを次のステージへ。
           </p>
+          <nav
+            aria-label="ページ内ナビゲーション"
+            style={{
+              display: "flex",
+              gap: "1.5rem",
+              flexWrap: "wrap",
+              marginTop: "clamp(1.75rem, 3vw, 2.5rem)",
+            }}
+          >
+            {anchorNav.map((item) => (
+              <a
+                key={item.href}
+                href={item.href}
+                className="font-en"
+                style={{
+                  fontSize: "0.85rem",
+                  letterSpacing: "0.04em",
+                  color: "var(--text-secondary)",
+                  borderBottom: "1px solid color-mix(in srgb, var(--text-primary) 20%, transparent)",
+                  paddingBottom: "0.15rem",
+                }}
+              >
+                {item.label}
+              </a>
+            ))}
+          </nav>
         </Reveal>
       </SectionShell>
 
       {/* ===== PHILOSOPHY ===== */}
-      <SectionShell wedge="top">
+      <SectionShell id="philosophy" wedge="top">
         <SectionHeading enLabel="What We Believe" title="私たちが、信じていること。" level={2} />
         <div style={{ marginTop: "clamp(2.5rem, 5vw, 4rem)" }}>
           <StaggerGrid columns={{ base: 1, md: 3 }} gap="md">
@@ -107,6 +165,41 @@ const AboutPage = () => {
               </Card>
             ))}
           </StaggerGrid>
+        </div>
+      </SectionShell>
+
+      {/* ===== OUR PRINCIPLES — 行動指針（原本）。1原則1画面。 ===== */}
+      <SectionShell id="principles" wedge="top">
+        <SectionHeading enLabel="Our Principles" title="行動指針。" level={2} />
+        <div
+          style={{
+            marginTop: "clamp(3rem, 6vw, 5rem)",
+            display: "grid",
+            gap: "clamp(3.5rem, 7vw, 6rem)",
+          }}
+        >
+          {principles.map((p, i) => (
+            <Reveal key={p.en} variant="fadeUp">
+              <div style={{ maxWidth: 680 }}>
+                <SectionHeading
+                  enLabel={p.en}
+                  title={p.title}
+                  level={2}
+                  index={{ current: i + 1, total: principles.length }}
+                />
+                <p
+                  style={{
+                    marginTop: "1.5rem",
+                    color: "var(--text-secondary)",
+                    fontSize: "clamp(1rem, 1.4vw, 1.2rem)",
+                    lineHeight: 1.95,
+                  }}
+                >
+                  {p.body}
+                </p>
+              </div>
+            </Reveal>
+          ))}
         </div>
       </SectionShell>
 
@@ -159,7 +252,7 @@ const AboutPage = () => {
       </SectionShell>
 
       {/* ===== COMPANY INFO ===== */}
-      <SectionShell wedge="top">
+      <SectionShell id="profile" wedge="top">
         <SectionHeading enLabel="Company" title="会社情報。" level={2} />
         <div style={{ marginTop: "clamp(2rem, 4vw, 3rem)", maxWidth: 760 }}>
           <dl style={{ margin: 0 }}>
