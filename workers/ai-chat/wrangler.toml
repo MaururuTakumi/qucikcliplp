@@ -4,3 +4,9 @@ compatibility_date = "2026-07-06"
 
 [vars]
 DEEPSEEK_MODEL = "deepseek-v4-pro"
+EMAIL_FROM = "diagnosis@ltdhonkoma.com"
+EMAIL_FROM_NAME = "honkoma"
+EMAIL_REPLY_TO = "diagnosis@ltdhonkoma.com"
+
+[[send_email]]
+name = "EMAIL"

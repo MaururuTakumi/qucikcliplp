@@ -1343,67 +1343,245 @@ async function saveContactFormToNotion(env: Env, payload: ContactFormBody) {
   return true;
 }
 
+type SlackBlock = Record<string, unknown>;
+
+function slackText(value: unknown, fallback = "-") {
+  if (typeof value !== "string" || !value.trim()) return fallback;
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .trim()
+    .slice(0, 900);
+}
+
+function slackMrkdwn(text: string) {
+  return { type: "mrkdwn", text };
+}
+
+function slackPlainText(text: string) {
+  return { type: "plain_text", text: text.slice(0, 150), emoji: true };
+}
+
+function slackField(label: string, value: unknown) {
+  const text = slackText(value);
+  if (text === "-") return undefined;
+  return slackMrkdwn(`*${label}*\n${text}`);
+}
+
+function slackUrl(url?: string) {
+  if (!url) return "";
+  try {
+    const parsed = new URL(normalizeCompanyUrl(url));
+    const href = parsed.toString();
+    const label = parsed.hostname.replace(/^www\./, "");
+    return `<${href}|${slackText(label)}>`;
+  } catch {
+    return slackText(url);
+  }
+}
+
+function slackActionUrl(url?: string) {
+  if (!url) return undefined;
+  try {
+    const normalized = normalizeCompanyUrl(url);
+    new URL(normalized);
+    return normalized;
+  } catch {
+    return undefined;
+  }
+}
+
+function painDisplay(value?: string) {
+  if (!value) return "";
+  const normalized = normalizePainCategory(value);
+  return normalized === "other" && value !== "other" ? value : painLabel(normalized);
+}
+
+function stageLabel(stage?: string) {
+  const labels: Record<string, string> = {
+    opened: "開始",
+    url_entered: "URL入力",
+    urlEntered: "URL入力",
+    analyzed: "3案表示",
+    insightsShown: "3案表示",
+    pain_answered: "課題選択",
+    painPointSelected: "課題選択",
+    deepening: "深掘り中",
+    deepened: "深掘り完了",
+    focusBuilding: "プラン生成中",
+    focus_shown: "プラン表示",
+    focusShown: "プラン表示",
+    booking_click: "予約クリック",
+    bookingStarted: "予約クリック",
+    email_form_shown: "メール入力表示",
+    emailRequested: "メール入力表示",
+    contact_captured: "連絡先取得",
+    leadCaptured: "連絡先取得",
+    enriched: "追加情報取得",
+    completed: "完了",
+  };
+  return stage ? labels[stage] || stage : "";
+}
+
+function leadStageEmoji(payload: LeadBody | PartialLeadBody) {
+  if (payload.action === "capture_lead") return "✅";
+  if (payload.stage === "booking_click" || payload.stage === "bookingStarted") return "🔥";
+  if (payload.stage === "focus_shown" || payload.stage === "focusShown") return "🧭";
+  return "📝";
+}
+
+function leadNextAction(payload: LeadBody | PartialLeadBody) {
+  if (payload.action === "capture_lead") {
+    return payload.contactMethod === "booking"
+      ? "予約導線からの連絡先取得。診断コードを見て初回相談で引き継ぐ。"
+      : "診断メール送付後、返信または予約がなければ軽くフォロー。";
+  }
+  if (payload.stage === "booking_click" || payload.stage === "bookingStarted") {
+    return "予約クリック。予約が入らなければ翌営業日に軽く確認。";
+  }
+  if (payload.stage === "focus_shown" || payload.stage === "focusShown") {
+    return "プラン表示済み。連絡先未取得なら今は観測のみ。";
+  }
+  if (payload.stage === "deepened" || payload.stage === "pain_answered" || payload.stage === "painPointSelected") {
+    return "課題回答あり。hot-partial候補として後続行動を確認。";
+  }
+  return "途中経過。重複時は最新stageだけ見ればよい。";
+}
+
+function slackLeadFallback(payload: LeadBody | PartialLeadBody) {
+  const title = payload.action === "capture_lead" ? "AI診断 lead captured" : "AI診断 partial lead";
+  return [
+    `${leadStageEmoji(payload)} ${title}`,
+    stageLabel(payload.stage),
+    payload.companyUrl ? hostnameFor(payload.companyUrl) : "",
+    payload.painPoint ? painDisplay(payload.painPoint) : "",
+    payload.diagnosisCode || diagnosisCodeForSession(payload.sessionId),
+  ].filter(Boolean).join(" / ");
+}
+
+function compactSession(sessionId: string) {
+  if (sessionId.length <= 16) return sessionId;
+  return `${sessionId.slice(0, 8)}…${sessionId.slice(-6)}`;
+}
+
+function slackLeadNotification(payload: LeadBody | PartialLeadBody) {
+  const isPartial = payload.action === "partial_lead";
+  const diagnosisCode = payload.diagnosisCode || diagnosisCodeForSession(payload.sessionId);
+  const title = isPartial ? "AI診断 partial" : "AI診断 lead captured";
+  const fields = [
+    slackField("Stage", stageLabel(payload.stage)),
+    slackField("診断コード", diagnosisCode),
+    slackField("URL", slackUrl(payload.companyUrl)),
+    slackField("課題", painDisplay(payload.painPoint)),
+    slackField("規模", payload.companySize ? companySizeLabel(payload.companySize) : ""),
+    slackField("AI活用", payload.aiMaturity ? maturityLabel(payload.aiMaturity) : ""),
+    slackField("接点", payload.contactMethod ? contactMethodLabel(payload.contactMethod) : ""),
+    slackField("Email", isPartial ? "" : payload.email),
+  ].filter(Boolean);
+  const detailLines = [
+    payload.focusPlan?.restatement ? `*Plan* ${slackText(payload.focusPlan.restatement)}` : "",
+    matchedCaseLabel(payload) ? `*Case* ${slackText(matchedCaseLabel(payload))}` : "",
+    payload.painPointRaw ? `*Raw pain* ${slackText(payload.painPointRaw)}` : "",
+  ].filter(Boolean);
+  const context = [
+    `source: ${slackText(payload.source)}`,
+    `session: ${slackText(compactSession(payload.sessionId))}`,
+    payload.utm ? `utm: ${slackText(payload.utm)}` : "",
+    payload.referrer ? `referrer: ${slackText(payload.referrer)}` : "",
+  ].filter(Boolean).join("  |  ");
+  const blocks: SlackBlock[] = [
+    {
+      type: "header",
+      text: slackPlainText(`${leadStageEmoji(payload)} ${title}`),
+    },
+    {
+      type: "section",
+      text: slackMrkdwn(`*Next*: ${slackText(leadNextAction(payload))}`),
+    },
+  ];
+  if (fields.length) {
+    blocks.push({ type: "section", fields });
+  }
+  if (detailLines.length) {
+    blocks.push({ type: "section", text: slackMrkdwn(detailLines.join("\n")) });
+  }
+  if (payload.companyUrl) {
+    const actionUrl = slackActionUrl(payload.companyUrl);
+    if (actionUrl) {
+      blocks.push({
+        type: "actions",
+        elements: [
+          {
+            type: "button",
+            text: slackPlainText("サイトを開く"),
+            url: actionUrl,
+          },
+        ],
+      });
+    }
+  }
+  blocks.push({ type: "context", elements: [slackMrkdwn(context)] });
+  return {
+    text: slackLeadFallback(payload),
+    unfurl_links: false,
+    unfurl_media: false,
+    blocks,
+  };
+}
+
+function slackContactFormNotification(payload: ContactFormBody) {
+  const type = payload.type || (payload.inquiryType.includes("採用") ? "recruit" : "inquiry");
+  const title = type === "recruit" ? "採用問い合わせ" : "通常問い合わせ";
+  const fields = [
+    slackField("種別", payload.inquiryType),
+    slackField("会社", payload.company),
+    slackField("お名前", payload.name),
+    slackField("Email", payload.email),
+    slackField("従業員数", payload.employeeCount),
+    slackField("関わり方", payload.involvement),
+  ].filter(Boolean);
+  const context = [
+    `type: ${type}`,
+    `consent: ${payload.consent ? "yes" : "no"}`,
+    payload.utm ? `utm: ${slackText(payload.utm)}` : "",
+    payload.referrer ? `referrer: ${slackText(payload.referrer)}` : "",
+  ].filter(Boolean).join("  |  ");
+  return {
+    text: `${title}: ${payload.name || payload.email}`,
+    unfurl_links: false,
+    unfurl_media: false,
+    blocks: [
+      { type: "header", text: slackPlainText(`📩 ${title}`) },
+      { type: "section", fields },
+      { type: "section", text: slackMrkdwn(`*内容*\n${slackText(payload.message, "内容なし")}`) },
+      { type: "context", elements: [slackMrkdwn(context)] },
+    ],
+  };
+}
+
 async function notifySlack(env: Env, payload: LeadBody | PartialLeadBody) {
   if (!env.SLACK_WEBHOOK_URL) return false;
   const isPartial = payload.action === "partial_lead";
   const notifyPartial = env.SLACK_NOTIFY_PARTIAL_LEADS?.toLowerCase() === "true";
   if (isPartial && !notifyPartial) return false;
 
-  const title = isPartial ? "AI chat partial lead" : "AI chat lead captured";
-  const fields = [
-    `source: ${payload.source}`,
-    `session: ${payload.sessionId}`,
-    `diagnosis: ${payload.diagnosisCode || diagnosisCodeForSession(payload.sessionId)}`,
-    payload.stage ? `stage: ${payload.stage}` : "",
-    payload.companyUrl ? `url: ${payload.companyUrl}` : "",
-    payload.painPoint ? `pain: ${payload.painPoint}` : "",
-    payload.companySize ? `size: ${companySizeLabel(payload.companySize)}` : "",
-    payload.aiMaturity ? `ai maturity: ${maturityLabel(payload.aiMaturity)}` : "",
-    payload.contactMethod ? `contact method: ${contactMethodLabel(payload.contactMethod)}` : "",
-    payload.focusPlan ? `plan: ${payload.focusPlan.restatement}` : "",
-    matchedCaseLabel(payload) ? `matched case: ${matchedCaseLabel(payload)}` : "",
-    payload.email ? `email: ${payload.email}` : "",
-  ].filter(Boolean);
-
   const response = await fetch(env.SLACK_WEBHOOK_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      text: `${title}\n${fields.join("\n")}`,
-    }),
+    body: JSON.stringify(slackLeadNotification(payload)),
   });
   if (!response.ok) throw new Error(`Slack webhook failed: ${response.status}`);
   return true;
 }
 
-function slackLine(label: string, value: unknown) {
-  if (typeof value !== "string" || !value.trim()) return "";
-  return `${label}: ${value.trim().slice(0, 1200)}`;
-}
-
 async function notifyContactFormSlack(env: Env, payload: ContactFormBody) {
   if (!env.SLACK_WEBHOOK_URL) return false;
-  const type = payload.type || (payload.inquiryType.includes("採用") ? "recruit" : "inquiry");
-  const fields = [
-    slackLine("type", type),
-    slackLine("種別", payload.inquiryType),
-    slackLine("会社名", payload.company),
-    slackLine("お名前", payload.name),
-    slackLine("メール", payload.email),
-    slackLine("従業員数", payload.employeeCount),
-    slackLine("関わり方", payload.involvement),
-    slackLine("内容", payload.message),
-    `同意: ${payload.consent ? "yes" : "no"}`,
-    slackLine("utm", payload.utm),
-    slackLine("referrer", payload.referrer),
-  ].filter(Boolean);
 
   const response = await fetch(env.SLACK_WEBHOOK_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      text: `通常問い合わせフォーム\n${fields.join("\n")}`,
-    }),
+    body: JSON.stringify(slackContactFormNotification(payload)),
   });
   if (!response.ok) throw new Error(`Slack webhook failed: ${response.status}`);
   return true;
