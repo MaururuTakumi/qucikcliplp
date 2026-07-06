@@ -41,6 +41,7 @@ type ChatState = {
   role: string;
   email: string;
   consent: boolean;
+  emailCaptured: boolean;
   error?: string;
   isBusy: boolean;
   leadDryRun: boolean;
@@ -63,6 +64,7 @@ type PersistedChatState = Pick<
   | "diagnosisCode"
   | "email"
   | "consent"
+  | "emailCaptured"
 >;
 
 type OpenOptions = {
@@ -77,6 +79,10 @@ type AiChatContextValue = {
   startAnalysis: (source: ChatSource, companyUrl: string) => Promise<void>;
   /** Q1: いちばん重い課題(chip)を選ぶ → 深掘り(Q2)へ。 */
   answerPain: (pain: PainCategory, raw?: string) => void;
+  /** emailGate: 送付先を保存してから深掘りへ進む。 */
+  submitEmailGate: () => Promise<void>;
+  /** emailGate: メール取得を後回しにして深掘りへ進む。 */
+  skipEmailGate: () => void;
   /** Q1で「答えず相談する」→ 汎用プランで focusShown へ直行。 */
   skipDeepen: () => Promise<void>;
   /** Q2: 規模。null=スキップ。 */
@@ -124,6 +130,7 @@ const initialState: ChatState = {
   role: "",
   email: "",
   consent: false,
+  emailCaptured: false,
   isBusy: false,
   leadDryRun: false,
 };
@@ -136,6 +143,7 @@ type Action =
   | { type: "analysisSuccess"; payload: AiChatAnalysis }
   | { type: "analysisFail"; payload: { error: string; fallback: AiChatAnalysis } }
   | { type: "answerPain"; payload: { pain: PainCategory; raw: string } }
+  | { type: "continueDeepening" }
   | { type: "answerSize"; payload: CompanySize | null }
   | { type: "answerMaturity"; payload: AiMaturity | null }
   | { type: "focusStart" }
@@ -145,7 +153,7 @@ type Action =
   | { type: "email"; payload: string }
   | { type: "consent"; payload: boolean }
   | { type: "leadStart" }
-  | { type: "leadSuccess"; payload: { dryRun: boolean } }
+  | { type: "leadSuccess"; payload: { dryRun: boolean; phase?: ChatPhase; contactMethod?: ContactMethod } }
   | { type: "leadFail"; payload: string }
   | { type: "declineEmail" }
   | { type: "enrich"; payload: string }
@@ -204,6 +212,7 @@ function persistState(state: ChatState) {
     diagnosisCode: state.diagnosisCode,
     email: state.email,
     consent: state.consent,
+    emailCaptured: state.emailCaptured,
   };
   window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(persisted));
 }
@@ -247,6 +256,13 @@ function reducer(state: ChatState, action: Action): ChatState {
         ...state,
         painPoint: action.payload.pain,
         painPointRaw: action.payload.raw,
+        phase: "emailGate",
+        deepStep: 0,
+        error: undefined,
+      };
+    case "continueDeepening":
+      return {
+        ...state,
         phase: "deepening",
         deepStep: 0,
         error: undefined,
@@ -279,8 +295,9 @@ function reducer(state: ChatState, action: Action): ChatState {
       return {
         ...state,
         isBusy: false,
-        phase: "leadCaptured",
-        contactMethod: "email",
+        phase: action.payload.phase || "leadCaptured",
+        contactMethod: action.payload.contactMethod || state.contactMethod || "email",
+        emailCaptured: true,
         leadDryRun: action.payload.dryRun,
         error: undefined,
       };
@@ -346,6 +363,43 @@ function buildPartialLead(state: ChatState, stage: PartialLeadPayload["stage"]):
     referrer: currentReferrer(),
     utm: currentUtm(),
   };
+}
+
+function buildLeadPayload(state: ChatState, contactMethod: ContactMethod): LeadPayload | string {
+  const email = state.email.trim();
+
+  if (!isLikelyEmail(email)) return "受け取り先メールアドレスを確認してください。";
+  if (!state.consent) return "プライバシーポリシーへの同意が必要です。";
+  if (!state.analysis) return "診断結果を作成してから送信してください。";
+
+  return {
+    source: state.source,
+    sessionId: state.sessionId,
+    companyUrl: state.companyUrl,
+    analyzedSummary: state.analysis.analyzedSummary,
+    proposedCases: proposalsToText(state.analysis.proposals),
+    painPoint: state.painPoint || "未選択",
+    painPointRaw: state.painPointRaw || undefined,
+    companySize: state.companySize ?? undefined,
+    aiMaturity: state.aiMaturity ?? undefined,
+    contactMethod,
+    diagnosisCode: state.diagnosisCode,
+    focusPlan: state.focusPlan,
+    matchedCaseId: state.matchedCase?.id,
+    email,
+    emailVerified: isLikelyEmail(email),
+    urlReachable: state.analysis.mode === "model",
+    consent: state.consent,
+    timestamp: new Date().toISOString(),
+    referrer: currentReferrer(),
+    utm: currentUtm(),
+  };
+}
+
+function emailCaptureLabelForPhase(phase: ChatPhase) {
+  if (phase === "bookingStarted") return "booking";
+  if (phase === "completed") return "completed";
+  return "focus";
 }
 
 export function AiChatProvider({ children }: { children: React.ReactNode }) {
@@ -445,6 +499,32 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
     trackAiChat("ai_deep_answered", `pain:${pain}`);
   }, []);
 
+  const skipEmailGate = React.useCallback(() => {
+    dispatch({ type: "continueDeepening" });
+    trackAiChat("ai_email_gate_skipped", stateRef.current.source);
+  }, []);
+
+  const submitEmailGate = React.useCallback(async () => {
+    const current = stateRef.current;
+    const payload = buildLeadPayload(current, "email");
+    if (typeof payload === "string") {
+      dispatch({ type: "leadFail", payload });
+      return;
+    }
+
+    dispatch({ type: "leadStart" });
+    const result = await submitLead(payload);
+    if (result.ok) {
+      dispatch({
+        type: "leadSuccess",
+        payload: { dryRun: Boolean(result.dryRun), phase: "deepening", contactMethod: "email" },
+      });
+      trackAiChat("ai_email_captured", "emailGate");
+      return;
+    }
+    dispatch({ type: "leadFail", payload: result.error || "送信に失敗しました。" });
+  }, []);
+
   const skipDeepen = React.useCallback(async () => {
     trackAiChat("ai_deep_skipped", "pain");
     await buildFocus();
@@ -477,7 +557,9 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const requestEmail = React.useCallback(() => {
-    trackAiChat("ai_baton_email_shown", stateRef.current.source);
+    const current = stateRef.current;
+    if (current.emailCaptured) return;
+    trackAiChat("ai_baton_email_shown", current.source);
     dispatch({ type: "requestEmail" });
   }, []);
 
@@ -491,49 +573,19 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
 
   const submitEmailLead = React.useCallback(async () => {
     const current = stateRef.current;
-    const email = current.email.trim();
-
-    if (!isLikelyEmail(email)) {
-      dispatch({ type: "leadFail", payload: "受け取り先メールアドレスを確認してください。" });
-      return;
-    }
-    if (!current.consent) {
-      dispatch({ type: "leadFail", payload: "プライバシーポリシーへの同意が必要です。" });
-      return;
-    }
-    if (!current.analysis) {
-      dispatch({ type: "leadFail", payload: "診断結果を作成してから送信してください。" });
+    const contactMethod = current.contactMethod || "email";
+    const payload = buildLeadPayload(current, contactMethod);
+    if (typeof payload === "string") {
+      dispatch({ type: "leadFail", payload });
       return;
     }
 
     dispatch({ type: "leadStart" });
-
-    const payload: LeadPayload = {
-      source: current.source,
-      sessionId: current.sessionId,
-      companyUrl: current.companyUrl,
-      analyzedSummary: current.analysis.analyzedSummary,
-      proposedCases: proposalsToText(current.analysis.proposals),
-      painPoint: current.painPoint || "未選択",
-      painPointRaw: current.painPointRaw || undefined,
-      companySize: current.companySize ?? undefined,
-      aiMaturity: current.aiMaturity ?? undefined,
-      contactMethod: "email",
-      diagnosisCode: current.diagnosisCode,
-      focusPlan: current.focusPlan,
-      email,
-      emailVerified: isLikelyEmail(email),
-      urlReachable: current.analysis.mode === "model",
-      consent: current.consent,
-      timestamp: new Date().toISOString(),
-      referrer: currentReferrer(),
-      utm: currentUtm(),
-    };
-
     const result = await submitLead(payload);
     if (result.ok) {
-      dispatch({ type: "leadSuccess", payload: { dryRun: Boolean(result.dryRun) } });
-      trackAiChat("ai_baton_email_submitted", result.dryRun ? "dry_run" : "saved");
+      const captureLabel = emailCaptureLabelForPhase(stateRef.current.phase);
+      dispatch({ type: "leadSuccess", payload: { dryRun: Boolean(result.dryRun), contactMethod } });
+      trackAiChat("ai_email_captured", captureLabel);
       return;
     }
     dispatch({ type: "leadFail", payload: result.error || "送信に失敗しました。" });
@@ -568,6 +620,8 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
       closeChat,
       startAnalysis,
       answerPain,
+      submitEmailGate,
+      skipEmailGate,
       skipDeepen,
       answerSize,
       answerMaturity,
@@ -587,6 +641,8 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
       closeChat,
       startAnalysis,
       answerPain,
+      submitEmailGate,
+      skipEmailGate,
       skipDeepen,
       answerSize,
       answerMaturity,

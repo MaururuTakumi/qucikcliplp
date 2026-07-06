@@ -116,9 +116,7 @@ export default function AiDiagnosisPage() {
             overflow: "hidden",
           }}
         >
-          <div className="aichat-body">
-            <ChatStage />
-          </div>
+          <ChatStage />
         </div>
 
         <p style={{ color: "color-mix(in srgb, var(--text-primary) 45%, transparent)", fontSize: "0.8rem", margin: "0.9rem 0 0" }}>

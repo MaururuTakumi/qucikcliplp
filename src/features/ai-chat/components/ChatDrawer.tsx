@@ -6,10 +6,9 @@
 
 import React from "react";
 import { AnimatePresence, m } from "framer-motion";
-import { X } from "lucide-react";
 import { dur, ease } from "../../../design/tokens";
 import { useAiChat } from "../ChatProvider";
-import { ChatStage, chatHeaderFor, useChatStyles } from "./ChatStage";
+import { ChatStage, useChatStyles } from "./ChatStage";
 
 function getFocusable(container: HTMLElement) {
   return Array.from(
@@ -22,8 +21,17 @@ function getFocusable(container: HTMLElement) {
 export function ChatDrawer() {
   const { state, closeChat } = useAiChat();
   const panelRef = React.useRef<HTMLElement | null>(null);
+  const [isMobile, setIsMobile] = React.useState(false);
 
   useChatStyles();
+
+  React.useEffect(() => {
+    const media = window.matchMedia("(max-width: 767px)");
+    const update = () => setIsMobile(media.matches);
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
 
   React.useEffect(() => {
     if (!state.isOpen) return undefined;
@@ -66,8 +74,6 @@ export function ChatDrawer() {
     };
   }, [closeChat, state.isOpen]);
 
-  const head = chatHeaderFor(state.phase, state.analysis?.companyName);
-
   return (
     <AnimatePresence>
       {state.isOpen && (
@@ -78,7 +84,7 @@ export function ChatDrawer() {
           exit={{ opacity: 0 }}
           transition={{ duration: dur.fast, ease: ease.soft }}
           role="presentation"
-          onClick={(event) => {
+          onClick={(event: React.MouseEvent<HTMLDivElement>) => {
             if (event.target === event.currentTarget) closeChat();
           }}
         >
@@ -89,24 +95,12 @@ export function ChatDrawer() {
             role="dialog"
             aria-modal="true"
             aria-labelledby="aichat-title"
-            initial={{ x: "100%", y: "8%" }}
-            animate={{ x: 0, y: 0 }}
-            exit={{ x: "100%", y: "8%" }}
+            initial={isMobile ? { y: "100%" } : { x: "100%" }}
+            animate={isMobile ? { y: 0 } : { x: 0 }}
+            exit={isMobile ? { y: "100%" } : { x: "100%" }}
             transition={{ duration: dur.base, ease: ease.inOut }}
           >
-            <header className="aichat-head">
-              <div>
-                <span className="aichat-kicker">{head.kicker}</span>
-                <h2 id="aichat-title" className="aichat-title">{head.title}</h2>
-              </div>
-              <button className="aichat-close" type="button" onClick={closeChat} aria-label="AI診断を閉じる">
-                <X aria-hidden="true" size={18} />
-              </button>
-            </header>
-
-            <div className="aichat-body">
-              <ChatStage onNavigate={closeChat} />
-            </div>
+            <ChatStage onNavigate={closeChat} onClose={closeChat} />
           </m.aside>
         </m.div>
       )}

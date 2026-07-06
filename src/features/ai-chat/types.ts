@@ -11,6 +11,7 @@ export type ChatPhase =
   | "idle"
   | "analyzing"
   | "insightsShown"
+  | "emailGate" // ai-diagnosis-ui-redesign §4.5: Q1直後の主メール取得
   | "deepening" // contact-funnel-v2 §1.2: Q2/Q3 深掘り
   | "focusBuilding" // 進め方プラン生成待ち(5-10秒)
   | "focusShown" // 進め方プラン + 匿名事例 + 人間バトン
