@@ -266,7 +266,7 @@ const HomePage = () => {
 
       {/* ===== WE / RECRUIT hook ===== */}
       <SectionShell wedge="top">
-        <SectionHeading enLabel="Who We Are" title="時代を、つくる側に回る。" level={2} />
+        <SectionHeading enLabel="Our Mission" title="時代を、つくる側に回る。" level={2} />
         <Reveal variant="fadeUp">
           <p
             style={{
