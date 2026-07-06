@@ -14,6 +14,15 @@ export default defineConfig({
   define: {
     global: 'globalThis',
   },
+  server: {
+    proxy: {
+      '/api/ai-chat': {
+        target: 'https://honkoma-ai-chat.quickclip.workers.dev',
+        changeOrigin: true,
+        secure: true,
+      },
+    },
+  },
   resolve: {
     alias: {
       buffer: 'buffer',
