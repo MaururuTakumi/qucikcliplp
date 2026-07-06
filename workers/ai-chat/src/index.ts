@@ -1332,10 +1332,15 @@ function caseConnectionText(value: unknown, fallback: string, env: Env) {
 }
 
 function riskTarget(action: string) {
-  return action
+  const base = action
     .replace(/^(電話とフォームに来た|直近の|過去の|まず|最初に)/, "")
     .replace(/[。、].*$/, "")
-    .slice(0, 32) || "最初の対象業務";
+    /* 末尾の動詞句(「〜を特定します」等)を落として名詞止めにする */
+    .replace(/を(特定|整理|分類|実装|集約|作成|確認|設計|統合|一元化|見直し|準備|検討|把握)(します|する|し)?$/, "")
+    .slice(0, 30)
+    /* slice でぶら下がった助詞を除去(「…をに範囲」防止) */
+    .replace(/[をにがはでとへの]$/, "");
+  return base || "最初の対象業務";
 }
 
 function fallbackFocusPlan(body: DeepenBody, matchedCase: CaseRecord | null): FocusPlan {
@@ -1472,8 +1477,8 @@ function fallbackFocusPlan(body: DeepenBody, matchedCase: CaseRecord | null): Fo
   };
 
   if (matchedCase) {
-    const casePoint = matchedCase.situation || matchedCase.title || "課題の入口";
-    plan.caseConnection = `${matchedCase.companySize || "近い規模"}で、${casePoint}が重なる匿名事例があります。`.slice(0, 80);
+    const casePoint = (matchedCase.situation || matchedCase.title || "課題の入口").replace(/[。、\s]+$/, "");
+    plan.caseConnection = `${matchedCase.companySize || "近い規模"}で、${casePoint}点が重なる匿名事例があります。`.slice(0, 80);
   }
   return plan;
 }
