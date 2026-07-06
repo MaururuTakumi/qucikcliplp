@@ -13,8 +13,9 @@
  * ========================================================================== */
 
 import { Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { Canvas } from "@react-three/fiber";
+import { Canvas, useFrame } from "@react-three/fiber";
 import { useScroll, useReducedMotion, useMotionValue, type MotionValue } from "framer-motion";
+import type { PointLight } from "three";
 import { scroll as scrollTokens } from "../../design/tokens";
 import { EmbraceStack } from "./scenes/EmbraceStack";
 
@@ -90,6 +91,82 @@ function useInViewFrameloop(ref: React.RefObject<HTMLElement>) {
   return active;
 }
 
+/**
+ * Capture pointer (and device tilt) into normalized -1..1 MotionValues, relative
+ * to the host element's center. Written outside React render (no re-render) so
+ * the scene reads them in useFrame. Disabled when `enabled` is false (mobile
+ * lite / reduced motion).
+ */
+function usePointerParallax(
+  ref: React.RefObject<HTMLElement>,
+  enabled: boolean,
+  x: MotionValue<number>,
+  y: MotionValue<number>,
+) {
+  useEffect(() => {
+    if (!enabled || typeof window === "undefined") return;
+    const el = ref.current;
+    if (!el) return;
+
+    const onMove = (e: PointerEvent) => {
+      const r = el.getBoundingClientRect();
+      const cx = r.left + r.width / 2;
+      const cy = r.top + r.height / 2;
+      x.set(clampSigned(((e.clientX - cx) / (r.width / 2)) || 0));
+      y.set(clampSigned(((e.clientY - cy) / (r.height / 2)) || 0));
+    };
+    const onLeave = () => {
+      x.set(0);
+      y.set(0);
+    };
+    const onTilt = (e: DeviceOrientationEvent) => {
+      // gamma: left/right (-90..90), beta: front/back. Map to a gentle range.
+      if (e.gamma == null || e.beta == null) return;
+      x.set(clampSigned(e.gamma / 30));
+      y.set(clampSigned((e.beta - 45) / 30));
+    };
+
+    window.addEventListener("pointermove", onMove, { passive: true });
+    el.addEventListener("pointerleave", onLeave);
+    window.addEventListener("deviceorientation", onTilt);
+    return () => {
+      window.removeEventListener("pointermove", onMove);
+      el.removeEventListener("pointerleave", onLeave);
+      window.removeEventListener("deviceorientation", onTilt);
+    };
+  }, [ref, enabled, x, y]);
+}
+
+function clampSigned(v: number): number {
+  return v < -1 ? -1 : v > 1 ? 1 : v;
+}
+
+/* ---- drift light time constants (scene-local; tokens.ts owns UI time) ----- */
+const DRIFT_ORBIT_SPEED = 0.11;  // rad/s — one slow lap ~57s, light wanders
+const DRIFT_PULSE_SPEED = 0.23;  // intensity swell frequency
+const DRIFT_BASE_INTENSITY = 5;  // candela-ish (physical lights: I/d^2 at ~4.5u)
+
+/**
+ * A soft accent point light that slowly wanders around the scene, so
+ * highlights migrate across the matte blue surfaces even at rest — the
+ * "light is alive" layer of the ambient life. Desktop only (skipped on lite).
+ */
+function DriftLight({ color }: { color: string }) {
+  const ref = useRef<PointLight>(null);
+  useFrame((state) => {
+    const l = ref.current;
+    if (!l) return;
+    const t = state.clock.getElapsedTime();
+    l.position.set(
+      Math.cos(t * DRIFT_ORBIT_SPEED) * 4,
+      2.4 + Math.sin(t * DRIFT_ORBIT_SPEED * 0.7) * 0.9,
+      Math.sin(t * DRIFT_ORBIT_SPEED) * 4,
+    );
+    l.intensity = DRIFT_BASE_INTENSITY + Math.sin(t * DRIFT_PULSE_SPEED) * 1.6;
+  });
+  return <pointLight ref={ref} color={color} intensity={DRIFT_BASE_INTENSITY} distance={12} decay={2} />;
+}
+
 export function ScrollScene({
   scene = "embraceStack",
   progress,
@@ -120,18 +197,27 @@ export function ScrollScene({
     !canWebgl || reduce || (isMobile && mobile === "fallback");
   const lite = isMobile && mobile === "lite";
 
+  // Pointer parallax MotionValues (disabled on lite / reduced motion).
+  const pointerX = useMotionValue(0);
+  const pointerY = useMotionValue(0);
+  usePointerParallax(hostRef, !lite && !reduce, pointerX, pointerY);
+
   const dpr = useMemo<[number, number]>(() => (lite ? [1, 1] : [1, 1.5]), [lite]);
+
+  // position:relative is REQUIRED as the useScroll target (Framer Motion warns
+  // otherwise) and anchors pointer-parallax measurement.
+  const hostStyle: React.CSSProperties = { position: "relative" };
 
   if (useFallback) {
     return (
-      <div ref={hostRef} className={className} role="img" aria-label={ariaLabel}>
+      <div ref={hostRef} className={className} style={hostStyle} role="img" aria-label={ariaLabel}>
         {fallback ?? <FallbackPlaceholder colors={colors} />}
       </div>
     );
   }
 
   return (
-    <div ref={hostRef} className={className} role="img" aria-label={ariaLabel}>
+    <div ref={hostRef} className={className} style={hostStyle} role="img" aria-label={ariaLabel}>
       <Canvas
         dpr={dpr}
         frameloop={inView ? "always" : "demand"}
@@ -140,13 +226,24 @@ export function ScrollScene({
         gl={{ antialias: true, alpha: true }}
         style={{ width: "100%", height: "100%" }}
       >
-        <ambientLight intensity={0.75} />
-        {/* One warm key light adds human warmth to the honkoma blue. */}
-        <directionalLight position={[3, 5, 4]} intensity={0.9} color="#FFF7EE" />
+        {/* Flat/graphical (no photoreal). The light rig builds honkoma-blue
+            depth: a hemisphere gradient (cool sky -> warm ground) as the soft
+            environment, a warm key for human warmth, a cool fill so shadows
+            keep blue, a faint rim to lift edges off the light background, and
+            (desktop only) a slow-wandering accent light so highlights migrate
+            even at rest. Scene materials add a subtle fresnel rim on top. */}
+        <ambientLight intensity={0.4} />
+        <hemisphereLight args={[colors.soft, "#FFF4E8", 0.55]} />
+        <directionalLight position={[3, 5, 4]} intensity={0.8} color="#FFF7EE" />
+        <directionalLight position={[-4, 1, -2]} intensity={0.3} color="#BFD8FF" />
+        <directionalLight position={[-1, 2, -5]} intensity={0.45} color="#EAF3FF" />
+        {!lite && <DriftLight color={colors.soft} />}
         <Suspense fallback={null}>
           {scene === "embraceStack" && (
             <EmbraceStack
               progress={activeProgress}
+              pointerX={pointerX}
+              pointerY={pointerY}
               colors={colors}
               lite={lite}
               reducedMotion={!!reduce}
