@@ -496,11 +496,11 @@ export function ChatStage({ onNavigate }: ChatStageProps) {
               <section className="aichat-baton" aria-label="人間バトン">
                 <h3>ここから先は、人が見ます。</h3>
                 <p className="aichat-note" style={{ margin: 0 }}>
-                  ここまでの診断は、公開情報とご回答から立てた仮説です。この内容は代表の林拓海が直接確認します。
-                  会話を引き継いだ30分の壁打ち（オンライン・無料）で、御社の実情に合わせて組み直しませんか。売り込みはしません。
+                  ここまでの診断は、公開情報とご回答から立てた仮説です。この内容は弊社代表も直接確認します。
+                  まずはお気軽に、30分のオンライン相談（無料）で、御社の実情に合わせて組み直しませんか。売り込みはしません。
                 </p>
                 <div className="aichat-actions">
-                  <ArrowCTA onClick={startBooking} variant="fill" direction="external" withText="林拓海と日程を選ぶ" label="林拓海との30分壁打ちを予約する" />
+                  <ArrowCTA onClick={startBooking} variant="fill" direction="external" withText="弊社代表に相談してみる" label="弊社代表に無料オンラインで相談する" />
                   <small className="aichat-note" style={{ margin: 0 }}>30分・オンライン・無料</small>
                 </div>
                 <button className="aichat-textbutton" type="button" onClick={requestEmail}>
