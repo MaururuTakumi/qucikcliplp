@@ -13,7 +13,7 @@
  * 先に直し、ここへ同期すること。
  * ========================================================================== */
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { SectionShell } from "../components/Layout/SectionShell";
 import { SectionHeading } from "../components/ui/SectionHeading";
 import { StaggerGrid } from "../components/ui/StaggerGrid";
@@ -122,9 +122,25 @@ function CasualTalkCTA({
   );
 }
 
+/* ヒーロー主見出しは対句2行が基本。ただし狭い画面では各行が2段に割れて不格好
+ * になるため、意味の単位で4分割へ落とす（recruit-redesign §1.2）。 */
+const HERO_TITLE_WIDE = ["スキルの差は、AIが埋める。", "熱意の差は、埋まらない。"];
+const HERO_TITLE_NARROW = ["スキルの差は、", "AIが埋める。", "熱意の差は、", "埋まらない。"];
+
 const RecruitPage = () => {
+  const [heroTitle, setHeroTitle] = useState(() =>
+    typeof window !== "undefined" && window.matchMedia("(max-width: 600px)").matches
+      ? HERO_TITLE_NARROW
+      : HERO_TITLE_WIDE,
+  );
+
   useEffect(() => {
     document.title = "採用情報 | honkoma";
+    const mq = window.matchMedia("(max-width: 600px)");
+    const pick = () => setHeroTitle(mq.matches ? HERO_TITLE_NARROW : HERO_TITLE_WIDE);
+    pick();
+    mq.addEventListener("change", pick);
+    return () => mq.removeEventListener("change", pick);
   }, []);
 
   return (
@@ -133,7 +149,7 @@ const RecruitPage = () => {
       <SectionShell>
         <SectionHeading
           enLabel="Skills converge. Passion doesn't."
-          title={["スキルの差は、AIが埋める。", "熱意の差は、埋まらない。"]}
+          title={heroTitle}
           level={1}
         />
         <Reveal variant="fade">
