@@ -64,31 +64,63 @@ const PRINCIPLES: { en: string; title: string; body: string }[] = [
   },
 ];
 
-/* こんな人を探している: 人物像の名指し。職種一覧は作らない（§4-4）。 */
-const PERSONAS: string[] = [
-  "変化を、面白がれる人",
-  "頼まれる前に、作りはじめる人",
-  "「自分事」で、現場に立てる人",
-  "正解のない問いに、手を動かせる人",
+/* こんな人を探している: 人物像の名指し（見出し＋一行）。職種一覧は作らない。
+ * docs/recruit-redesign-design.md §2.2 確定コピー。 */
+const PERSONAS: { title: string; body: string }[] = [
+  {
+    title: "AIに、心が動く人",
+    body: "最新のAIを「仕事の話」としてではなく、「面白い話」として追いかけてしまう。その好奇心が出発点。",
+  },
+  {
+    title: "人と話すのが、好きな人",
+    body: "honkomaの仕事は、現場の人との会話から始まる。少し明るい、はそれだけで立派な強み。",
+  },
+  {
+    title: "スキルは、これからでいい人",
+    body: "PMも開発も、今できる必要はない。伝える力と学ぶ速さがあれば、道具はAIと私たちが揃える。",
+  },
+  {
+    title: "仕事を、自分事にできる人",
+    body: "頼まれた範囲で止まらず、「自分ならどうするか」で考える。行動指針の第1原則、そのまま。",
+  },
 ];
 
-/* 分類は3枠のみ（エンジニア / ビジネス / オープン）。 */
-const TRACKS: { label: string; desc: string }[] = [
-  {
-    label: "エンジニア",
-    desc: "AIツールの設計・実装から現場実装まで。技術で成果を出し切る。",
-  },
-  {
-    label: "ビジネス",
-    desc: "顧客の現場に入り込み、課題を定義し、伴走で成果を届ける。",
-  },
-  {
-    label: "オープン",
-    desc: "枠に当てはまらなくてもいい。まず話そう。役割は一緒につくる。",
-  },
-];
+/* かかわり方（インターン〜正社員）。職種一覧＝求人票にはしない（§2.3）。 */
+const INVOLVEMENT = ["インターン", "業務委託", "正社員"];
 
 const X_DM_URL = "https://x.com/moriyorihayash1";
+
+/* カジュアル面談の主動線 = 単一スワップポイント（§3.2）。
+ * Phase 1: null のまま → /contact?type=recruit（種別プリセット・実装済）。
+ * Phase 2: Googleカレンダー予約URLを入れると、全CTAが自動で予約(新規タブ)へ昇格する。 */
+const RECRUIT_BOOKING_URL: string | null = null;
+
+/** まず話す動線のCTA。RECRUIT_BOOKING_URL の有無でPhase1/2を自動切替。 */
+function CasualTalkCTA({
+  size,
+  variant,
+  withText,
+}: {
+  size?: "lg";
+  variant: "fill" | "outline" | "ghost";
+  withText: string;
+}) {
+  if (RECRUIT_BOOKING_URL) {
+    return (
+      <ArrowCTA
+        href={RECRUIT_BOOKING_URL}
+        direction="external"
+        size={size}
+        variant={variant}
+        withText={withText}
+        label={withText}
+      />
+    );
+  }
+  return (
+    <ArrowCTA to="/contact?type=recruit" size={size} variant={variant} withText={withText} label={withText} />
+  );
+}
 
 const RecruitPage = () => {
   useEffect(() => {
@@ -100,8 +132,8 @@ const RecruitPage = () => {
       {/* ===== HERO — 旗 ===== */}
       <SectionShell>
         <SectionHeading
-          enLabel="Careers"
-          title={["時代を、", "自分事にしろ。"]}
+          enLabel="Skills converge. Passion doesn't."
+          title={["スキルの差は、AIが埋める。", "熱意の差は、埋まらない。"]}
           level={1}
         />
         <Reveal variant="fade">
@@ -114,20 +146,14 @@ const RecruitPage = () => {
               lineHeight: 2,
             }}
           >
-            honkomaは、AIで時代の最前線を立ち上げる10人のチーム。
-            求人票の空欄を埋める採用はしない。職種ではなく、人で募る。
-            「誰かが作った時代を、生きない」と決めた人へ。
+            AIが誰の手にも届いた今、「何ができるか」の差は日ごとに縮んでいく。
+            最後に差になるのは、目の前の課題をどこまで自分事にできるか——つまり熱意だ。
+            honkomaは、その熱を持つ仲間を探している10人のチーム。
           </p>
           <div
             style={{ display: "flex", gap: "1.25rem", flexWrap: "wrap", alignItems: "center" }}
           >
-            <ArrowCTA
-              to="/contact?type=recruit"
-              size="lg"
-              variant="fill"
-              withText="まず話す（カジュアル面談）"
-              label="まず話す（カジュアル面談）"
-            />
+            <CasualTalkCTA size="lg" variant="fill" withText="まず話す（カジュアル面談）" />
             <ArrowCTA
               to="/team"
               variant="outline"
@@ -271,82 +297,126 @@ const RecruitPage = () => {
               lineHeight: 1.9,
             }}
           >
-            スキルより、姿勢を見る。以下のどれかに心が動いたら、
-            まず話しましょう。
+            求人票はありません。あるのは、この4行だけ。
+            ひとつでも「自分のことだ」と思えたら、まず話しましょう。
           </p>
         </Reveal>
         <StaggerGrid columns={{ base: 1, md: 2 }} gap="md">
           {PERSONAS.map((p, i) => (
             <div
-              key={p}
+              key={p.title}
               style={{
-                display: "flex",
-                alignItems: "baseline",
-                gap: "1rem",
-                padding: "1.4rem 0",
+                padding: "1.6rem 0",
                 borderTop:
                   "1px solid color-mix(in srgb, var(--text-primary) 10%, transparent)",
               }}
             >
-              <span
-                className="font-en"
+              <div style={{ display: "flex", alignItems: "baseline", gap: "1rem" }}>
+                <span
+                  className="font-en"
+                  style={{
+                    fontSize: "0.85rem",
+                    color: "var(--color-accent)",
+                    fontWeight: 700,
+                  }}
+                >
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <span
+                  style={{
+                    fontSize: "clamp(1.15rem, 2vw, 1.5rem)",
+                    fontWeight: 600,
+                    color: "var(--text-primary)",
+                    lineHeight: 1.5,
+                  }}
+                >
+                  {p.title}
+                </span>
+              </div>
+              <p
                 style={{
-                  fontSize: "0.85rem",
-                  color: "var(--color-accent)",
-                  fontWeight: 700,
+                  margin: "0.6rem 0 0",
+                  paddingLeft: "calc(0.85rem + 1rem)",
+                  color: "var(--text-secondary)",
+                  fontSize: "0.95rem",
+                  lineHeight: 1.85,
                 }}
               >
-                {String(i + 1).padStart(2, "0")}
-              </span>
-              <span
-                style={{
-                  fontSize: "clamp(1.15rem, 2vw, 1.5rem)",
-                  fontWeight: 600,
-                  color: "var(--text-primary)",
-                  lineHeight: 1.5,
-                }}
-              >
-                {p}
-              </span>
+                {p.body}
+              </p>
             </div>
           ))}
         </StaggerGrid>
 
-        {/* 分類3枠 */}
+        {/* 中間CTA — 人物像直後、離脱前の最も温度が高い位置（§2.4） */}
+        <Reveal variant="fadeUp">
+          <div style={{ marginTop: "clamp(2.5rem, 5vw, 3.5rem)" }}>
+            <p
+              style={{
+                margin: "0 0 1.25rem",
+                color: "var(--text-primary)",
+                fontSize: "clamp(1.05rem, 1.5vw, 1.25rem)",
+                fontWeight: 600,
+                lineHeight: 1.7,
+              }}
+            >
+              ひとつでも心が動いたら、30分だけ話しましょう。
+            </p>
+            <CasualTalkCTA variant="fill" withText="カジュアル面談へ" />
+          </div>
+        </Reveal>
+
+        {/* かかわり方ストリップ — 求人票にしない（§2.3・カード3枚に分けない） */}
         <div style={{ marginTop: "clamp(3rem, 6vw, 4.5rem)" }}>
-          <StaggerGrid columns={{ base: 1, md: 3 }} gap="md">
-            {TRACKS.map((t) => (
-              <div
-                key={t.label}
+          <Reveal variant="fadeUp">
+            <div
+              style={{
+                background: "var(--surface-raised)",
+                borderRadius: "var(--radius-lg)",
+                padding: "clamp(1.75rem, 3.5vw, 2.5rem)",
+                boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
+              }}
+            >
+              <h3
                 style={{
-                  background: "var(--surface-raised)",
-                  borderRadius: "var(--radius-lg)",
-                  padding: "clamp(1.5rem, 3vw, 2rem)",
-                  boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
+                  fontSize: "var(--fs-h3)",
+                  fontWeight: 700,
+                  margin: "0 0 0.75rem",
+                  color: "var(--text-primary)",
                 }}
               >
-                <h3
-                  style={{
-                    fontSize: "var(--fs-h3)",
-                    fontWeight: 700,
-                    marginBottom: "0.6rem",
-                    color: "var(--text-primary)",
-                  }}
-                >
-                  {t.label}
-                </h3>
-                <p
-                  style={{
-                    color: "var(--text-secondary)",
-                    fontSize: "0.95rem",
-                    lineHeight: 1.85,
-                  }}
-                >
-                  {t.desc}
-                </p>
+                かかわり方は、話しながら決める。
+              </h3>
+              <p
+                style={{
+                  color: "var(--text-secondary)",
+                  fontSize: "0.98rem",
+                  lineHeight: 1.9,
+                  maxWidth: "48ch",
+                }}
+              >
+                インターン、業務委託、正社員——入り口はどこからでも。
+                今のあなたに合うかかわり方を、面談で一緒に見つけるところから始めます。
+              </p>
+              <div
+                className="font-en"
+                style={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: "0.75rem 1.5rem",
+                  marginTop: "1.5rem",
+                  fontSize: "0.85rem",
+                  letterSpacing: "0.08em",
+                  color: "var(--color-accent)",
+                  fontWeight: 700,
+                }}
+              >
+                {INVOLVEMENT.map((label) => (
+                  <span key={label}>{label}</span>
+                ))}
               </div>
-            ))}
-          </StaggerGrid>
+            </div>
+          </Reveal>
         </div>
       </SectionShell>
 
@@ -361,26 +431,38 @@ const RecruitPage = () => {
           <Reveal variant="fadeUp">
             <p
               style={{
-                margin: "1.5rem 0 clamp(2rem, 4vw, 3rem)",
+                margin: "1.5rem 0 1.25rem",
                 color: "var(--text-secondary)",
                 fontSize: "clamp(1rem, 1.3vw, 1.15rem)",
                 lineHeight: 1.9,
                 maxWidth: "44ch",
               }}
             >
-              応募フォームは用意していません。まずはカジュアル面談で、
-              お互いのことを知るところから。代表に直接DMでも構いません。
+              履歴書も、志望動機も、準備もいらない。
+              30分、オンラインで雑談するところから始めましょう。
+              これは選考ではないので、身構えなくて大丈夫。
             </p>
+            <div
+              className="font-en"
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: "0.5rem 1.5rem",
+                margin: "0 0 clamp(2rem, 4vw, 3rem)",
+                fontSize: "0.85rem",
+                letterSpacing: "0.06em",
+                color: "var(--color-accent-bright)",
+                fontWeight: 700,
+              }}
+            >
+              <span>オンライン30分</span>
+              <span>選考ではありません</span>
+              <span>準備するものなし</span>
+            </div>
             <div
               style={{ display: "flex", gap: "1.5rem", flexWrap: "wrap", alignItems: "center" }}
             >
-              <ArrowCTA
-                to="/contact?type=recruit"
-                size="lg"
-                variant="fill"
-                withText="カジュアル面談を申し込む"
-                label="カジュアル面談を申し込む"
-              />
+              <CasualTalkCTA size="lg" variant="fill" withText="カジュアル面談を申し込む" />
               <ArrowCTA
                 href={X_DM_URL}
                 variant="ghost"
