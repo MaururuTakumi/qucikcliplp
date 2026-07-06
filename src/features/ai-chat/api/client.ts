@@ -4,8 +4,12 @@ import type {
   AnalyzeRequest,
   AnalyzeResponse,
   ContactFormPayload,
+  DeepenRequest,
+  DeepenResponse,
+  FocusPlan,
   LeadPayload,
   LeadResponse,
+  PainCategory,
   PartialLeadPayload,
   ProposalAxis,
 } from "../types";
@@ -135,6 +139,67 @@ export async function analyzeCompany(request: AnalyzeRequest): Promise<AnalyzeRe
         ? "AI接続が未設定のため、ローカル診断で続行しています。"
         : "AI接続が不安定なため、ローカル診断で続行しています。",
       fallbackAnalysis: createMockAnalysis(request.companyUrl),
+    };
+  }
+}
+
+/* 課題→軸の対応(contact-funnel-v2 §2.3)。決定論のエコーバック/フォールバックに使用。 */
+const painToAxis: Record<PainCategory, ProposalAxis> = {
+  staffing: "fde",
+  support: "bottom_line",
+  backoffice: "bottom_line",
+  sales: "top_line",
+  data: "fde",
+  other: "top_line",
+};
+
+/** LLM生成が失敗した時の決定論フォールバック・プラン(§3.5)。事例カードは別で表示可。 */
+export function createMockFocusPlan(request: DeepenRequest): FocusPlan {
+  const axis =
+    request.painPoint === "other"
+      ? request.proposals[0]?.axis ?? "top_line"
+      : painToAxis[request.painPoint];
+  return {
+    schemaVersion: "1.0",
+    restatement: "いただいた課題を軸に、まず小さく始めて確かめる進め方を用意しました。",
+    chosenAxis: axis,
+    steps: [
+      { phase: "1〜2週目", action: "現状の業務を一緒に棚卸しし、AIで効く一点を決める。" },
+      { phase: "3〜6週目", action: "その一点を小さく実装し、現場で使える形にして回す。" },
+      { phase: "その後", action: "効果を見ながら横に広げ、社内に定着・内製化する。" },
+    ],
+    roles: {
+      honkoma: "設計・実装・現場への伴走をエンジニアが担当します。",
+      client: "現場の実情の共有と、試す時間の確保をお願いします。",
+    },
+    prerequisites: "今使っているツール(Slack/表計算/基幹など)と、対象業務の担当者。",
+    agenda: ["いちばん効く一点はどこか", "誰が運用を持てるか", "最初の2週間で何を試すか"],
+    riskNote: "現場が使わない仕組みは残らない。小さく始めて、使われる形から広げます。",
+  };
+}
+
+export async function deepenCompany(request: DeepenRequest): Promise<DeepenResponse> {
+  try {
+    const result = await postJson<DeepenRequest & { action: "deepen" }, DeepenResponse>(
+      { ...request, action: "deepen" },
+      REQUEST_TIMEOUT_MS,
+    );
+    if (result.ok) return result;
+    return {
+      ok: false,
+      error: result.error,
+      fallbackFocusPlan: result.fallbackFocusPlan ?? createMockFocusPlan(request),
+      matchedCase: result.matchedCase ?? null,
+    };
+  } catch (error) {
+    const technicalMessage = error instanceof Error ? error.message : "";
+    return {
+      ok: false,
+      error: technicalMessage.includes("404")
+        ? "AI接続が未設定のため、ローカルで進め方を組み立てました。"
+        : "AI接続が不安定なため、ローカルで進め方を組み立てました。",
+      fallbackFocusPlan: createMockFocusPlan(request),
+      matchedCase: null,
     };
   }
 }

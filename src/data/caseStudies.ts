@@ -26,6 +26,14 @@ export type CaseStudy = {
   outcome: string;
   quote?: string;
   role?: string;
+  /** 支援の主分類。記事末尾CTAの文脈差し込み・将来の絞り込みに使用
+   *  (case-study-intake-form-design §2.2)。 */
+  serviceType?: "ai" | "fde" | "product";
+  /** 公開日(YYYY-MM)。件数増加後の並び順・行リストUIに使用。 */
+  publishedAt?: string;
+  /** 従業員規模の表示用文字列(例:「従業員11〜50名規模」)。匿名事例の本文・
+   *  RAGマッチのため任意で保持。 */
+  employeeRange?: string;
 };
 
 export const caseStudies: CaseStudy[] = [
