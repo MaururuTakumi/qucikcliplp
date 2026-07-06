@@ -1,6 +1,6 @@
 import { StrictMode, Suspense, lazy } from "react";
 import { createRoot } from "react-dom/client";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 // Design system English accent font (Space Grotesk, latin subset only).
 import "@fontsource/space-grotesk/latin-500.css";
@@ -17,9 +17,7 @@ import TeamPage from "./pages/TeamPage";
 import ContactPage from "./pages/ContactPage";
 import PrivacyPage from "./pages/PrivacyPage";
 import CaseStudiesPage from "./pages/CaseStudiesPage";
-import ReviewAIPage from "./pages/ReviewAIPage";
 import HotelPage from "./pages/HotelPage";
-import D2CPage from "./pages/D2CPage";
 import RecruitPage from "./pages/RecruitPage";
 
 // DEV-only primitive catalog. Lazily imported so it stays out of prod bundles.
@@ -41,11 +39,13 @@ createRoot(document.getElementById("app") as HTMLElement).render(
             <Route path="/team" element={<TeamPage />} />
             <Route path="/recruit" element={<RecruitPage />} />
             <Route path="/case-studies" element={<CaseStudiesPage />} />
-            <Route path="/review-ai" element={<ReviewAIPage />} />
             <Route path="/hotel" element={<HotelPage />} />
             <Route path="/hotels" element={<HotelPage />} />
             <Route path="/hasip" element={<HotelPage />} />
-            <Route path="/d2c" element={<D2CPage />} />
+            {/* site-ia-design §7 M10: /d2c・/review-ai はページ削除→/product へ集約。
+                SPA のため 301 は張れないので client redirect（sitemap/内部リンクからも除去済）。 */}
+            <Route path="/d2c" element={<Navigate to="/product" replace />} />
+            <Route path="/review-ai" element={<Navigate to="/product" replace />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/privacy" element={<PrivacyPage />} />
             {MotionLab && (

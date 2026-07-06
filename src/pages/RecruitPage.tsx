@@ -97,7 +97,7 @@ const RecruitPage = () => {
             style={{ display: "flex", gap: "1.25rem", flexWrap: "wrap", alignItems: "center" }}
           >
             <ArrowCTA
-              to="/contact"
+              to="/contact?type=recruit"
               size="lg"
               variant="fill"
               withText="まず話す（カジュアル面談）"
@@ -281,7 +281,7 @@ const RecruitPage = () => {
               style={{ display: "flex", gap: "1.5rem", flexWrap: "wrap", alignItems: "center" }}
             >
               <ArrowCTA
-                to="/contact"
+                to="/contact?type=recruit"
                 size="lg"
                 variant="fill"
                 withText="カジュアル面談を申し込む"

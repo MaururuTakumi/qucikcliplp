@@ -223,7 +223,9 @@ const TeamPage = () => {
               AI導入のご相談も、仲間としての参加も。まずは気軽に話しましょう。
             </p>
             <div style={{ display: "flex", gap: "1.5rem", flexWrap: "wrap", alignItems: "center" }}>
-              <ArrowCTA to="/contact" size="lg" variant="fill" withText="相談する" label="相談する" />
+              {/* M4: 👤閲覧文脈 → 🔥採用へ受け渡す唯一の下層クロス導線 */}
+              <ArrowCTA to="/recruit" size="lg" variant="fill" withText="この10人と働く" label="採用情報へ" />
+              <ArrowCTA to="/contact" variant="outline" withText="相談する" label="相談する" />
               <ArrowCTA to="/about" variant="ghost" withText="会社概要" label="会社概要" />
             </div>
           </Reveal>
