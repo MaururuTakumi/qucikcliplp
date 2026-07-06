@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLocation } from 'react-router-dom';
 import Header from './Header';
 import Footer from './Footer';
 import { AiChatProvider } from '../../features/ai-chat/ChatProvider';
@@ -10,6 +11,8 @@ interface LayoutProps {
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
+  /* /ai は診断ページ自体がChatStageを内包するため、ドロワー/フローティングは出さない。 */
+  const onAiPage = useLocation().pathname === '/ai';
   return (
     <AiChatProvider>
       <div className="min-h-screen bg-white flex flex-col">
@@ -19,8 +22,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </main>
         <Footer />
       </div>
-      <FloatingChatLauncher />
-      <ChatDrawer />
+      {!onAiPage && <FloatingChatLauncher />}
+      {!onAiPage && <ChatDrawer />}
     </AiChatProvider>
   );
 };
