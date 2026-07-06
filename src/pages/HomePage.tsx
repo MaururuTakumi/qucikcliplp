@@ -17,6 +17,8 @@ import { SectionHeading } from "../components/ui/SectionHeading";
 import { StaggerGrid } from "../components/ui/StaggerGrid";
 import { Reveal } from "../components/motion/Reveal";
 import { ArrowCTA } from "../components/ui/ArrowCTA";
+import { AIStarterBand } from "../features/ai-chat/components/AIStarterBand";
+import { useAiChat } from "../features/ai-chat/ChatProvider";
 
 const services = [
   {
@@ -69,6 +71,8 @@ function Card({ children }: { children: ReactNode }) {
 }
 
 const HomePage = () => {
+  const { openChat } = useAiChat();
+
   useEffect(() => {
     document.title = "honkoma | 誰かが作った時代を、生きるな。";
   }, []);
@@ -77,6 +81,8 @@ const HomePage = () => {
     <div style={{ background: "var(--surface-base)" }}>
       {/* ===== HERO (manifesto + embraceStack 3D) ===== */}
       <HeroHome />
+
+      <AIStarterBand source="hero" />
 
       {/* ===== TRUSTED BY (thin band, subtle) ===== */}
       <div
@@ -181,7 +187,15 @@ const HomePage = () => {
         </StaggerGrid>
 
         <div style={{ marginTop: "clamp(2rem, 4vw, 3rem)" }}>
-          <ArrowCTA to="/product" variant="outline" withText="サービスの詳細へ" label="サービスの詳細へ" />
+          <div style={{ display: "flex", gap: "1.25rem", flexWrap: "wrap", alignItems: "center" }}>
+            <ArrowCTA to="/product" variant="outline" withText="サービスの詳細へ" label="サービスの詳細へ" />
+            <ArrowCTA
+              onClick={() => openChat({ source: "whatwedo" })}
+              variant="fill"
+              withText="自社での使い方をAIに聞く"
+              label="自社での使い方をAIに聞く"
+            />
+          </div>
         </div>
       </SectionShell>
 
@@ -260,6 +274,14 @@ const HomePage = () => {
               業種と規模を問わずAIの伴走導入を重ねてきた。詳細は導入事例で。
             </p>
             <ArrowCTA to="/case-studies" variant="fill" withText="導入事例を見る" label="導入事例を見る" />
+            <div style={{ marginTop: "1.25rem" }}>
+              <ArrowCTA
+                onClick={() => openChat({ source: "cases" })}
+                variant="outline"
+                withText="うちならどう使えるか聞く"
+                label="うちならどう使えるか聞く"
+              />
+            </div>
           </Reveal>
         </div>
       </SectionShell>

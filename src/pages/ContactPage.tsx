@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Mail, Phone, MessageSquare, Calendar, ArrowRight, ArrowLeft, CheckCircle } from 'lucide-react';
+import { AIStarterBand } from '../features/ai-chat/components/AIStarterBand';
 
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbxVMYEL9aJS124xpDj-bpynGYH_QbyEsb0yGqUznlTALT6OreAjCSS7oth4f7ETDciQ/exec';
 
@@ -92,6 +93,13 @@ const ContactPage: React.FC = () => {
           </div>
         </div>
       </section>
+
+      <AIStarterBand
+        source="float"
+        compact
+        title="フォームの前に、AIで自社活用案を見てみる。"
+        body="会社サイトのURLから、honkomaならどこを自動化・売上化できるかを先に整理できます。"
+      />
 
       {/* Contact Info */}
       <section className="border-b border-subtle">

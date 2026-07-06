@@ -1,0 +1,6 @@
+name = "honkoma-ai-chat"
+main = "src/index.ts"
+compatibility_date = "2026-07-06"
+
+[vars]
+DEEPSEEK_MODEL = "deepseek-v4-pro"
