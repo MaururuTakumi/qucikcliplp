@@ -5,6 +5,7 @@ type Env = {
   NOTION_TOKEN?: string;
   NOTION_LEADS_DB_ID?: string;
   SLACK_WEBHOOK_URL?: string;
+  SLACK_NOTIFY_PARTIAL_LEADS?: string;
   ALLOWED_ORIGIN?: string;
 };
 
@@ -470,6 +471,9 @@ async function upsertNotionLead(env: Env, payload: LeadBody | PartialLeadBody) {
 async function notifySlack(env: Env, payload: LeadBody | PartialLeadBody) {
   if (!env.SLACK_WEBHOOK_URL) return false;
   const isPartial = payload.action === "partial_lead";
+  const notifyPartial = env.SLACK_NOTIFY_PARTIAL_LEADS?.toLowerCase() === "true";
+  if (isPartial && !notifyPartial) return false;
+
   const title = isPartial ? "AI chat partial lead" : "AI chat lead captured";
   const fields = [
     `source: ${payload.source}`,
