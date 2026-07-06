@@ -17,7 +17,7 @@
  * the triangle never eats the screen.
  * ========================================================================== */
 
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useLocation } from "react-router-dom";
 import { m, AnimatePresence, useReducedMotion } from "framer-motion";
 import { dur, ease, stagger as staggerTokens } from "../../design/tokens";
@@ -122,19 +122,29 @@ export function WedgeOverlay({ children, bars = 2, skipOn }: WedgeOverlayProps) 
   const prevPath = useRef(location.pathname);
   const mainRef = useRef<HTMLDivElement>(null);
 
-  const skip = skipOn ? skipOn(prevPath.current, location.pathname) : false;
+  // The sweep is keyed off `navKey`, which is null on first render. A hard load /
+  // reload therefore shows NO overlay wipe — the wedge is set only when the route
+  // actually CHANGES (in the effect below), so it plays on navigation and never on
+  // initial mount. It is cleared when the last bar finishes so no off-screen layer
+  // lingers. (Previously the overlay was keyed on location.pathname and mounted on
+  // first load, which made the signature wipe run on every page load/reload.)
+  const [navKey, setNavKey] = useState<string | null>(null);
 
   useEffect(() => {
+    if (prevPath.current === location.pathname) return; // initial mount: do nothing
+    const from = prevPath.current;
+    prevPath.current = location.pathname;
     // Scroll reset + focus move on every committed navigation.
-    if (prevPath.current !== location.pathname) {
-      window.scrollTo({ top: 0, left: 0, behavior: reduce ? "auto" : "auto" });
-      // Move focus to main for keyboard/SR users after the route swaps.
-      mainRef.current?.focus({ preventScroll: true });
-      prevPath.current = location.pathname;
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    mainRef.current?.focus({ preventScroll: true });
+    // Trigger the sweep unless this specific transition is opted out.
+    if (!(skipOn && skipOn(from, location.pathname))) {
+      setNavKey(location.pathname);
     }
-  }, [location.pathname, reduce]);
+  }, [location.pathname, skipOn]);
 
   const barColors = ["var(--color-accent-soft)", "var(--color-accent)"];
+  const clearSweep = () => setNavKey(null);
 
   return (
     <div style={{ position: "relative" }}>
@@ -143,9 +153,9 @@ export function WedgeOverlay({ children, bars = 2, skipOn }: WedgeOverlayProps) 
       </div>
 
       <AnimatePresence mode="wait">
-        {!skip && (
+        {navKey && (
           <m.div
-            key={location.pathname}
+            key={navKey}
             aria-hidden="true"
             style={{
               position: "fixed",
@@ -161,6 +171,7 @@ export function WedgeOverlay({ children, bars = 2, skipOn }: WedgeOverlayProps) 
                 initial={{ opacity: 0.0 }}
                 animate={{ opacity: [0.0, 0.6, 0.0] }}
                 transition={{ duration: dur.fast, times: [0, 0.5, 1] }}
+                onAnimationComplete={clearSweep}
                 style={{ position: "absolute", inset: 0, background: "var(--color-accent)" }}
               />
             ) : (
@@ -175,6 +186,7 @@ export function WedgeOverlay({ children, bars = 2, skipOn }: WedgeOverlayProps) 
                     times: [0, 0.5, 1],
                     delay: i * staggerTokens.tight,
                   }}
+                  onAnimationComplete={i === bars - 1 ? clearSweep : undefined}
                   style={{
                     position: "absolute",
                     inset: 0,
