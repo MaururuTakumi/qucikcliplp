@@ -60,7 +60,7 @@ const PRINCIPLES: { en: string; title: string; body: string }[] = [
   {
     en: "Today, Not Tomorrow",
     title: "今日、やる。",
-    body: "明日に回すと、時代のほうが先に行く。小さくてもいい、今日動かして、今日学ぼう。",
+    body: "明日に回すほど、はじめの一歩は重くなる。小さくてもいい、今日動かして、今日学ぼう。",
   },
 ];
 

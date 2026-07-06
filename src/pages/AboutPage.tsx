@@ -57,7 +57,7 @@ const principles = [
   {
     en: "Today, Not Tomorrow",
     title: "今日、やる。",
-    body: "明日に回すと、時代のほうが先に行く。小さくてもいい、今日動かして、今日学ぼう。",
+    body: "明日に回すほど、はじめの一歩は重くなる。小さくてもいい、今日動かして、今日学ぼう。",
   },
 ];
 
@@ -203,15 +203,23 @@ const AboutPage = () => {
         </div>
       </SectionShell>
 
-      {/* ===== METRICS (inverse) ===== */}
+      {/* ===== METRICS (inverse) — 見出し＋左寄せの数字帯でバランスを取る ===== */}
       <SectionShell theme="inverse" wedge="top">
+        <SectionHeading enLabel="By the Numbers" title="数字で見る、honkoma。" level={2} />
         <StaggerGrid columns={{ base: 1, md: 3 }} gap="md">
           {metrics.map((m) => (
-            <div key={m.label} style={{ textAlign: "center", padding: "clamp(1.5rem, 3vw, 2.5rem) 1rem" }}>
-              <div style={{ fontSize: "clamp(2.5rem, 5vw, 3.5rem)", fontWeight: 700, color: "var(--text-primary)" }}>
+            <div
+              key={m.label}
+              style={{
+                paddingTop: "clamp(1.75rem, 4vw, 3rem)",
+                marginTop: "clamp(2rem, 4vw, 3rem)",
+                borderTop: "1px solid color-mix(in srgb, var(--text-primary) 18%, transparent)",
+              }}
+            >
+              <div style={{ fontSize: "clamp(2.5rem, 5vw, 3.5rem)", fontWeight: 700, color: "var(--text-primary)", lineHeight: 1.05 }}>
                 {m.value}
               </div>
-              <div className="font-en" style={{ marginTop: "0.5rem", fontSize: "0.8rem", letterSpacing: "0.04em", color: "var(--text-secondary)" }}>
+              <div className="font-en" style={{ marginTop: "0.65rem", fontSize: "0.8rem", letterSpacing: "0.04em", color: "var(--text-secondary)" }}>
                 {m.label}
               </div>
             </div>
