@@ -2,25 +2,21 @@
  * honkoma — HomePage hero (corporate face). LayerX-faithful × honkoma blue.
  *
  * Design intent: the visual center of the site. NOT a product pitch — the
- * company's face. Light, generous whitespace, quiet confidence. The theme
- * "まだ見ぬ未来を、一緒に" is the star, set as a vertical Japanese heading
- * (TextReveal), with an English accent line and a single ArrowCTA. The
- * scroll-linked embraceStack 3D is the anchor visual (lazy-loaded so 3D never
- * weighs on other pages; static fallback for WebGL-less / reduced-motion).
+ * company's face. Light, generous whitespace, quiet confidence. The manifesto
+ * "誰かが作った時代を、生きるな。" is the star (horizontal TextReveal) with an
+ * English accent line and a single ArrowCTA. The anchor visual is a real
+ * workspace photo in a LayerX-style geometric frame with blue wedge accents —
+ * human and clear, not an abstract diagram. (The embraceStack 3D lives on
+ * /_lab; it is no longer used here.)
  *
- * Uses only design-system assets: tokens (semantic vars / ds namespace),
- * TextReveal, ArrowCTA, Reveal, and the lazy ScrollScene. No hard-coded colors,
- * no motion literals. Facts stay compliant (no 20社/98% claims here).
+ * Uses only design-system assets: tokens (semantic vars), TextReveal, ArrowCTA.
+ * No hard-coded colors, no motion literals. Facts stay compliant.
  * ========================================================================== */
 
-import { Suspense, lazy } from "react";
 import { m, useReducedMotion } from "framer-motion";
 import { TextReveal } from "../motion/TextReveal";
 import { ArrowCTA } from "../ui/ArrowCTA";
 import { dur, ease } from "../../design/tokens";
-
-// 3D is code-split: three/fiber/drei load only for this hero.
-const ScrollScene = lazy(() => import("../motion/ScrollScene"));
 
 export function HeroHome() {
   const reduce = useReducedMotion();
@@ -57,8 +53,6 @@ export function HeroHome() {
           width: "100%",
           maxWidth: 1200,
           margin: "0 auto",
-          /* Top pad clears the sticky header; content flows (no forced center
-           * that pushed the tall vertical heading up behind the header). */
           padding: "clamp(6.5rem, 13vh, 10rem) var(--space-gutter) clamp(4rem, 9vh, 7rem)",
         }}
       >
@@ -118,21 +112,33 @@ export function HeroHome() {
             </m.div>
           </div>
 
-          {/* 3D column — anchor visual */}
+          {/* Visual column — real workspace photo in a geometric frame + wedges */}
           <div className="hero-visual" aria-hidden="true">
-            <Suspense fallback={null}>
-              <ScrollScene
-                scene="embraceStack"
-                mobile="lite"
-                className="hero-canvas"
-                ariaLabel="honkoma のミッションを表す3Dビジュアル"
-              />
-            </Suspense>
+            <m.span
+              className="hero-wedge hero-wedge--soft"
+              initial={reduce ? undefined : { x: "-40%", opacity: 0 }}
+              animate={reduce ? undefined : { x: 0, opacity: 1 }}
+              transition={{ duration: dur.hero, ease: ease.inOut, delay: 0.35 }}
+            />
+            <m.span
+              className="hero-wedge hero-wedge--accent"
+              initial={reduce ? undefined : { x: "-40%", opacity: 0 }}
+              animate={reduce ? undefined : { x: 0, opacity: 1 }}
+              transition={{ duration: dur.hero, ease: ease.inOut, delay: 0.45 }}
+            />
+            <m.div
+              className="hero-frame"
+              initial={reduce ? undefined : { opacity: 0, scale: 0.97 }}
+              animate={reduce ? undefined : { opacity: 1, scale: 1 }}
+              transition={{ duration: dur.hero, ease: ease.out, delay: 0.15 }}
+            >
+              <img src="/assets/hero-workspace.png" alt="" loading="eager" />
+            </m.div>
           </div>
         </div>
       </div>
 
-      {/* scoped layout: desktop two-column, mobile stacked (heading horizontal) */}
+      {/* scoped layout: desktop two-column, mobile stacked */}
       <style>{`
         .hero-grid {
           display: grid;
@@ -140,14 +146,29 @@ export function HeroHome() {
           gap: clamp(2rem, 5vw, 4rem);
           align-items: start;
         }
-        /* Horizontal manifesto — 3 short stacked lines (LayerX-style). */
         .hero-title { font-size: clamp(2.5rem, 10vw, 3.5rem); font-weight: 700; line-height: 1.14; }
-        .hero-visual { order: -1; height: min(56vh, 480px); }
-        .hero-canvas { width: 100%; height: 100%; display: block; }
+        .hero-visual { order: -1; height: min(52vh, 440px); position: relative; }
+        .hero-frame {
+          position: relative; z-index: 1; width: 100%; height: 100%; overflow: hidden;
+          border-radius: 6px;
+          clip-path: polygon(9% 0, 100% 0, 100% 82%, 84% 100%, 0 100%, 0 16%);
+          box-shadow: 0 24px 60px -30px color-mix(in srgb, var(--navy-900) 55%, transparent);
+        }
+        .hero-frame img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .hero-wedge { position: absolute; z-index: 0; bottom: -7%; pointer-events: none; }
+        .hero-wedge--soft {
+          left: -8%; width: 58%; height: 46%;
+          background: var(--color-accent-soft);
+          clip-path: polygon(0 34%, 100% 0, 82% 100%, 0 100%);
+        }
+        .hero-wedge--accent {
+          left: 10%; width: 56%; height: 40%; bottom: -12%;
+          background: var(--color-accent);
+          clip-path: polygon(0 42%, 100% 0, 80% 100%, 0 100%);
+        }
         @media (min-width: 768px) {
-          /* Balanced split: horizontal heading needs copy width; 3D stays large. */
           .hero-grid { grid-template-columns: 1fr 1fr; }
-          .hero-visual { order: 0; height: min(82vh, 760px); }
+          .hero-visual { order: 0; height: min(74vh, 640px); }
           .hero-title { font-size: clamp(2.75rem, 4vw, 4.25rem); line-height: 1.16; }
         }
       `}</style>
