@@ -157,6 +157,7 @@ export type LeadResponse = {
 };
 
 export type ContactFormPayload = {
+  sessionId?: string;
   inquiryType: string;
   company: string;
   name: string;
@@ -171,6 +172,11 @@ export type ContactFormPayload = {
   /* 採用モード(recruit-redesign §4.2 / contact-funnel-v2)。既定は問い合わせ。 */
   type?: "inquiry" | "recruit";
   involvement?: string;
+};
+
+export type ContactPartialPayload = ContactFormPayload & {
+  sessionId: string;
+  partialReason?: string;
 };
 
 /* stage enum v2(contact-funnel-v2 §6.2)。旧値も後方互換で許容。 */

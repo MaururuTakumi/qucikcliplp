@@ -3,6 +3,7 @@ import type {
   AiProposal,
   AnalyzeRequest,
   AnalyzeResponse,
+  ContactPartialPayload,
   ContactFormPayload,
   DeepenRequest,
   DeepenResponse,
@@ -299,4 +300,28 @@ export async function submitContactFormNotification(payload: ContactFormPayload)
       error: error instanceof Error ? error.message : "Contact form notification unavailable",
     };
   }
+}
+
+export function submitContactPartialLead(payload: ContactPartialPayload): boolean {
+  const body = JSON.stringify({
+    ...payload,
+    action: "contact_partial",
+  });
+  const endpoint = apiEndpoint();
+
+  try {
+    if (navigator.sendBeacon) {
+      return navigator.sendBeacon(endpoint, new Blob([body], { type: "application/json" }));
+    }
+  } catch {
+    // Fall back to keepalive fetch below.
+  }
+
+  fetch(endpoint, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body,
+    keepalive: true,
+  }).catch(() => undefined);
+  return true;
 }

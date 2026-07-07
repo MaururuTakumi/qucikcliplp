@@ -53,6 +53,8 @@ type AsLink = { to: string; href?: never; onClick?: never };
 type AsAnchor = { href: string; to?: never; onClick?: never };
 type AsButton = {
   onClick: React.MouseEventHandler<HTMLButtonElement>;
+  disabled?: boolean;
+  type?: "button" | "submit" | "reset";
   to?: never;
   href?: never;
 };
@@ -167,6 +169,12 @@ const MOTION_STYLE = `
   font-family: var(--font-en);
   font-weight: 500;
   letter-spacing: 0.02em;
+}
+.arrowcta:disabled,
+.arrowcta[aria-disabled="true"] {
+  cursor: not-allowed;
+  pointer-events: none;
+  opacity: 0.45;
 }
 .arrowcta-text {
   font-size: var(--fs-label);
@@ -336,7 +344,9 @@ export function ArrowCTA(props: ArrowCTAProps) {
 
   return (
     <button
-      type="button"
+      type={(props as AsButton).type || "button"}
+      disabled={(props as AsButton).disabled}
+      aria-disabled={(props as AsButton).disabled || undefined}
       onClick={(props as AsButton).onClick}
       aria-label={label}
       className={rootClass}

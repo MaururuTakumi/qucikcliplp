@@ -148,6 +148,7 @@ type PartialLeadBody = Omit<LeadBody, "action"> & {
 
 type ContactFormBody = {
   action: "contact_form";
+  sessionId?: string;
   inquiryType: string;
   company: string;
   name: string;
@@ -161,6 +162,12 @@ type ContactFormBody = {
   landingPath?: string;
   type?: LeadType;
   involvement?: string;
+};
+
+type ContactPartialBody = Omit<ContactFormBody, "action"> & {
+  action: "contact_partial";
+  sessionId: string;
+  partialReason?: string;
 };
 
 type FocusPlanStep = {
@@ -2300,6 +2307,7 @@ function notionProperties(payload: LeadBody | PartialLeadBody) {
 }
 
 function contactFormSessionId(payload: ContactFormBody) {
+  if (payload.sessionId) return payload.sessionId;
   const timestamp = payload.timestamp || new Date().toISOString();
   return `contact_form:${timestamp}:${payload.email}`;
 }
@@ -2692,6 +2700,7 @@ function slackLeadNotification(payload: LeadBody | PartialLeadBody) {
 function slackContactFormNotification(payload: ContactFormBody) {
   const type = payload.type || (payload.inquiryType.includes("採用") ? "recruit" : "inquiry");
   const title = type === "recruit" ? "採用問い合わせ" : "通常問い合わせ";
+  const sessionId = contactFormSessionId(payload);
   const fields = [
     slackField("種別", payload.inquiryType),
     slackField("会社", payload.company),
@@ -2702,6 +2711,7 @@ function slackContactFormNotification(payload: ContactFormBody) {
   ].filter(Boolean);
   const context = [
     trafficContextLine(payload),
+    `session: ${slackText(compactSession(sessionId))}`,
     `type: ${type}`,
     `consent: ${payload.consent ? "yes" : "no"}`,
     payload.utm ? `utm: ${slackText(payload.utm)}` : "",
@@ -2718,6 +2728,36 @@ function slackContactFormNotification(payload: ContactFormBody) {
       { type: "header", text: slackPlainText(`📩 ${title}`) },
       { type: "section", fields },
       { type: "section", text: slackMrkdwn(`*内容*\n${slackText(payload.message, "内容なし")}`) },
+      { type: "context", elements: [slackMrkdwn(context)] },
+    ],
+  };
+}
+
+function slackContactPartialNotification(payload: ContactPartialBody) {
+  const context = [
+    trafficContextLine(payload),
+    `session: ${slackText(compactSession(payload.sessionId))}`,
+    `consent: ${payload.consent ? "yes" : "no"}`,
+    payload.partialReason ? `reason: ${slackText(payload.partialReason)}` : "",
+    payload.utm ? `utm: ${slackText(payload.utm)}` : "",
+    payload.referrer ? `referrer: ${slackText(payload.referrer)}` : "",
+    payload.landingPath ? `landing: ${slackText(payload.landingPath)}` : "",
+  ].filter(Boolean).join("  |  ");
+  const fields = [
+    slackField("種別", payload.inquiryType),
+    slackField("会社", payload.company),
+    slackField("お名前", payload.name),
+    slackField("Email", payload.email),
+    slackField("従業員数", payload.employeeCount),
+  ].filter(Boolean);
+  return {
+    text: `問い合わせ 途中離脱(同意済み): ${payload.name || payload.email}`,
+    unfurl_links: false,
+    unfurl_media: false,
+    blocks: [
+      { type: "header", text: slackPlainText("問い合わせ 途中離脱(同意済み)") },
+      { type: "section", fields },
+      { type: "section", text: slackMrkdwn(`*入力途中の内容*\n${slackText(payload.message, "内容なし")}`) },
       { type: "context", elements: [slackMrkdwn(context)] },
     ],
   };
@@ -2745,6 +2785,20 @@ async function notifyContactFormSlack(env: Env, payload: ContactFormBody) {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(slackContactFormNotification(payload)),
+  });
+  if (!response.ok) throw new Error(`Slack webhook failed: ${response.status}`);
+  return true;
+}
+
+async function notifyContactPartialSlack(env: Env, payload: ContactPartialBody) {
+  if (!env.SLACK_WEBHOOK_URL) return false;
+  const notifyPartial = env.SLACK_NOTIFY_PARTIAL_LEADS?.toLowerCase() === "true";
+  if (!notifyPartial) return false;
+
+  const response = await fetch(env.SLACK_WEBHOOK_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(slackContactPartialNotification(payload)),
   });
   if (!response.ok) throw new Error(`Slack webhook failed: ${response.status}`);
   return true;
@@ -4162,6 +4216,32 @@ async function persistContactForm(env: Env, payload: ContactFormBody) {
   return result;
 }
 
+async function persistContactPartial(env: Env, payload: ContactPartialBody) {
+  const dryRun = !env.SLACK_WEBHOOK_URL;
+  const result = {
+    ok: true,
+    dryRun,
+    notionSaved: false,
+    slackNotified: false,
+    emailSent: false,
+    integrationErrors: [] as string[],
+  };
+
+  try {
+    result.slackNotified = await notifyContactPartialSlack(env, payload);
+  } catch (error) {
+    result.integrationErrors.push(
+      error instanceof Error ? error.message : "Contact partial Slack notification failed",
+    );
+  }
+
+  if (!dryRun && env.SLACK_NOTIFY_PARTIAL_LEADS?.toLowerCase() === "true" && !result.slackNotified) {
+    result.ok = false;
+  }
+
+  return result;
+}
+
 async function persistLead(env: Env, payload: LeadBody | PartialLeadBody, ctx?: WorkerExecutionContext) {
   const normalizedPayload = normalizeLeadIdentity(payload);
   const useMaterialApproval = normalizedPayload.action === "capture_lead" &&
@@ -4259,7 +4339,7 @@ export default {
     }
 
     try {
-      const body = await request.json() as AnalyzeBody | DeepenBody | LeadBody | PartialLeadBody | ContactFormBody;
+      const body = await request.json() as AnalyzeBody | DeepenBody | LeadBody | PartialLeadBody | ContactFormBody | ContactPartialBody;
       if (body.action === "analyze") {
         const result = await handleAnalyze(body, env);
         return jsonResponse(result, request, env);
@@ -4272,6 +4352,14 @@ export default {
 
       if (body.action === "contact_form") {
         const result = await persistContactForm(env, {
+          ...body,
+          timestamp: body.timestamp || new Date().toISOString(),
+        });
+        return jsonResponse(result, request, env);
+      }
+
+      if (body.action === "contact_partial") {
+        const result = await persistContactPartial(env, {
           ...body,
           timestamp: body.timestamp || new Date().toISOString(),
         });

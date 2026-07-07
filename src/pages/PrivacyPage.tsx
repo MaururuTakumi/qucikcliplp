@@ -187,6 +187,7 @@ const PrivacyPage: React.FC = () => {
             </p>
             <ul style={{ ...bodyText, paddingLeft: '1.25rem', margin: 0 }}>
               <li>お問い合わせへの対応</li>
+              <li>お問い合わせフォームで同意後に入力された内容にもとづく連絡、対応履歴の管理</li>
               <li>サービスの提供・改善</li>
               <li>AI活用診断の結果送付、診断内容の引き継ぎ、対象企業との関係確認</li>
               <li>営業活動・マーケティング活動</li>
