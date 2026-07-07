@@ -10,11 +10,12 @@
  * Reveal / ArrowCTA. Semantic tokens only (honkoma blue, inverse auto-flip).
  * ========================================================================== */
 
-import { useEffect, type ReactNode } from "react";
+import { useEffect } from "react";
 import { HeroHome } from "../components/sections/HeroHome";
 import { SectionShell } from "../components/Layout/SectionShell";
 import { SectionHeading } from "../components/ui/SectionHeading";
 import { StaggerGrid } from "../components/ui/StaggerGrid";
+import { SurfaceCard } from "../components/ui/SurfaceCard";
 import { Reveal } from "../components/motion/Reveal";
 import { ArrowCTA } from "../components/ui/ArrowCTA";
 import { AIStarterBand } from "../features/ai-chat/components/AIStarterBand";
@@ -50,25 +51,6 @@ const values = [
     desc: "定型業務はAIエージェントが引き受け、人は判断と創造に集中する。",
   },
 ];
-
-/** Light surface card used across the page. */
-function Card({ children }: { children: ReactNode }) {
-  return (
-    <div
-      style={{
-        background: "var(--surface-raised)",
-        borderRadius: "var(--radius-lg)",
-        padding: "clamp(1.75rem, 3vw, 2.5rem)",
-        height: "100%",
-        display: "flex",
-        flexDirection: "column",
-        boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
-      }}
-    >
-      {children}
-    </div>
-  );
-}
 
 const HomePage = () => {
   const { openChat } = useAiChat();
@@ -151,7 +133,7 @@ const HomePage = () => {
 
         <StaggerGrid columns={{ base: 1, md: 3 }} gap="md">
           {services.map((s) => (
-            <Card key={s.title}>
+            <SurfaceCard key={s.title}>
               <span
                 className="font-en"
                 style={{
@@ -183,7 +165,7 @@ const HomePage = () => {
               >
                 {s.desc}
               </p>
-            </Card>
+            </SurfaceCard>
           ))}
         </StaggerGrid>
 
@@ -220,7 +202,7 @@ const HomePage = () => {
 
         <StaggerGrid columns={{ base: 1, md: 2 }} gap="md">
           {values.map((v) => (
-            <Card key={v.title}>
+            <SurfaceCard key={v.title}>
               <span
                 className="font-en"
                 style={{
@@ -245,7 +227,7 @@ const HomePage = () => {
               <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem", lineHeight: 1.85 }}>
                 {v.desc}
               </p>
-            </Card>
+            </SurfaceCard>
           ))}
         </StaggerGrid>
       </SectionShell>

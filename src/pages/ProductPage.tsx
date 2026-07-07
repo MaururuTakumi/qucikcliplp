@@ -8,10 +8,11 @@
  *   (監査 #6/#7/#10/#11/#14 を構造的に解消)。
  * ========================================================================== */
 
-import { useEffect, type ReactNode } from "react";
+import { useEffect } from "react";
 import { SectionShell } from "../components/Layout/SectionShell";
 import { SectionHeading } from "../components/ui/SectionHeading";
 import { StaggerGrid } from "../components/ui/StaggerGrid";
+import { SurfaceCard } from "../components/ui/SurfaceCard";
 import { Reveal } from "../components/motion/Reveal";
 import { ArrowCTA } from "../components/ui/ArrowCTA";
 import { useAiChat } from "../features/ai-chat/ChatProvider";
@@ -156,25 +157,6 @@ function NumLabel({ num, en }: { num: string; en: string }) {
   );
 }
 
-function Card({ children, style }: { children: ReactNode; style?: React.CSSProperties }) {
-  return (
-    <div
-      style={{
-        background: "var(--surface-raised)",
-        borderRadius: "var(--radius-lg)",
-        padding: "clamp(1.6rem, 3vw, 2.25rem)",
-        height: "100%",
-        display: "flex",
-        flexDirection: "column",
-        boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
-        ...style,
-      }}
-    >
-      {children}
-    </div>
-  );
-}
-
 const ProductPage = () => {
   const { openChat } = useAiChat();
 
@@ -238,7 +220,7 @@ const ProductPage = () => {
         </Reveal>
         <StaggerGrid columns={{ base: 1, md: 2 }} gap="md">
           {PILLARS.map((p) => (
-            <Card key={p.num}>
+            <SurfaceCard key={p.num}>
               <NumLabel num={p.num} en={p.en} />
               <h3
                 style={{
@@ -254,7 +236,7 @@ const ProductPage = () => {
               <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem", lineHeight: 1.9, flex: 1 }}>
                 {p.body}
               </p>
-            </Card>
+            </SurfaceCard>
           ))}
         </StaggerGrid>
       </SectionShell>
@@ -355,7 +337,7 @@ const ProductPage = () => {
         </Reveal>
         <StaggerGrid columns={{ base: 1, md: 3 }} gap="md">
           {CAPABILITIES.map((c) => (
-            <Card key={c.title}>
+            <SurfaceCard key={c.title}>
               <span
                 className="font-en"
                 style={{
@@ -380,7 +362,7 @@ const ProductPage = () => {
               <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem", lineHeight: 1.85, flex: 1 }}>
                 {c.body}
               </p>
-            </Card>
+            </SurfaceCard>
           ))}
         </StaggerGrid>
       </SectionShell>

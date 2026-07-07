@@ -5,10 +5,11 @@
  * are resolved here. No "98%継続率", no unverified lead-time claims.
  * ========================================================================== */
 
-import { useEffect, type ReactNode } from "react";
+import { useEffect } from "react";
 import { SectionShell } from "../components/Layout/SectionShell";
 import { SectionHeading } from "../components/ui/SectionHeading";
 import { StaggerGrid } from "../components/ui/StaggerGrid";
+import { SurfaceCard } from "../components/ui/SurfaceCard";
 import { Reveal } from "../components/motion/Reveal";
 import { ArrowCTA } from "../components/ui/ArrowCTA";
 
@@ -78,22 +79,6 @@ const companyInfo: [string, string][] = [
   ["お問い合わせ", "quickclip@ltdhonkoma.com"],
 ];
 
-function Card({ children }: { children: ReactNode }) {
-  return (
-    <div
-      style={{
-        background: "var(--surface-raised)",
-        borderRadius: "var(--radius-lg)",
-        padding: "clamp(1.75rem, 3vw, 2.5rem)",
-        height: "100%",
-        boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
-      }}
-    >
-      {children}
-    </div>
-  );
-}
-
 const AboutPage = () => {
   useEffect(() => {
     document.title = "会社概要 | honkoma";
@@ -151,7 +136,7 @@ const AboutPage = () => {
         <div style={{ marginTop: "clamp(2.5rem, 5vw, 4rem)" }}>
           <StaggerGrid columns={{ base: 1, md: 3 }} gap="md">
             {philosophy.map((p) => (
-              <Card key={p.en}>
+              <SurfaceCard key={p.en}>
                 <span
                   className="font-en"
                   style={{ fontSize: "0.75rem", letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--color-accent)" }}
@@ -162,7 +147,7 @@ const AboutPage = () => {
                   {p.title}
                 </h3>
                 <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem", lineHeight: 1.85 }}>{p.body}</p>
-              </Card>
+              </SurfaceCard>
             ))}
           </StaggerGrid>
         </div>

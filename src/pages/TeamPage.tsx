@@ -13,6 +13,7 @@ import { Twitter, Linkedin, Mail } from "lucide-react";
 import { SectionShell } from "../components/Layout/SectionShell";
 import { SectionHeading } from "../components/ui/SectionHeading";
 import { StaggerGrid } from "../components/ui/StaggerGrid";
+import { SurfaceCard } from "../components/ui/SurfaceCard";
 import { Reveal } from "../components/motion/Reveal";
 import { ArrowCTA } from "../components/ui/ArrowCTA";
 
@@ -56,22 +57,6 @@ const traits = [
     desc: "大企業なら数ヶ月かかる判断も、その場で。若い組織のスピードで現場を動かす。",
   },
 ];
-
-function Card({ children }: { children: ReactNode }) {
-  return (
-    <div
-      style={{
-        background: "var(--surface-raised)",
-        borderRadius: "var(--radius-lg)",
-        padding: "clamp(1.75rem, 3vw, 2.5rem)",
-        height: "100%",
-        boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
-      }}
-    >
-      {children}
-    </div>
-  );
-}
 
 function SocialIcon({ href, label, children }: { href: string; label: string; children: ReactNode }) {
   return (
@@ -192,7 +177,7 @@ const TeamPage = () => {
         </Reveal>
         <StaggerGrid columns={{ base: 1, md: 3 }} gap="md">
           {traits.map((t, i) => (
-            <Card key={t.title}>
+            <SurfaceCard key={t.title}>
               <span
                 className="font-en"
                 style={{
@@ -209,7 +194,7 @@ const TeamPage = () => {
                 {t.title}
               </h3>
               <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem", lineHeight: 1.85 }}>{t.desc}</p>
-            </Card>
+            </SurfaceCard>
           ))}
         </StaggerGrid>
       </SectionShell>
