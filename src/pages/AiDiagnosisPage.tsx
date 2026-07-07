@@ -100,7 +100,7 @@ export default function AiDiagnosisPage() {
           className="font-jp"
           style={{ fontSize: "clamp(2rem, 5vw, 3rem)", fontWeight: 700, lineHeight: 1.25, margin: "0 0 1rem" }}
         >
-          御社ならAIをどう使えるか。
+          御社ならAIをどう使えるか
         </h1>
         <p style={{ color: "var(--text-secondary)", fontSize: "clamp(1rem, 1.4vw, 1.15rem)", lineHeight: 1.9, maxWidth: "40ch", margin: "0 0 1.75rem" }}>
           AIが御社サイトを読み、売上を伸ばす・コストを削る・現場に実装する、の3軸で仮説を返します。

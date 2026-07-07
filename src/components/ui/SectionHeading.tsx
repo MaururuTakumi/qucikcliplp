@@ -42,6 +42,14 @@ function pad2(n: number): string {
   return String(n).padStart(2, "0");
 }
 
+/** 見出しに句点(。)は付けない方針。data 側の末尾。を描画直前に一括除去する
+ * (読点、は残す)。全セクション見出しの表記をこの1箇所で揃える。 */
+function stripMaru(title: string | string[]): string | string[] {
+  return Array.isArray(title)
+    ? title.map((line) => line.replace(/。/g, ""))
+    : title.replace(/。/g, "");
+}
+
 /** Fade-up variant with a baked delay (label=0, index=0.3). */
 function fadeUpAt(delay: number): Variants {
   return {
@@ -103,7 +111,7 @@ export function SectionHeading({
       )}
 
       <TextReveal
-        text={title}
+        text={stripMaru(title)}
         as={tag}
         orientation={orientation}
         hero={hero}
