@@ -20,6 +20,7 @@ import type {
   PainCategory,
   PartialLeadPayload,
 } from "./types";
+import { firstTouchAttribution } from "../../lib/attribution";
 
 type ChatState = {
   isOpen: boolean;
@@ -323,18 +324,6 @@ function reducer(state: ChatState, action: Action): ChatState {
 
 const AiChatContext = React.createContext<AiChatContextValue | null>(null);
 
-function currentReferrer() {
-  if (typeof window === "undefined") return undefined;
-  return document.referrer || window.location.href;
-}
-
-function currentUtm() {
-  if (typeof window === "undefined") return undefined;
-  const params = new URLSearchParams(window.location.search);
-  const entries = Array.from(params.entries()).filter(([key]) => key.startsWith("utm_"));
-  return entries.length ? new URLSearchParams(entries).toString() : undefined;
-}
-
 function isLikelyEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
 }
@@ -345,6 +334,7 @@ function trackAiChat(eventName: string, label?: string) {
 }
 
 function buildPartialLead(state: ChatState, stage: PartialLeadPayload["stage"]): PartialLeadPayload {
+  const attribution = firstTouchAttribution();
   return {
     source: state.source,
     sessionId: state.sessionId,
@@ -360,8 +350,9 @@ function buildPartialLead(state: ChatState, stage: PartialLeadPayload["stage"]):
     email: state.email,
     consent: state.consent,
     timestamp: new Date().toISOString(),
-    referrer: currentReferrer(),
-    utm: currentUtm(),
+    referrer: attribution.referrer,
+    utm: attribution.utm,
+    landingPath: attribution.landingPath,
   };
 }
 
@@ -371,6 +362,7 @@ function buildLeadPayload(state: ChatState, contactMethod: ContactMethod): LeadP
   if (!isLikelyEmail(email)) return "受け取り先メールアドレスを確認してください。";
   if (!state.consent) return "プライバシーポリシーへの同意が必要です。";
   if (!state.analysis) return "診断結果を作成してから送信してください。";
+  const attribution = firstTouchAttribution();
 
   return {
     source: state.source,
@@ -391,8 +383,9 @@ function buildLeadPayload(state: ChatState, contactMethod: ContactMethod): LeadP
     urlReachable: state.analysis.mode === "model",
     consent: state.consent,
     timestamp: new Date().toISOString(),
-    referrer: currentReferrer(),
-    utm: currentUtm(),
+    referrer: attribution.referrer,
+    utm: attribution.utm,
+    landingPath: attribution.landingPath,
   };
 }
 
@@ -431,12 +424,14 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
     dispatch({ type: "analysisStart", payload: { source, companyUrl } });
     trackAiChat("ai_chat_url_submit", source);
 
+    const attribution = firstTouchAttribution();
     const request = {
       source,
       sessionId: stateRef.current.sessionId,
       companyUrl,
-      referrer: currentReferrer(),
-      utm: currentUtm(),
+      referrer: attribution.referrer,
+      utm: attribution.utm,
+      landingPath: attribution.landingPath,
     };
 
     void submitPartialLead({ ...request, stage: "url_entered", timestamp: new Date().toISOString() });
@@ -468,6 +463,7 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
     dispatch({ type: "focusStart" });
     void submitPartialLead(buildPartialLead({ ...current, aiMaturity, phase: "focusBuilding" }, "deepened"));
 
+    const attribution = firstTouchAttribution();
     const result = await deepenCompany({
       source: current.source,
       sessionId: current.sessionId,
@@ -479,8 +475,9 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
       analyzedSummary: current.analysis.analyzedSummary,
       signals: current.analysis.signals,
       proposals: current.analysis.proposals,
-      referrer: currentReferrer(),
-      utm: currentUtm(),
+      referrer: attribution.referrer,
+      utm: attribution.utm,
+      landingPath: attribution.landingPath,
     });
 
     const focusPlan = result.ok ? result.focusPlan : result.fallbackFocusPlan;

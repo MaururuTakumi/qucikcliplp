@@ -62,6 +62,7 @@ export type AnalyzeRequest = {
   companyUrl: string;
   referrer?: string;
   utm?: string;
+  landingPath?: string;
 };
 
 export type AnalyzeResponse =
@@ -108,6 +109,7 @@ export type DeepenRequest = {
   proposals: AiProposal[];
   referrer?: string;
   utm?: string;
+  landingPath?: string;
 };
 
 export type DeepenResponse =
@@ -128,6 +130,7 @@ export type LeadPayload = {
   timestamp: string;
   referrer?: string;
   utm?: string;
+  landingPath?: string;
   /* contact-funnel-v2 §6.2 の追加フィールド(すべて任意・後方互換)。 */
   painPointRaw?: string;
   companySize?: CompanySize;
@@ -160,6 +163,7 @@ export type ContactFormPayload = {
   timestamp: string;
   referrer?: string;
   utm?: string;
+  landingPath?: string;
   /* 採用モード(recruit-redesign §4.2 / contact-funnel-v2)。既定は問い合わせ。 */
   type?: "inquiry" | "recruit";
   involvement?: string;

@@ -105,6 +105,7 @@ type AnalyzeBody = {
   companyUrl: string;
   referrer?: string;
   utm?: string;
+  landingPath?: string;
 };
 
 type LeadBody = {
@@ -133,6 +134,7 @@ type LeadBody = {
   timestamp?: string;
   referrer?: string;
   utm?: string;
+  landingPath?: string;
 };
 
 type PartialLeadBody = Omit<LeadBody, "action"> & {
@@ -152,6 +154,7 @@ type ContactFormBody = {
   timestamp?: string;
   referrer?: string;
   utm?: string;
+  landingPath?: string;
   type?: LeadType;
   involvement?: string;
 };
@@ -2082,9 +2085,66 @@ function forwardStage(incoming?: string, existing?: string) {
   return stageRank(existing) > stageRank(incoming) ? existing : incoming;
 }
 
+function parseUtm(utm?: string) {
+  const params = new URLSearchParams((utm || "").replace(/^\?/, ""));
+  return {
+    source: params.get("utm_source") || undefined,
+    medium: params.get("utm_medium") || undefined,
+    campaign: params.get("utm_campaign") || undefined,
+    content: params.get("utm_content") || undefined,
+    term: params.get("utm_term") || undefined,
+  };
+}
+
+function referrerHost(referrer?: string) {
+  if (!referrer) return "";
+  try {
+    return new URL(referrer).hostname.replace(/^www\./, "").toLowerCase();
+  } catch {
+    return referrer.replace(/^https?:\/\//, "").split("/")[0].replace(/^www\./, "").toLowerCase();
+  }
+}
+
+function channelFromSource(source?: string) {
+  const value = (source || "").toLowerCase();
+  if (!value) return "";
+  if (value === "youtube" || value === "yt" || value.includes("youtu")) return "YouTube";
+  if (value === "note" || value.includes("note")) return "note";
+  if (value === "x" || value === "twitter" || value.includes("twitter")) return "X(Twitter)";
+  if (value === "google" || value === "yahoo" || value === "bing") return "検索";
+  return source || "";
+}
+
+function deriveChannel(utm?: string, referrer?: string) {
+  const utmParts = parseUtm(utm);
+  const fromUtm = channelFromSource(utmParts.source);
+  if (fromUtm) return fromUtm;
+
+  const host = referrerHost(referrer);
+  if (!host || /(^|\.)ltdhonkoma\.com$|localhost|127\.0\.0\.1/.test(host)) return "直接";
+  if (/t\.co|twitter\.com|x\.com/.test(host)) return "X(Twitter)";
+  if (/google|yahoo|bing/.test(host)) return "検索";
+  if (/youtube\.com|youtu\.be/.test(host)) return "YouTube";
+  if (/note\.com/.test(host)) return "note";
+  return host;
+}
+
+function trafficContextLine(payload: { utm?: string; referrer?: string; landingPath?: string }) {
+  const utm = parseUtm(payload.utm);
+  const parts = [
+    `流入: ${deriveChannel(payload.utm, payload.referrer)}`,
+    utm.campaign ? `campaign: ${utm.campaign}` : "",
+    utm.medium ? `medium: ${utm.medium}` : "",
+    utm.content ? `content: ${utm.content}` : "",
+    payload.landingPath ? `着地: ${payload.landingPath}` : "",
+  ].filter(Boolean);
+  return parts.join(" ・ ");
+}
+
 function notionProperties(payload: LeadBody | PartialLeadBody) {
   const title = payload.companyUrl ? hostnameFor(payload.companyUrl) : payload.email || payload.sessionId;
   const diagnosisCode = payload.diagnosisCode || diagnosisCodeForSession(payload.sessionId);
+  const channel = deriveChannel(payload.utm, payload.referrer);
   const properties: Record<string, unknown> = {
     Company: { title: titleText(title) },
     Source: { select: { name: payload.source } },
@@ -2121,8 +2181,16 @@ function notionProperties(payload: LeadBody | PartialLeadBody) {
     properties["URL Reachable"] = { checkbox: payload.urlReachable };
   }
   if (typeof payload.consent === "boolean") properties.Consent = { checkbox: payload.consent };
-  if (payload.utm || payload.referrer) {
-    properties["UTM / Referrer"] = { rich_text: richText([payload.utm, payload.referrer].filter(Boolean).join(" | ")) };
+  if (channel) properties.Channel = { select: { name: channel } };
+  if (payload.landingPath) properties["Landing Path"] = { rich_text: richText(payload.landingPath) };
+  if (payload.utm || payload.referrer || payload.landingPath) {
+    properties["UTM / Referrer"] = {
+      rich_text: richText([
+        payload.utm,
+        payload.referrer,
+        payload.landingPath ? `landing=${payload.landingPath}` : "",
+      ].filter(Boolean).join(" | ")),
+    };
   }
   return properties;
 }
@@ -2136,6 +2204,7 @@ function notionContactFormProperties(payload: ContactFormBody) {
   const timestamp = payload.timestamp || new Date().toISOString();
   const title = payload.company || payload.name || payload.email;
   const type = payload.type || (payload.inquiryType.includes("採用") ? "recruit" : "inquiry");
+  const channel = deriveChannel(payload.utm, payload.referrer);
   const context = [
     `問い合わせ種別: ${payload.inquiryType}`,
     `お名前: ${payload.name}`,
@@ -2147,9 +2216,10 @@ function notionContactFormProperties(payload: ContactFormBody) {
     `type=${type}`,
     payload.utm ? `utm=${payload.utm}` : "",
     payload.referrer ? `referrer=${payload.referrer}` : "",
+    payload.landingPath ? `landing=${payload.landingPath}` : "",
   ].filter(Boolean).join(" | ");
 
-  return {
+  const properties: Record<string, unknown> = {
     Company: { title: titleText(title) },
     Source: { select: { name: "contact_form" } },
     "Session ID": { rich_text: richText(contactFormSessionId({ ...payload, timestamp })) },
@@ -2164,6 +2234,9 @@ function notionContactFormProperties(payload: ContactFormBody) {
     Type: { select: { name: type } },
     type: { select: { name: type } },
   };
+  if (channel) properties.Channel = { select: { name: channel } };
+  if (payload.landingPath) properties["Landing Path"] = { rich_text: richText(payload.landingPath) };
+  return properties;
 }
 
 async function notionFetch(env: Env, path: string, init: RequestInit) {
@@ -2182,14 +2255,18 @@ async function notionFetch(env: Env, path: string, init: RequestInit) {
   return response.json();
 }
 
-async function notionDatabasePropertyNames(env: Env, databaseId: string) {
+async function notionDatabaseProperties(env: Env, databaseId: string) {
   const cache = defaultWorkerCache();
   const cacheKey = new Request(`https://honkoma.local/notion-db-props/${databaseId}`);
   if (cache) {
     const cached = await cache.match(cacheKey);
     if (cached) {
       try {
-        return new Set(await cached.json() as string[]);
+        const cachedValue = await cached.json() as Record<string, string> | string[];
+        if (Array.isArray(cachedValue)) {
+          return Object.fromEntries(cachedValue.map((name) => [name, "unknown"]));
+        }
+        return cachedValue;
       } catch {
         // Fall through and refresh.
       }
@@ -2197,26 +2274,51 @@ async function notionDatabasePropertyNames(env: Env, databaseId: string) {
   }
 
   const database = await notionFetch(env, `/databases/${databaseId}`, { method: "GET" }) as {
-    properties?: Record<string, unknown>;
+    properties?: Record<string, { type?: string }>;
   };
-  const names = Object.keys(database.properties || {});
+  const properties = Object.fromEntries(
+    Object.entries(database.properties || {}).map(([name, property]) => [name, property.type || "unknown"]),
+  );
   if (cache) {
-    await cache.put(cacheKey, new Response(JSON.stringify(names), {
+    await cache.put(cacheKey, new Response(JSON.stringify(properties), {
       headers: {
         "Content-Type": "application/json; charset=utf-8",
         "Cache-Control": `public, max-age=${CACHE_TTL_SECONDS}`,
       },
     }));
   }
-  return new Set(names);
+  return properties;
+}
+
+function coerceNotionProperty(name: string, value: unknown, propertyType: string) {
+  if (name === "Channel") {
+    const richTextValue = (value as { rich_text?: Array<{ plain_text?: string; text?: { content?: string } }> }).rich_text?.[0];
+    const channel = ((value as { select?: { name?: string } }).select?.name ||
+      richTextValue?.plain_text ||
+      richTextValue?.text?.content ||
+      "").trim();
+    if (!channel) return undefined;
+    if (propertyType === "rich_text") return { rich_text: richText(channel) };
+    return { select: { name: channel } };
+  }
+  if (name === "Landing Path" && propertyType === "url") {
+    const richTextValue = (value as { rich_text?: Array<{ plain_text?: string; text?: { content?: string } }> }).rich_text?.[0];
+    const landingPath = richTextValue?.plain_text || richTextValue?.text?.content;
+    if (!landingPath) return undefined;
+    return { url: landingPath.startsWith("/") ? `https://ltdhonkoma.com${landingPath}` : landingPath };
+  }
+  return value;
 }
 
 async function filterNotionProperties(env: Env, properties: Record<string, unknown>) {
   if (!env.NOTION_TOKEN || !env.NOTION_LEADS_DB_ID) return properties;
   try {
-    const allowed = await notionDatabasePropertyNames(env, env.NOTION_LEADS_DB_ID);
+    const allowed = await notionDatabaseProperties(env, env.NOTION_LEADS_DB_ID);
     return Object.fromEntries(
-      Object.entries(properties).filter(([name]) => allowed.has(name)),
+      Object.entries(properties)
+        .filter(([name]) => Object.prototype.hasOwnProperty.call(allowed, name))
+        .map(([name, value]) => [name, coerceNotionProperty(name, value, allowed[name])])
+        .filter(([, value]) => Boolean(value)),
     );
   } catch {
     return properties;
@@ -2422,10 +2524,12 @@ function slackLeadNotification(payload: LeadBody | PartialLeadBody) {
     payload.painPointRaw ? `*Raw pain* ${slackText(payload.painPointRaw)}` : "",
   ].filter(Boolean);
   const context = [
+    trafficContextLine(payload),
     `source: ${slackText(payload.source)}`,
     `session: ${slackText(compactSession(payload.sessionId))}`,
     payload.utm ? `utm: ${slackText(payload.utm)}` : "",
     payload.referrer ? `referrer: ${slackText(payload.referrer)}` : "",
+    payload.landingPath ? `landing: ${slackText(payload.landingPath)}` : "",
   ].filter(Boolean).join("  |  ");
   const blocks: SlackBlock[] = [
     {
@@ -2479,10 +2583,12 @@ function slackContactFormNotification(payload: ContactFormBody) {
     slackField("関わり方", payload.involvement),
   ].filter(Boolean);
   const context = [
+    trafficContextLine(payload),
     `type: ${type}`,
     `consent: ${payload.consent ? "yes" : "no"}`,
     payload.utm ? `utm: ${slackText(payload.utm)}` : "",
     payload.referrer ? `referrer: ${slackText(payload.referrer)}` : "",
+    payload.landingPath ? `landing: ${slackText(payload.landingPath)}` : "",
   ].filter(Boolean).join("  |  ");
   return {
     text: `${title}: ${payload.name || payload.email}`,

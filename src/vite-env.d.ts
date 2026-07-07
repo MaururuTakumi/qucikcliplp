@@ -1,5 +1,7 @@
 /// <reference types="vite/client" />
 
 interface Window {
-  gtag?: (...args: any[]) => void;
+  __GA_ID__?: string;
+  dataLayer?: unknown[];
+  gtag?: (...args: unknown[]) => void;
 }

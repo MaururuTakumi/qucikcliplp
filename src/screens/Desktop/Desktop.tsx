@@ -12,7 +12,7 @@ import { supabase } from "../../lib/supabase";
 // Global gtag function declaration for TypeScript
 declare global {
   interface Window {
-    gtag?: (...args: any[]) => void;
+    gtag?: (...args: unknown[]) => void;
   }
 }
 

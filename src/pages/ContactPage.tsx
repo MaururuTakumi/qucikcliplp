@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Mail, Phone, MessageSquare, Calendar, ArrowRight, ArrowLeft, CheckCircle } from 'lucide-react';
 import { AIStarterBand } from '../features/ai-chat/components/AIStarterBand';
 import { submitContactFormNotification } from '../features/ai-chat/api/client';
+import { firstTouchAttribution } from '../lib/attribution';
 
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbxVMYEL9aJS124xpDj-bpynGYH_QbyEsb0yGqUznlTALT6OreAjCSS7oth4f7ETDciQ/exec';
 
@@ -20,17 +21,6 @@ const inquiryOptions = [
 const employeeCountOptions = ['1〜10名', '11〜50名', '51〜100名', '100名以上'];
 /* 採用モードの「希望のかかわり方」(recruit-redesign §4.2・任意)。 */
 const involvementOptions = ['インターン', '業務委託', '正社員', 'まだ決めていない'];
-
-function currentUtm() {
-  const params = new URLSearchParams(window.location.search);
-  return ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term']
-    .map((key) => {
-      const value = params.get(key);
-      return value ? `${key}=${value}` : '';
-    })
-    .filter(Boolean)
-    .join('&') || undefined;
-}
 
 function isLikelyEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
@@ -112,10 +102,12 @@ const ContactPage: React.FC = () => {
       body: JSON.stringify(data),
     });
 
+    const attribution = firstTouchAttribution();
     const slackNotification = submitContactFormNotification({
       ...data,
-      referrer: document.referrer || undefined,
-      utm: currentUtm(),
+      referrer: attribution.referrer,
+      utm: attribution.utm,
+      landingPath: attribution.landingPath,
     });
 
     const [gasResult, slackResult] = await Promise.allSettled([gasSubmission, slackNotification]);
