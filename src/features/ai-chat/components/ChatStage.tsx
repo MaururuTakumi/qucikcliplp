@@ -646,7 +646,7 @@ export function ChatStage({ onNavigate, onClose }: ChatStageProps) {
                 </div>
               </form>
               <p className="aichat-t4">
-                入力内容は品質向上・お問い合わせ対応のため保存されます。個人情報の入力は不要です。
+                入力内容は品質向上・お問い合わせ対応のため保存されます。診断結果は、会社のメール宛にもお届けします。
               </p>
             </>
           )}
