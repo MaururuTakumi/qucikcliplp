@@ -13,7 +13,6 @@ const inquiryOptions = [
   { emoji: '🚀', label: '会社をAIネイティブにしたい（AI導入・伴走）' },
   { emoji: '⚡', label: '業務を自動化したい' },
   { emoji: '💻', label: 'プロダクト開発を依頼したい' },
-  { emoji: '🏨', label: 'ホテル向けRevenue Intelligenceを相談したい' },
   { emoji: '🧑‍💻', label: RECRUIT_LABEL },
   { emoji: '💬', label: 'その他' },
 ];
@@ -57,7 +56,6 @@ const ContactPage: React.FC = () => {
   const [involvement, setInvolvement] = useState('');
   const [message, setMessage] = useState('');
   const [consent, setConsent] = useState(false);
-  const isHotelInquiry = inquiryType.includes('ホテル向け');
 
   React.useEffect(() => {
     document.title = 'お問い合わせ | honkoma';
@@ -304,9 +302,7 @@ const ContactPage: React.FC = () => {
                     <label htmlFor="message" className="block font-mono text-xs tracking-wide uppercase text-warm mb-3">
                       {isRecruit
                         ? '今なにをしている人か・話してみたいこと'
-                        : isHotelInquiry
-                          ? '確認したいエリア・比較施設・通知したい変化'
-                          : 'どんな業務を自動化したいですか？'} <span className="text-accent">*</span>
+                        : 'どんなことを相談したいですか？'} <span className="text-accent">*</span>
                     </label>
                     <textarea
                       id="message" rows={4} required value={message}
@@ -314,9 +310,7 @@ const ContactPage: React.FC = () => {
                       placeholder={
                         isRecruit
                           ? '例: 学生でAIに興味がある、業務委託で関わってみたい、まず話を聞いてみたい など'
-                          : isHotelInquiry
-                            ? '例: 博多駅周辺のホテル5〜10施設を比較したい、イベント日や競合料金の変化を通知したい など'
-                            : '例: 毎日の口コミチェックに1時間かかっている、営業メールの作成を効率化したい など'
+                          : '例: 定型レポートの作成を自動化したい、問い合わせ対応をAIに任せたい、社内のデータを整理したい など'
                       }
                       className="w-full px-0 py-3 bg-transparent border-0 border-b border-subtle focus:border-ink focus:ring-0 text-ink resize-none transition-colors placeholder:text-warm/50"
                     />

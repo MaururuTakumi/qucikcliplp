@@ -6,8 +6,8 @@
  *
  * LayerX diffs closed here:
  *  - White surface (surface-raised + blur) instead of cream.
- *  - Grouped IA: サービス gets a ▾ dropdown (概要 / ホテル向け). 口コミAI and
- *    D2C支援 removed per management direction.
+ *  - サービス is a flat link to /product. 口コミAI・D2C支援・ホテル向けは
+ *    経営方針で撤去済み。
  *  - Dual pill CTAs on the right (LayerX [Join Us][採用情報] slot):
  *    [導入事例 outline] + [ご相談はこちら fill].
  *  - Refined hovers: nav links grow a hairline underline from the left and
@@ -50,14 +50,7 @@ const NAV: NavItem[] = [
       { label: "メンバー", to: "/team" },
     ],
   },
-  {
-    label: "サービス",
-    to: "/product",
-    children: [
-      { label: "サービス一覧", to: "/product" },
-      { label: "ホテル向け", to: "/hotel" },
-    ],
-  },
+  { label: "サービス", to: "/product" },
   { label: "導入事例", to: "/case-studies" },
   { label: "採用情報", to: "/recruit" },
 ];
@@ -68,7 +61,6 @@ const OVERLAY_LINKS: { label: string; en: string; to: string }[] = [
   { label: "私たちについて", en: "About", to: "/about" },
   { label: "メンバー", en: "Members", to: "/team" },
   { label: "サービス", en: "Services", to: "/product" },
-  { label: "ホテル向け", en: "For Hotels", to: "/hotel" },
   { label: "導入事例", en: "Case Studies", to: "/case-studies" },
   { label: "採用情報", en: "Careers", to: "/recruit" },
 ];

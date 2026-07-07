@@ -4,7 +4,7 @@
  * 全面刷新: プラン制(スタンダード/AI顧問/AI秘書)を廃止し、売り物を1つに——
  * 「会社をAIネイティブにトランスフォームする、徹底的な伴走のフルパッケージ」。
  * 物語: 目的地(AIネイティブとは) → 道のり(徹底的な伴走) → 打ち手(3つ) →
- *   業界特化(ホテル) → FAQ → CTA。料金数値・比較表・裏取りなし成果は不掲載
+ *   業界特化(相談導線) → FAQ → CTA。料金数値・比較表・裏取りなし成果は不掲載
  *   (監査 #6/#7/#10/#11/#14 を構造的に解消)。
  * ========================================================================== */
 
@@ -401,25 +401,8 @@ const ProductPage = () => {
             業界固有の業務には、専用の型を用意している。
           </p>
         </Reveal>
-        <div style={{ maxWidth: 560 }}>
-          <Card>
-            <span
-              className="font-en"
-              style={{ fontSize: "0.75rem", letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--color-accent)" }}
-            >
-              For Hotels
-            </span>
-            <h3 style={{ fontSize: "var(--fs-h3)", fontWeight: 700, margin: "0.75rem 0", color: "var(--text-primary)" }}>
-              ホテル向け Revenue Intelligence
-            </h3>
-            <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem", lineHeight: 1.85, marginBottom: "1.5rem" }}>
-              口コミ・料金・稼働のデータを束ね、ホテルの収益判断を支える。
-            </p>
-            <ArrowCTA to="/hotel" variant="outline" withText="ホテル向けサービスへ" label="ホテル向けサービスへ" />
-          </Card>
-        </div>
-        <p style={{ marginTop: "2rem", color: "var(--text-secondary)", fontSize: "0.95rem" }}>
-          その他の業界固有のご相談は、お問い合わせください。
+        <p style={{ marginTop: "1rem", color: "var(--text-secondary)", fontSize: "0.95rem" }}>
+          業界固有のご相談は、お問い合わせください。
         </p>
       </SectionShell>
 

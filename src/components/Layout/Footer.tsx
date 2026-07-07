@@ -4,7 +4,7 @@
  * Full-IA rebuild: 4 columns (私たちについて / サービス / 導入事例・お問い合わせ /
  * 採用情報) + tagline. Legacy links removed: D2C支援, 口コミAI, and the per-plan
  * anchors (/product#standard 等) — plans are gone entirely (プラン制廃止, M5),
- * so the service column is AI導入 / FDE / プロダクト開発 / ホテル向け.
+ * so the service column is AI導入 / FDE / プロダクト開発.
  * "AIに聞いてみる" fires the ChatDrawer (source=footer, 起動点G) — the reader who
  * reached the very bottom is the hottest. Navy surface via data-theme="inverse"
  * so semantic tokens flip; legacy cream/ink Tailwind tokens are not used here.
@@ -28,7 +28,6 @@ const COL_SERVICE: FLink[] = [
   { label: "AI導入", to: "/product#capabilities" },
   { label: "FDE", to: "/product#capabilities" },
   { label: "プロダクト開発", to: "/product#capabilities" },
-  { label: "ホテル向け", to: "/hotel" },
 ];
 
 const COL_CONTACT: FLink[] = [

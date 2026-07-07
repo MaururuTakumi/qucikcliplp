@@ -18,7 +18,6 @@ import ContactPage from "./pages/ContactPage";
 import PrivacyPage from "./pages/PrivacyPage";
 import CaseStudiesPage from "./pages/CaseStudiesPage";
 import CaseStudyDetailPage from "./pages/CaseStudyDetailPage";
-import HotelPage from "./pages/HotelPage";
 import RecruitPage from "./pages/RecruitPage";
 import AiDiagnosisPage from "./pages/AiDiagnosisPage";
 
@@ -43,11 +42,11 @@ createRoot(document.getElementById("app") as HTMLElement).render(
             <Route path="/recruit" element={<RecruitPage />} />
             <Route path="/case-studies" element={<CaseStudiesPage />} />
             <Route path="/case-studies/:slug" element={<CaseStudyDetailPage />} />
-            <Route path="/hotel" element={<HotelPage />} />
-            <Route path="/hotels" element={<HotelPage />} />
-            <Route path="/hasip" element={<HotelPage />} />
-            {/* site-ia-design §7 M10: /d2c・/review-ai はページ削除→/product へ集約。
+            {/* site-ia-design §7 M10: /d2c・/review-ai・ホテル向け(/hotel等)はLPから撤去→/product へ集約。
                 SPA のため 301 は張れないので client redirect（sitemap/内部リンクからも除去済）。 */}
+            <Route path="/hotel" element={<Navigate to="/product" replace />} />
+            <Route path="/hotels" element={<Navigate to="/product" replace />} />
+            <Route path="/hasip" element={<Navigate to="/product" replace />} />
             <Route path="/d2c" element={<Navigate to="/product" replace />} />
             <Route path="/review-ai" element={<Navigate to="/product" replace />} />
             <Route path="/contact" element={<ContactPage />} />
