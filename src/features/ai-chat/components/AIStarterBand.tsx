@@ -190,7 +190,7 @@ export function AIStarterBand({
             </p>
           )}
           <p className="aistarter-micro">
-            無料・登録不要・約30秒。入力内容は途中でも品質向上のため保存されます（
+            無料・約30秒。入力内容は途中でも品質向上のため保存されます（
             <Link to="/privacy" className="aistarter-microlink">
               プライバシーポリシー
             </Link>

@@ -25,6 +25,10 @@ const FAQ = [
     a: "honkomaの初回診断は、いつでもここまで無料です。その先の伴走が私たちの事業です。",
   },
   {
+    q: "なぜメールアドレスが必要ですか？",
+    a: "診断は対象企業の方向けの内容のため、会社のアドレスで関係を確認しています。結果送付とお問い合わせ対応以外には使いません。",
+  },
+  {
     q: "売り込みはありますか？",
     a: "診断メモ以外のご案内は差し上げません。続きは、代表の林拓海が直接お話しします。",
   },
@@ -85,7 +89,7 @@ export default function AiDiagnosisPage() {
         </h1>
         <p style={{ color: "var(--text-secondary)", fontSize: "clamp(1rem, 1.4vw, 1.15rem)", lineHeight: 1.9, maxWidth: "40ch", margin: "0 0 1.75rem" }}>
           AIが御社サイトを読み、売上を伸ばす・コストを削る・現場に実装する、の3軸で仮説を返します。
-          <strong style={{ color: "var(--text-primary)" }}>無料・登録不要・約60秒。</strong>
+          <strong style={{ color: "var(--text-primary)" }}>無料・約60秒。結果は会社のメール宛にもお届けします。</strong>
         </p>
         {fromMedia && (
           <p style={{ color: "var(--color-accent-bright)", fontSize: "0.9rem", margin: "0 0 1.5rem" }}>

@@ -114,6 +114,7 @@ const PrivacyPage: React.FC = () => {
             </p>
             <ul style={{ ...bodyText, paddingLeft: '1.25rem', margin: 0 }}>
               <li>お問い合わせフォームからのご入力</li>
+              <li>AI活用診断で、解析完了後に入力いただくメールアドレスと同意情報</li>
               <li>サービス利用時のご登録</li>
               <li>アンケート調査へのご回答</li>
               <li>イベント・セミナーへのご参加</li>
@@ -151,6 +152,7 @@ const PrivacyPage: React.FC = () => {
                   <li>会社名・部署名</li>
                   <li>役職</li>
                   <li>メールアドレス</li>
+                  <li>AI活用診断の診断コード、対象サイトURL、会社ドメインとの照合結果</li>
                   <li>電話番号</li>
                   <li>住所</li>
                 </ul>
@@ -186,6 +188,7 @@ const PrivacyPage: React.FC = () => {
             <ul style={{ ...bodyText, paddingLeft: '1.25rem', margin: 0 }}>
               <li>お問い合わせへの対応</li>
               <li>サービスの提供・改善</li>
+              <li>AI活用診断の結果送付、診断内容の引き継ぎ、対象企業との関係確認</li>
               <li>営業活動・マーケティング活動</li>
               <li>セミナー・イベント等のご案内</li>
               <li>統計情報の作成（個人を特定できない形式）</li>
@@ -194,9 +197,20 @@ const PrivacyPage: React.FC = () => {
             </ul>
           </div>
 
-          {/* 6. 個人情報の第三者提供 */}
+          {/* AI活用診断の取得情報 */}
           <div style={{ marginBottom: 'clamp(2.5rem, 5vw, 3.5rem)' }}>
             {sectionNumber('06')}
+            {sectionTitle('AI活用診断で取得する情報')}
+            <div style={boxStyle}>
+              <p style={{ ...bodyText, margin: 0 }}>
+                AI活用診断では、会社サイトの解析が完了した後に、結果送付先としてメールアドレスとプライバシーポリシーへの同意を取得します。入力されたメールアドレスは、診断対象サイトのドメインとの照合、診断結果の送付、お問い合わせ対応のために利用します。診断コード、対象サイトURL、入力された課題、照合結果、流入経路は、品質改善と対応履歴のため保存します。AI活用診断で取得した連絡先情報は、法令上または対応継続上必要な場合を除き、取得日から90日を目安に見直します。
+              </p>
+            </div>
+          </div>
+
+          {/* 6. 個人情報の第三者提供 */}
+          <div style={{ marginBottom: 'clamp(2.5rem, 5vw, 3.5rem)' }}>
+            {sectionNumber('07')}
             {sectionTitle('個人情報の第三者提供')}
             <p style={{ ...bodyText, marginBottom: '1rem' }}>
               当社は、以下の場合を除き、利用者の同意なく個人情報を第三者に提供することはありません。
@@ -212,7 +226,7 @@ const PrivacyPage: React.FC = () => {
 
           {/* 7. 個人情報の管理 */}
           <div style={{ marginBottom: 'clamp(2.5rem, 5vw, 3.5rem)' }}>
-            {sectionNumber('07')}
+            {sectionNumber('08')}
             {sectionTitle('個人情報の管理')}
             <div style={boxStyle}>
               <p style={{ ...bodyText, margin: 0 }}>
@@ -223,7 +237,7 @@ const PrivacyPage: React.FC = () => {
 
           {/* 8. Cookie等の取り扱い */}
           <div style={{ marginBottom: 'clamp(2.5rem, 5vw, 3.5rem)' }}>
-            {sectionNumber('08')}
+            {sectionNumber('09')}
             {sectionTitle('Cookie等の取り扱い')}
             <p style={{ ...bodyText, marginBottom: '1.25rem' }}>
               当社のウェブサイトでは、サービスの改善やユーザー体験の向上のため、Cookie及び類似の技術を使用することがあります。
@@ -249,7 +263,7 @@ const PrivacyPage: React.FC = () => {
 
           {/* 9. 個人情報の開示・訂正・削除 */}
           <div style={{ marginBottom: 'clamp(2.5rem, 5vw, 3.5rem)' }}>
-            {sectionNumber('09')}
+            {sectionNumber('10')}
             {sectionTitle('個人情報の開示・訂正・削除等')}
             <p style={{ ...bodyText, marginBottom: '1.25rem' }}>
               利用者は、当社が保有する自己の個人情報について、以下の権利を有します。
@@ -298,7 +312,7 @@ const PrivacyPage: React.FC = () => {
 
           {/* 10. お問い合わせ窓口 */}
           <div style={{ marginBottom: 'clamp(2.5rem, 5vw, 3.5rem)' }}>
-            {sectionNumber('10')}
+            {sectionNumber('11')}
             {sectionTitle('お問い合わせ窓口')}
             <div style={boxStyle}>
               <h4
@@ -332,7 +346,7 @@ const PrivacyPage: React.FC = () => {
 
           {/* 11. プライバシーポリシーの変更 */}
           <div style={{ marginBottom: 'clamp(2.5rem, 5vw, 3.5rem)' }}>
-            {sectionNumber('11')}
+            {sectionNumber('12')}
             {sectionTitle('プライバシーポリシーの変更')}
             <div style={boxStyle}>
               <p style={{ ...bodyText, margin: 0 }}>

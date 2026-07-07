@@ -153,7 +153,7 @@ const CaseStudyDetailPage = () => {
           source="cases"
           compact
           title="同じ問いを、御社の現場に。"
-          body={`${cs.industry}のこの事例と同じ観点で、AIが御社サイトを読み、活用案を3つ返します。無料・登録不要です。`}
+          body={`${cs.industry}のこの事例と同じ観点で、AIが御社サイトを読み、活用案を3つ返します。無料です。`}
         />
       </div>
       <div

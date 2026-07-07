@@ -15,12 +15,15 @@ import type {
   ChatSource,
   CompanySize,
   ContactMethod,
+  EmailDomainMatch,
   FocusPlan,
   LeadPayload,
   PainCategory,
   PartialLeadPayload,
+  Relationship,
 } from "./types";
 import { firstTouchAttribution } from "../../lib/attribution";
+import { emailDomainMatchFor } from "./domain";
 
 type ChatState = {
   isOpen: boolean;
@@ -43,6 +46,10 @@ type ChatState = {
   email: string;
   consent: boolean;
   emailCaptured: boolean;
+  emailDomainMatch: EmailDomainMatch | null;
+  relationship: Relationship | null;
+  gateStep: 0 | 1;
+  gateReturn: "insights" | "focus";
   error?: string;
   isBusy: boolean;
   leadDryRun: boolean;
@@ -66,6 +73,10 @@ type PersistedChatState = Pick<
   | "email"
   | "consent"
   | "emailCaptured"
+  | "emailDomainMatch"
+  | "relationship"
+  | "gateStep"
+  | "gateReturn"
 >;
 
 type OpenOptions = {
@@ -84,6 +95,8 @@ type AiChatContextValue = {
   submitEmailGate: () => Promise<void>;
   /** emailGate: メール取得を後回しにして深掘りへ進む。 */
   skipEmailGate: () => void;
+  /** emailGate: 不一致/freemail時の関係チップ。 */
+  answerRelationship: (relationship: Relationship) => Promise<void>;
   /** Q1で「答えず相談する」→ 汎用プランで focusShown へ直行。 */
   skipDeepen: () => Promise<void>;
   /** Q2: 規模。null=スキップ。 */
@@ -132,6 +145,10 @@ const initialState: ChatState = {
   email: "",
   consent: false,
   emailCaptured: false,
+  emailDomainMatch: null,
+  relationship: null,
+  gateStep: 0,
+  gateReturn: "insights",
   isBusy: false,
   leadDryRun: false,
 };
@@ -141,12 +158,13 @@ type Action =
   | { type: "open"; payload: OpenOptions }
   | { type: "close" }
   | { type: "analysisStart"; payload: { source: ChatSource; companyUrl: string } }
-  | { type: "analysisSuccess"; payload: AiChatAnalysis }
-  | { type: "analysisFail"; payload: { error: string; fallback: AiChatAnalysis } }
+  | { type: "analysisSuccess"; payload: { analysis: AiChatAnalysis; emailDomainMatch: EmailDomainMatch | null } }
+  | { type: "analysisFail"; payload: { error: string; fallback: AiChatAnalysis; emailDomainMatch: EmailDomainMatch | null } }
   | { type: "answerPain"; payload: { pain: PainCategory; raw: string } }
-  | { type: "continueDeepening" }
+  | { type: "showInsights" }
   | { type: "answerSize"; payload: CompanySize | null }
   | { type: "answerMaturity"; payload: AiMaturity | null }
+  | { type: "requireEmailBeforeFocus" }
   | { type: "focusStart" }
   | { type: "focusReady"; payload: { focusPlan: FocusPlan; matchedCase: CaseRecord | null } }
   | { type: "startBooking" }
@@ -154,8 +172,18 @@ type Action =
   | { type: "email"; payload: string }
   | { type: "consent"; payload: boolean }
   | { type: "leadStart" }
-  | { type: "leadSuccess"; payload: { dryRun: boolean; phase?: ChatPhase; contactMethod?: ContactMethod } }
+  | {
+      type: "leadSuccess";
+      payload: {
+        dryRun: boolean;
+        phase?: ChatPhase;
+        contactMethod?: ContactMethod;
+        emailDomainMatch?: EmailDomainMatch | null;
+        gateStep?: 0 | 1;
+      };
+    }
   | { type: "leadFail"; payload: string }
+  | { type: "relationship"; payload: Relationship }
   | { type: "declineEmail" }
   | { type: "enrich"; payload: string }
   | { type: "completed" }
@@ -214,6 +242,10 @@ function persistState(state: ChatState) {
     email: state.email,
     consent: state.consent,
     emailCaptured: state.emailCaptured,
+    emailDomainMatch: state.emailDomainMatch,
+    relationship: state.relationship,
+    gateStep: state.gateStep,
+    gateReturn: state.gateReturn,
   };
   window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(persisted));
 }
@@ -240,16 +272,41 @@ function reducer(state: ChatState, action: Action): ChatState {
         source: action.payload.source,
         companyUrl: action.payload.companyUrl,
         phase: "analyzing",
+        analysis: undefined,
+        painPoint: "",
+        painPointRaw: "",
+        companySize: null,
+        aiMaturity: null,
+        deepStep: 0,
+        focusPlan: undefined,
+        matchedCase: null,
+        contactMethod: null,
+        emailDomainMatch: null,
+        relationship: null,
+        gateStep: 0,
+        gateReturn: "insights",
         error: undefined,
       };
     case "analysisSuccess":
-      return { ...state, isBusy: false, phase: "insightsShown", analysis: action.payload, error: undefined };
+      return {
+        ...state,
+        isBusy: false,
+        phase: state.emailCaptured ? "insightsShown" : "emailGate",
+        analysis: action.payload.analysis,
+        emailDomainMatch: action.payload.emailDomainMatch,
+        gateStep: 0,
+        gateReturn: "insights",
+        error: undefined,
+      };
     case "analysisFail":
       return {
         ...state,
         isBusy: false,
-        phase: "analysisFailed",
+        phase: state.emailCaptured ? "analysisFailed" : "emailGate",
         analysis: action.payload.fallback,
+        emailDomainMatch: action.payload.emailDomainMatch,
+        gateStep: 0,
+        gateReturn: "insights",
         error: action.payload.error,
       };
     case "answerPain":
@@ -257,21 +314,24 @@ function reducer(state: ChatState, action: Action): ChatState {
         ...state,
         painPoint: action.payload.pain,
         painPointRaw: action.payload.raw,
-        phase: "emailGate",
+        phase: "deepening",
         deepStep: 0,
         error: undefined,
       };
-    case "continueDeepening":
+    case "showInsights":
       return {
         ...state,
-        phase: "deepening",
-        deepStep: 0,
+        phase: state.error ? "analysisFailed" : "insightsShown",
+        gateStep: 0,
+        gateReturn: "insights",
         error: undefined,
       };
     case "answerSize":
       return { ...state, companySize: action.payload, deepStep: 1 };
     case "answerMaturity":
       return { ...state, aiMaturity: action.payload };
+    case "requireEmailBeforeFocus":
+      return { ...state, phase: "emailGate", gateStep: 0, gateReturn: "focus", error: undefined };
     case "focusStart":
       return { ...state, phase: "focusBuilding", isBusy: true, error: undefined };
     case "focusReady":
@@ -299,11 +359,21 @@ function reducer(state: ChatState, action: Action): ChatState {
         phase: action.payload.phase || "leadCaptured",
         contactMethod: action.payload.contactMethod || state.contactMethod || "email",
         emailCaptured: true,
+        emailDomainMatch: action.payload.emailDomainMatch ?? state.emailDomainMatch,
+        gateStep: action.payload.gateStep ?? 0,
         leadDryRun: action.payload.dryRun,
         error: undefined,
       };
     case "leadFail":
       return { ...state, isBusy: false, error: action.payload };
+    case "relationship":
+      return {
+        ...state,
+        relationship: action.payload,
+        gateStep: 0,
+        phase: state.gateReturn === "focus" ? "deepening" : state.error ? "analysisFailed" : "insightsShown",
+        error: undefined,
+      };
     case "declineEmail":
       return { ...state, phase: "emailDeclined", error: undefined };
     case "enrich":
@@ -316,6 +386,9 @@ function reducer(state: ChatState, action: Action): ChatState {
         sessionId: action.payload.sessionId,
         diagnosisCode: makeDiagnosisCode(action.payload.sessionId),
         isOpen: true,
+        email: state.email,
+        consent: state.consent,
+        emailCaptured: state.emailCaptured,
       };
     default:
       return state;
@@ -333,8 +406,14 @@ function trackAiChat(eventName: string, label?: string) {
   window.gtag("event", eventName, { event_category: "ai_chat", event_label: label });
 }
 
+function emailGateOptional() {
+  const env = import.meta.env as unknown as Record<string, string | undefined>;
+  return (env.VITE_EMAIL_GATE_OPTIONAL || env.EMAIL_GATE_OPTIONAL || "").toLowerCase() === "true";
+}
+
 function buildPartialLead(state: ChatState, stage: PartialLeadPayload["stage"]): PartialLeadPayload {
   const attribution = firstTouchAttribution();
+  const includeEmail = state.emailCaptured && state.consent && isLikelyEmail(state.email);
   return {
     source: state.source,
     sessionId: state.sessionId,
@@ -347,8 +426,11 @@ function buildPartialLead(state: ChatState, stage: PartialLeadPayload["stage"]):
     companySize: state.companySize ?? undefined,
     aiMaturity: state.aiMaturity ?? undefined,
     diagnosisCode: state.diagnosisCode,
-    email: state.email,
-    consent: state.consent,
+    email: includeEmail ? state.email.trim() : undefined,
+    emailVerified: includeEmail ? true : undefined,
+    consent: includeEmail ? true : undefined,
+    emailDomainMatch: state.emailDomainMatch ?? undefined,
+    relationship: state.relationship ?? undefined,
     timestamp: new Date().toISOString(),
     referrer: attribution.referrer,
     utm: attribution.utm,
@@ -379,6 +461,8 @@ function buildLeadPayload(state: ChatState, contactMethod: ContactMethod): LeadP
     focusPlan: state.focusPlan,
     matchedCaseId: state.matchedCase?.id,
     email,
+    emailDomainMatch: emailDomainMatchFor(email, state.companyUrl),
+    relationship: state.relationship ?? undefined,
     emailVerified: isLikelyEmail(email),
     urlReachable: state.analysis.mode === "model",
     consent: state.consent,
@@ -410,7 +494,11 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const closeChat = React.useCallback(() => {
-    trackAiChat("ai_chat_drawer_closed", stateRef.current.phase);
+    const current = stateRef.current;
+    if (current.phase === "emailGate" && !current.emailCaptured) {
+      trackAiChat("ai_email_gate_abandon", current.source);
+    }
+    trackAiChat("ai_chat_drawer_closed", current.phase);
     dispatch({ type: "close" });
   }, []);
 
@@ -437,9 +525,13 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
     void submitPartialLead({ ...request, stage: "url_entered", timestamp: new Date().toISOString() });
 
     const result = await analyzeCompany(request);
+    const emailDomainMatch = stateRef.current.emailCaptured && stateRef.current.email
+      ? emailDomainMatchFor(stateRef.current.email, companyUrl)
+      : null;
     if (result.ok) {
-      dispatch({ type: "analysisSuccess", payload: result.analysis });
-      trackAiChat("ai_chat_insights_shown", result.analysis.mode);
+      dispatch({ type: "analysisSuccess", payload: { analysis: result.analysis, emailDomainMatch } });
+      if (stateRef.current.emailCaptured) trackAiChat("ai_chat_insights_shown", result.analysis.mode);
+      else trackAiChat("ai_email_gate_view", source);
       void submitPartialLead({
         ...request,
         stage: "analyzed",
@@ -449,16 +541,22 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
         timestamp: new Date().toISOString(),
       });
     } else {
-      dispatch({ type: "analysisFail", payload: { error: result.error, fallback: result.fallbackAnalysis } });
+      dispatch({ type: "analysisFail", payload: { error: result.error, fallback: result.fallbackAnalysis, emailDomainMatch } });
       trackAiChat("ai_chat_analysis_fallback", source);
+      if (!stateRef.current.emailCaptured) trackAiChat("ai_email_gate_view", source);
     }
   }, []);
 
   /* 進め方プランを生成(deepen)。深掘り完了 or スキップから呼ぶ。
    * 直前に dispatch した値(maturity)は stateRef 未反映のため override で受け取る。 */
-  const buildFocus = React.useCallback(async (override?: { aiMaturity?: AiMaturity | null }) => {
+  const buildFocus = React.useCallback(async (override?: { aiMaturity?: AiMaturity | null; bypassEmailGate?: boolean }) => {
     const current = stateRef.current;
     if (!current.analysis) return;
+    if (!override?.bypassEmailGate && !current.emailCaptured) {
+      dispatch({ type: "requireEmailBeforeFocus" });
+      trackAiChat("ai_email_gate_view", current.source);
+      return;
+    }
     const aiMaturity = override && "aiMaturity" in override ? override.aiMaturity ?? null : current.aiMaturity;
     dispatch({ type: "focusStart" });
     void submitPartialLead(buildPartialLead({ ...current, aiMaturity, phase: "focusBuilding" }, "deepened"));
@@ -490,6 +588,14 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
         "focus_shown",
       ),
     );
+    const latest = stateRef.current;
+    if (latest.emailCaptured && latest.email && latest.consent) {
+      const leadPayload = buildLeadPayload(
+        { ...latest, phase: "focusShown", focusPlan, matchedCase, aiMaturity, emailCaptured: true },
+        latest.contactMethod || "email",
+      );
+      if (typeof leadPayload !== "string") void submitLead(leadPayload);
+    }
   }, []);
 
   const answerPain = React.useCallback((pain: PainCategory, raw = "") => {
@@ -498,7 +604,8 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const skipEmailGate = React.useCallback(() => {
-    dispatch({ type: "continueDeepening" });
+    if (!emailGateOptional()) return;
+    dispatch({ type: "showInsights" });
     trackAiChat("ai_email_gate_skipped", stateRef.current.source);
   }, []);
 
@@ -513,15 +620,43 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
     dispatch({ type: "leadStart" });
     const result = await submitLead(payload);
     if (result.ok) {
+      const match = payload.emailDomainMatch || emailDomainMatchFor(payload.email, current.companyUrl);
+      const needsRelationship = match === "freemail" || match === "mismatch";
+      const returnToFocus = current.gateReturn === "focus";
       dispatch({
         type: "leadSuccess",
-        payload: { dryRun: Boolean(result.dryRun), phase: "deepening", contactMethod: "email" },
+        payload: {
+          dryRun: Boolean(result.dryRun),
+          phase: needsRelationship ? "emailGate" : returnToFocus ? "deepening" : current.error ? "analysisFailed" : "insightsShown",
+          contactMethod: "email",
+          emailDomainMatch: match,
+          gateStep: needsRelationship ? 1 : 0,
+        },
       });
+      trackAiChat("ai_email_gate_submitted", match);
       trackAiChat("ai_email_captured", "emailGate");
+      if (!needsRelationship && returnToFocus) {
+        await buildFocus({ bypassEmailGate: true });
+      }
       return;
     }
     dispatch({ type: "leadFail", payload: result.error || "送信に失敗しました。" });
-  }, []);
+  }, [buildFocus]);
+
+  const answerRelationship = React.useCallback(async (relationship: Relationship) => {
+    const current = stateRef.current;
+    dispatch({ type: "relationship", payload: relationship });
+    trackAiChat("ai_relationship_answered", relationship);
+    void submitPartialLead(
+      buildPartialLead(
+        { ...current, emailCaptured: true, relationship, phase: "emailGate" },
+        "contact_captured",
+      ),
+    );
+    if (current.gateReturn === "focus") {
+      await buildFocus({ bypassEmailGate: true });
+    }
+  }, [buildFocus]);
 
   const skipDeepen = React.useCallback(async () => {
     trackAiChat("ai_deep_skipped", "pain");
@@ -620,6 +755,7 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
       answerPain,
       submitEmailGate,
       skipEmailGate,
+      answerRelationship,
       skipDeepen,
       answerSize,
       answerMaturity,
@@ -641,6 +777,7 @@ export function AiChatProvider({ children }: { children: React.ReactNode }) {
       answerPain,
       submitEmailGate,
       skipEmailGate,
+      answerRelationship,
       skipDeepen,
       answerSize,
       answerMaturity,

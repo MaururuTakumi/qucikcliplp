@@ -36,6 +36,8 @@ export type PainCategory =
 export type CompanySize = "lte10" | "lte50" | "lte300" | "gt300";
 export type AiMaturity = "none" | "individual" | "partial" | "company";
 export type ContactMethod = "booking" | "email";
+export type EmailDomainMatch = "match" | "freemail" | "mismatch";
+export type Relationship = "member" | "supporter" | "research" | "unknown";
 
 export type ProposalAxis = "top_line" | "bottom_line" | "fde";
 
@@ -140,6 +142,8 @@ export type LeadPayload = {
   focusPlan?: FocusPlan;
   matchedCaseId?: string;
   role?: string;
+  emailDomainMatch?: EmailDomainMatch;
+  relationship?: Relationship;
 };
 
 export type LeadResponse = {

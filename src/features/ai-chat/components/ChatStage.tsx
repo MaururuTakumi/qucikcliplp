@@ -21,7 +21,9 @@ import type {
   FocusPlan,
   PainCategory,
   ProposalAxis,
+  Relationship,
 } from "../types";
+import { emailPlaceholderForCompany } from "../domain";
 
 const CAL_BOOKING_URL = "https://calendar.app.google/DcGsqPYBvRf3dvZJ8";
 
@@ -67,6 +69,17 @@ const MATURITY_CHIPS: { value: AiMaturity; label: string; helper: string }[] = [
 ];
 
 const ROLE_CHIPS = ["経営者・役員", "部門責任者", "現場担当", "情報収集中"];
+
+const RELATIONSHIP_CHIPS: { value: Relationship; label: string }[] = [
+  { value: "member", label: "経営者・役員・社員です" },
+  { value: "supporter", label: "支援先・取引先として調べています" },
+  { value: "research", label: "導入検討・情報収集です" },
+];
+
+function emailGateOptional() {
+  const env = import.meta.env as unknown as Record<string, string | undefined>;
+  return (env.VITE_EMAIL_GATE_OPTIONAL || env.EMAIL_GATE_OPTIONAL || "").toLowerCase() === "true";
+}
 
 const CHAT_STYLE = `
 .aichat-overlay {
@@ -285,7 +298,7 @@ export function chatHeaderFor(phase: ChatPhase, companyName?: string): { kicker:
     case "analysisFailed":
       return { kicker: "3 Hypotheses", title: `${companyName || "御社"}への、3つの仮説。` };
     case "emailGate":
-      return { kicker: "Report", title: "進め方プランを、レポートでお送りします。" };
+      return { kicker: "Confirm", title: `${companyName || "御社"}の診断が、まとまりました。` };
     case "deepening":
       return { kicker: "Deep Dive", title: "もう少しだけ、御社のことを。" };
     case "focusBuilding":
@@ -323,16 +336,16 @@ function maturityLabel(maturity?: AiMaturity | null) {
 
 function progressFor(phase: ChatPhase, deepStep: number, analysisCount: number, focusCount: number) {
   if (phase === "analyzing") return 8 + Math.min(analysisCount, 3) * 7;
-  if (phase === "insightsShown" || phase === "analysisFailed") return 45;
-  if (phase === "emailGate") return 50;
-  if (phase === "deepening") return deepStep === 0 ? 60 : 72;
+  if (phase === "emailGate") return 40;
+  if (phase === "insightsShown" || phase === "analysisFailed") return 50;
+  if (phase === "deepening") return deepStep === 0 ? 62 : 74;
   if (phase === "focusBuilding") return 80 + Math.min(focusCount, 3) * 5;
   if (phase === "idle") return 0;
   return 100;
 }
 
 function railLabel(phase: ChatPhase, deepStep: number) {
-  if (phase === "emailGate") return "あと2問";
+  if (phase === "emailGate") return "あと3問";
   if (phase === "deepening") return deepStep === 0 ? "あと2問" : "あと1問";
   if (phase === "focusBuilding") return "まもなく完成";
   if (phase === "focusShown" || phase === "bookingStarted" || phase === "leadCaptured" || phase === "completed") {
@@ -513,6 +526,7 @@ export function ChatStage({ onNavigate, onClose }: ChatStageProps) {
     answerPain,
     submitEmailGate,
     skipEmailGate,
+    answerRelationship,
     skipDeepen,
     answerSize,
     answerMaturity,
@@ -561,6 +575,8 @@ export function ChatStage({ onNavigate, onClose }: ChatStageProps) {
   const head = chatHeaderFor(state.phase, state.analysis?.companyName);
   const hasAnalysis = Boolean(state.analysis);
   const showSticky = state.phase === "focusShown";
+  const canSkipGate = emailGateOptional();
+  const emailPlaceholder = emailPlaceholderForCompany(state.companyUrl);
 
   const onUrlSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -610,7 +626,7 @@ export function ChatStage({ onNavigate, onClose }: ChatStageProps) {
             <>
               <div className="aichat-tight">
                 <p className="aichat-t2">
-                  会社サイトのURLを入れてください。登録不要・約60秒で、3つの活用仮説を返します。
+                  会社サイトのURLを入れてください。約60秒で、3つの活用仮説を返します。
                 </p>
               </div>
               <form className="aichat-urlform" onSubmit={onUrlSubmit}>
@@ -638,6 +654,23 @@ export function ChatStage({ onNavigate, onClose }: ChatStageProps) {
           {state.phase === "analyzing" && (
             <>
               <ChecklistRows hints={analysisHints} activeCount={analysisCount} />
+              <div className="aichat-hairline aichat-emailform">
+                <p className="aichat-t4">解析がまとまったら、このアドレスで結果を確認できます。</p>
+                <input
+                  className="aichat-field"
+                  type="email"
+                  value={state.email}
+                  onChange={(event) => updateEmail(event.target.value)}
+                  placeholder={emailPlaceholder}
+                  autoComplete="email"
+                />
+                <label className="aichat-consent">
+                  <input type="checkbox" checked={state.consent} onChange={(event) => updateConsent(event.target.checked)} />
+                  <span>
+                    <Link to="/privacy" className="aichat-link" onClick={onNavigate}>プライバシーポリシー</Link>に同意します。
+                  </span>
+                </label>
+              </div>
               {state.error && <p className="aichat-error">{state.error}</p>}
             </>
           )}
@@ -712,36 +745,78 @@ export function ChatStage({ onNavigate, onClose }: ChatStageProps) {
           )}
 
           {state.phase === "emailGate" && (
-            <form className="aichat-emailform" onSubmit={onGateSubmit}>
-              <AnswerRecap pain={state.painPoint} size={null} maturity={null} />
-              <div className="aichat-tight">
-                <h3 className="aichat-t1">進め方プランを、レポートでお送りします。</h3>
+            state.gateStep === 1 ? (
+              <section className="aichat-block" aria-live="polite">
+                <div className="aichat-tight">
+                  <h3 className="aichat-t1">ありがとうございます。ひとつだけ教えてください。</h3>
+                  <p className="aichat-t2">
+                    {state.emailDomainMatch === "mismatch"
+                      ? `${state.analysis?.companyName || "診断対象"}とご入力のドメインが異なるようです。お立場に近いものは？`
+                      : "ご入力は個人のアドレスのようです。お立場に近いものは？"}
+                  </p>
+                </div>
+                <div className="aichat-chips">
+                  {RELATIONSHIP_CHIPS.map((chip) => (
+                    <button key={chip.value} type="button" className="aichat-chip aichat-chiprow" onClick={() => void answerRelationship(chip.value)}>
+                      {state.analysis?.companyName && chip.value === "member"
+                        ? `${state.analysis.companyName}の${chip.label}`
+                        : chip.label}
+                    </button>
+                  ))}
+                </div>
+                <button className="aichat-textbutton" type="button" onClick={() => void answerRelationship("unknown")}>
+                  答えずに進む
+                </button>
+              </section>
+            ) : (
+              <form className="aichat-emailform" onSubmit={onGateSubmit}>
+                <div className="aichat-tight">
+                  <h3 className="aichat-t1">{state.analysis?.companyName || "御社"}の診断が、まとまりました。</h3>
+                  {state.analysis && (
+                    <>
+                      <p className="aichat-t2">{state.analysis.analyzedSummary}</p>
+                      {state.analysis.signals.length > 0 && (
+                        <p className="aichat-read">読み取り: {state.analysis.signals.slice(0, 3).join(" ／ ")}</p>
+                      )}
+                    </>
+                  )}
+                </div>
                 <p className="aichat-t2">
-                  御社に絞った進め方プランは、レポートにまとめてメールでお送りします。送付先を教えてください。
+                  3つの活用仮説（売上・コスト・現場実装）と、課題に絞った進め方プランまで用意できます。
                 </p>
-              </div>
-              <input
-                className="aichat-field"
-                type="email"
-                value={state.email}
-                onChange={(event) => updateEmail(event.target.value)}
-                placeholder="name@company.co.jp"
-                autoComplete="email"
-              />
-              <label className="aichat-consent">
-                <input type="checkbox" checked={state.consent} onChange={(event) => updateConsent(event.target.checked)} />
-                <span>
-                  <Link to="/privacy" className="aichat-link" onClick={onNavigate}>プライバシーポリシー</Link>に同意します。
-                </span>
-              </label>
-              {state.error && <p className="aichat-error">{state.error}</p>}
-              <button className="aichat-submit" type="submit" disabled={state.isBusy}>
-                {state.isBusy ? "登録中" : "送付先を登録して続ける"}
-              </button>
-              <button className="aichat-textbutton" type="button" onClick={skipEmailGate}>
-                あとで（画面で見る）
-              </button>
-            </form>
+                <p className="aichat-t2">
+                  ここから先は、{state.analysis?.companyName || "御社"}の関係者の方に向けた内容です。
+                  会社のメールアドレスをご入力ください。診断対象のドメインとの一致を確認のうえ、結果はこのアドレスにもお送りします。
+                </p>
+                <input
+                  className="aichat-field"
+                  type="email"
+                  value={state.email}
+                  onChange={(event) => updateEmail(event.target.value)}
+                  placeholder={emailPlaceholder}
+                  autoComplete="email"
+                />
+                <label className="aichat-consent">
+                  <input type="checkbox" checked={state.consent} onChange={(event) => updateConsent(event.target.checked)} />
+                  <span>
+                    <Link to="/privacy" className="aichat-link" onClick={onNavigate}>プライバシーポリシー</Link>に同意します。
+                  </span>
+                </label>
+                {state.error && <p className="aichat-error">{state.error}</p>}
+                <button className="aichat-submit" type="submit" disabled={state.isBusy}>
+                  {state.isBusy ? "確認中" : "確認して、診断を見る"}
+                </button>
+                <p className="aichat-t4">
+                  無料です。診断結果のほかに営業のご案内をお送りすることはありません。
+                  会社のアドレスがない場合は、ふだんお使いのアドレスでも進めます。
+                </p>
+                {canSkipGate && (
+                  <button className="aichat-textbutton" type="button" onClick={skipEmailGate}>
+                    あとで進む
+                  </button>
+                )}
+              </form>
+            )
           )}
 
           {state.phase === "deepening" && (
@@ -814,6 +889,7 @@ export function ChatStage({ onNavigate, onClose }: ChatStageProps) {
                   ここまでは、公開情報とご回答から立てた仮説です。内容は弊社代表も直接確認します。
                   まずはお気軽に、30分のオンライン相談（無料）で、御社の実情に合わせて組み直しませんか。売り込みはしません。
                 </p>
+                {state.email && <p className="aichat-t4">この内容はレポートとして {state.email} にお送りします。</p>}
                 {state.focusPlan.agenda?.length > 0 && (
                   <ul className="aichat-agenda">
                     {state.focusPlan.agenda.slice(0, 3).map((item) => <li key={item}>{item}</li>)}
@@ -828,15 +904,11 @@ export function ChatStage({ onNavigate, onClose }: ChatStageProps) {
               <DiagnosisCodeBlock code={state.diagnosisCode} />
               <p className="aichat-t2">
                 予約フォームの「ご相談内容」欄に、この診断コードをお書きください。診断を引き継いだ状態で当日を始められます。
+                診断レポートは {state.email || "ご入力のメールアドレス"} にお届けします。
               </p>
               <div className="aichat-hairline">
                 <ArrowCTA href={CAL_BOOKING_URL} variant="outline" direction="external" withText="日程調整をもう一度開く" label="日程調整をもう一度開く" />
               </div>
-              {!state.emailCaptured && (
-                <button className="aichat-textbutton" type="button" onClick={requestEmail}>
-                  日程が合わなければ、この診断をメールで残す
-                </button>
-              )}
             </section>
           )}
 
@@ -912,11 +984,6 @@ export function ChatStage({ onNavigate, onClose }: ChatStageProps) {
                     ? "当日は診断コードの内容から始めます。"
                     : "ありがとうございました。"}
               </p>
-              {!state.emailCaptured && (
-                <button className="aichat-textbutton" type="button" onClick={requestEmail}>
-                  このレポートをメールで受け取りますか？
-                </button>
-              )}
               <button className="aichat-textbutton" type="button" onClick={resetChat}>別のURLで診断する</button>
             </section>
           )}
@@ -938,7 +1005,7 @@ export function ChatStage({ onNavigate, onClose }: ChatStageProps) {
         <StickyCtaBar
           onBooking={startBooking}
           onEmail={requestEmail}
-          showEmail={!state.emailCaptured}
+          showEmail={false}
         />
       )}
     </section>

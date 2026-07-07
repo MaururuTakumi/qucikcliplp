@@ -54,6 +54,8 @@ type CompanySize = "lte10" | "lte50" | "lte300" | "gt300";
 type AiMaturity = "none" | "individual" | "partial" | "company";
 type ContactMethod = "booking" | "email";
 type LeadType = "inquiry" | "recruit";
+type EmailDomainMatch = "match" | "freemail" | "mismatch";
+type Relationship = "member" | "supporter" | "research" | "unknown";
 type LeadStage =
   | "opened"
   | "url_entered"
@@ -129,6 +131,8 @@ type LeadBody = {
   type?: LeadType;
   email?: string;
   emailVerified?: boolean;
+  emailDomainMatch?: EmailDomainMatch;
+  relationship?: Relationship;
   urlReachable?: boolean;
   consent?: boolean;
   timestamp?: string;
@@ -2141,6 +2145,104 @@ function trafficContextLine(payload: { utm?: string; referrer?: string; landingP
   return parts.join(" ・ ");
 }
 
+const JP_THREE_LABEL_SLDS = new Set(["co", "ne", "or", "ac", "go", "ed", "lg", "gr"]);
+const FREEMAIL_DOMAINS = new Set([
+  "gmail.com",
+  "googlemail.com",
+  "yahoo.co.jp",
+  "yahoo.com",
+  "icloud.com",
+  "me.com",
+  "mac.com",
+  "outlook.com",
+  "hotmail.com",
+  "live.com",
+  "msn.com",
+  "aol.com",
+  "proton.me",
+  "protonmail.com",
+  "docomo.ne.jp",
+  "ezweb.ne.jp",
+  "au.com",
+  "softbank.ne.jp",
+  "i.softbank.jp",
+]);
+
+function registrableDomain(host: string) {
+  const clean = host.trim().toLowerCase().replace(/^www\./, "");
+  const labels = clean.split(".").filter(Boolean);
+  if (labels.length <= 2) return clean;
+  const tld = labels.at(-1);
+  const sld = labels.at(-2);
+  if (tld === "jp" && sld && JP_THREE_LABEL_SLDS.has(sld) && labels.length >= 3) {
+    return labels.slice(-3).join(".");
+  }
+  return labels.slice(-2).join(".");
+}
+
+function domainFromCompanyUrl(companyUrl?: string) {
+  if (!companyUrl) return "";
+  try {
+    return registrableDomain(new URL(normalizeCompanyUrl(companyUrl)).hostname);
+  } catch {
+    return "";
+  }
+}
+
+function domainFromEmail(email?: string) {
+  const domain = (email || "").trim().toLowerCase().split("@")[1] || "";
+  return domain ? registrableDomain(domain) : "";
+}
+
+function computeEmailDomainMatch(email?: string, companyUrl?: string): EmailDomainMatch | undefined {
+  const emailDomain = domainFromEmail(email);
+  if (!emailDomain) return undefined;
+  if (FREEMAIL_DOMAINS.has(emailDomain)) return "freemail";
+  const urlDomain = domainFromCompanyUrl(companyUrl);
+  return urlDomain && emailDomain === urlDomain ? "match" : "mismatch";
+}
+
+function normalizeRelationship(value?: string): Relationship | undefined {
+  if (value === "member" || value === "supporter" || value === "research" || value === "unknown") return value;
+  return undefined;
+}
+
+function normalizeLeadIdentity<T extends LeadBody | PartialLeadBody>(payload: T): T {
+  const emailDomainMatch = computeEmailDomainMatch(payload.email, payload.companyUrl) || payload.emailDomainMatch;
+  return {
+    ...payload,
+    emailDomainMatch,
+    relationship: normalizeRelationship(payload.relationship) || payload.relationship,
+  };
+}
+
+function relationshipLabel(value?: Relationship) {
+  const labels: Record<Relationship, string> = {
+    member: "経営者・役員・社員",
+    supporter: "支援先・取引先",
+    research: "導入検討・情報収集",
+    unknown: "未回答",
+  };
+  return value ? labels[value] : "";
+}
+
+function domainMatchLabel(value?: EmailDomainMatch) {
+  const labels: Record<EmailDomainMatch, string> = {
+    match: "match",
+    freemail: "freemail",
+    mismatch: "mismatch",
+  };
+  return value ? labels[value] : "";
+}
+
+function domainTierEmoji(payload: LeadBody | PartialLeadBody) {
+  if (payload.emailDomainMatch === "match") return "✅";
+  if (payload.emailDomainMatch === "freemail") return "🟡";
+  if (payload.emailDomainMatch === "mismatch" && payload.relationship === "supporter") return "🤝";
+  if (payload.emailDomainMatch === "mismatch") return "🟠";
+  return leadStageEmoji(payload);
+}
+
 function notionProperties(payload: LeadBody | PartialLeadBody) {
   const title = payload.companyUrl ? hostnameFor(payload.companyUrl) : payload.email || payload.sessionId;
   const diagnosisCode = payload.diagnosisCode || diagnosisCodeForSession(payload.sessionId);
@@ -2177,6 +2279,8 @@ function notionProperties(payload: LeadBody | PartialLeadBody) {
   if (typeof payload.emailVerified === "boolean") {
     properties["Email Verified"] = { checkbox: payload.emailVerified };
   }
+  if (payload.emailDomainMatch) properties["Email Domain Match"] = { select: { name: payload.emailDomainMatch } };
+  if (payload.relationship) properties.Relationship = { select: { name: payload.relationship } };
   if (typeof payload.urlReachable === "boolean") {
     properties["URL Reachable"] = { checkbox: payload.urlReachable };
   }
@@ -2291,6 +2395,16 @@ async function notionDatabaseProperties(env: Env, databaseId: string) {
 }
 
 function coerceNotionProperty(name: string, value: unknown, propertyType: string) {
+  if (name === "Email Domain Match" || name === "Relationship") {
+    const richTextValue = (value as { rich_text?: Array<{ plain_text?: string; text?: { content?: string } }> }).rich_text?.[0];
+    const label = ((value as { select?: { name?: string } }).select?.name ||
+      richTextValue?.plain_text ||
+      richTextValue?.text?.content ||
+      "").trim();
+    if (!label) return undefined;
+    if (propertyType === "rich_text") return { rich_text: richText(label) };
+    return { select: { name: label } };
+  }
   if (name === "Channel") {
     const richTextValue = (value as { rich_text?: Array<{ plain_text?: string; text?: { content?: string } }> }).rich_text?.[0];
     const channel = ((value as { select?: { name?: string } }).select?.name ||
@@ -2491,7 +2605,7 @@ function leadNextAction(payload: LeadBody | PartialLeadBody) {
 function slackLeadFallback(payload: LeadBody | PartialLeadBody) {
   const title = payload.action === "capture_lead" ? "AI診断 lead captured" : "AI診断 partial lead";
   return [
-    `${leadStageEmoji(payload)} ${title}`,
+    `${domainTierEmoji(payload)} ${title}`,
     stageLabel(payload.stage),
     payload.companyUrl ? hostnameFor(payload.companyUrl) : "",
     payload.painPoint ? painDisplay(payload.painPoint) : "",
@@ -2517,6 +2631,8 @@ function slackLeadNotification(payload: LeadBody | PartialLeadBody) {
     slackField("AI活用", payload.aiMaturity ? maturityLabel(payload.aiMaturity) : ""),
     slackField("接点", payload.contactMethod ? contactMethodLabel(payload.contactMethod) : ""),
     slackField("Email", isPartial ? "" : payload.email),
+    slackField("ドメイン", domainMatchLabel(payload.emailDomainMatch)),
+    slackField("関係", relationshipLabel(payload.relationship)),
   ].filter(Boolean);
   const detailLines = [
     payload.focusPlan?.restatement ? `*Plan* ${slackText(payload.focusPlan.restatement)}` : "",
@@ -2530,11 +2646,13 @@ function slackLeadNotification(payload: LeadBody | PartialLeadBody) {
     payload.utm ? `utm: ${slackText(payload.utm)}` : "",
     payload.referrer ? `referrer: ${slackText(payload.referrer)}` : "",
     payload.landingPath ? `landing: ${slackText(payload.landingPath)}` : "",
+    payload.emailDomainMatch ? `domain: ${slackText(payload.emailDomainMatch)}` : "",
+    payload.relationship ? `relationship: ${slackText(payload.relationship)}` : "",
   ].filter(Boolean).join("  |  ");
   const blocks: SlackBlock[] = [
     {
       type: "header",
-      text: slackPlainText(`${leadStageEmoji(payload)} ${title}`),
+      text: slackPlainText(`${domainTierEmoji(payload)} ${title}`),
     },
     {
       type: "section",
@@ -2589,6 +2707,8 @@ function slackContactFormNotification(payload: ContactFormBody) {
     payload.utm ? `utm: ${slackText(payload.utm)}` : "",
     payload.referrer ? `referrer: ${slackText(payload.referrer)}` : "",
     payload.landingPath ? `landing: ${slackText(payload.landingPath)}` : "",
+    payload.emailDomainMatch ? `domain: ${slackText(payload.emailDomainMatch)}` : "",
+    payload.relationship ? `relationship: ${slackText(payload.relationship)}` : "",
   ].filter(Boolean).join("  |  ");
   return {
     text: `${title}: ${payload.name || payload.email}`,
@@ -2656,6 +2776,53 @@ function leadHypotheses(payload: LeadBody) {
     "一次対応や定型確認をAIへ寄せる",
     "既存ツールに合わせてデータ基盤へつなぐ",
   ];
+}
+
+type DiagnosisMailType = "receipt" | "report";
+
+function receiptEmailContent(env: Env, payload: LeadBody) {
+  const diagnosisCode = payload.diagnosisCode || diagnosisCodeForSession(payload.sessionId);
+  const companyName = companyNameForLead(payload);
+  const bookingUrl = env.BOOKING_URL || DEFAULT_BOOKING_URL;
+  const hypotheses = leadHypotheses(payload);
+  const subject = `【honkoma】${companyName}のAI活用診断 — 3つの仮説（診断コード ${diagnosisCode}）`;
+  const text = [
+    `${companyName}のAI活用診断を受け付けました。`,
+    "",
+    `診断コード: ${diagnosisCode}`,
+    "",
+    "3つの仮説",
+    ...hypotheses.map((item) => `- ${item}`),
+    "",
+    "このあと課題を選んで進め方プランまで進むと、完成版レポートをこのアドレスへお送りします。",
+    `30分相談: ${bookingUrl}`,
+    "予約フォームのご相談内容欄に診断コードを記載してください。",
+    "",
+    "この診断は公開情報と入力内容に基づく仮説です。実装可否や優先順位は、業務詳細を確認して調整します。",
+  ].join("\n");
+
+  const html = `
+<!doctype html>
+<html lang="ja">
+  <body style="margin:0;background:#f6f8fb;color:#17202a;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;line-height:1.7;">
+    <main style="max-width:680px;margin:0 auto;padding:28px 20px;background:#ffffff;">
+      <p style="font-size:12px;color:#1d5fa7;font-weight:700;margin:0 0 8px;">AI Diagnosis</p>
+      <h1 style="font-size:22px;line-height:1.4;margin:0 0 16px;">${escapeHtml(companyName)}のAI活用診断を受け付けました</h1>
+      <p style="margin:0 0 20px;">診断コード: <strong>${escapeHtml(diagnosisCode)}</strong></p>
+
+      <h2 style="font-size:16px;margin:28px 0 10px;">3つの仮説</h2>
+      <ul style="padding-left:20px;margin:0;">${hypotheses.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
+
+      <p style="margin:28px 0 0;">このあと課題を選んで進め方プランまで進むと、完成版レポートをこのアドレスへお送りします。</p>
+      <p><a href="${escapeHtml(bookingUrl)}" style="color:#0f5ea8;">30分相談を予約する</a></p>
+
+      <hr style="border:none;border-top:1px solid #e5e9f0;margin:28px 0;" />
+      <p style="font-size:12px;color:#667085;">この診断は公開情報と入力内容に基づく仮説です。実装可否や優先順位は、業務詳細を確認して調整します。</p>
+    </main>
+  </body>
+</html>`.trim();
+
+  return { subject, text, html };
 }
 
 function diagnosisEmailContent(env: Env, payload: LeadBody) {
@@ -2750,6 +2917,14 @@ function diagnosisEmailContent(env: Env, payload: LeadBody) {
   return { subject, text, html };
 }
 
+function leadMailType(payload: LeadBody): DiagnosisMailType {
+  return payload.focusPlan ? "report" : "receipt";
+}
+
+function leadEmailContent(env: Env, payload: LeadBody, mailType: DiagnosisMailType) {
+  return mailType === "receipt" ? receiptEmailContent(env, payload) : diagnosisEmailContent(env, payload);
+}
+
 function emailFrom(env: Env) {
   return env.EMAIL_FROM || "diagnosis@ltdhonkoma.com";
 }
@@ -2835,19 +3010,55 @@ async function sendEmailContent(
   return false;
 }
 
-async function sendDiagnosisEmail(env: Env, payload: LeadBody) {
+const sentLeadEmailMemory = new Set<string>();
+
+function leadEmailKey(sessionId: string, mailType: DiagnosisMailType) {
+  return `lead-email:${sessionId}:${mailType}`;
+}
+
+async function leadEmailSent(env: Env, key: string) {
+  if (env.LEAD_MATERIALS && await env.LEAD_MATERIALS.get(key)) return true;
+  if (sentLeadEmailMemory.has(key)) return true;
+  const cache = defaultWorkerCache();
+  if (cache) {
+    const cached = await cache.match(new Request(`https://honkoma.local/${key}`));
+    if (cached) return true;
+  }
+  return false;
+}
+
+async function rememberLeadEmailSent(env: Env, key: string) {
+  sentLeadEmailMemory.add(key);
+  if (env.LEAD_MATERIALS) {
+    await env.LEAD_MATERIALS.put(key, new Date().toISOString(), { expirationTtl: MATERIAL_TTL_SECONDS });
+  }
+  const cache = defaultWorkerCache();
+  if (cache) {
+    await cache.put(new Request(`https://honkoma.local/${key}`), new Response("1", {
+      headers: { "Cache-Control": `public, max-age=${CACHE_TTL_SECONDS}` },
+    }));
+  }
+}
+
+async function sendDiagnosisEmail(env: Env, payload: LeadBody, mailType: DiagnosisMailType) {
   if (!payload.email || !payload.consent) return false;
-  return sendEmailContent(env, payload.email, diagnosisEmailContent(env, payload));
+  const key = leadEmailKey(payload.sessionId, mailType);
+  if (await leadEmailSent(env, key)) return false;
+  const sent = await sendEmailContent(env, payload.email, leadEmailContent(env, payload, mailType));
+  if (sent) await rememberLeadEmailSent(env, key);
+  return sent;
 }
 
 function queueDiagnosisEmail(env: Env, payload: LeadBody, ctx?: WorkerExecutionContext) {
   if (payload.action !== "capture_lead" || !payload.email || !payload.consent || !emailTransportConfigured(env)) {
     return false;
   }
-  const task = sendDiagnosisEmail(env, payload).catch((error) => {
+  const mailType = leadMailType(payload);
+  const task = sendDiagnosisEmail(env, payload, mailType).catch((error) => {
     console.error(JSON.stringify({
       event: "diagnosis_email_failed",
       sessionId: payload.sessionId,
+      mailType,
       error: error instanceof Error ? error.message : "unknown error",
     }));
   });
@@ -3952,8 +4163,9 @@ async function persistContactForm(env: Env, payload: ContactFormBody) {
 }
 
 async function persistLead(env: Env, payload: LeadBody | PartialLeadBody, ctx?: WorkerExecutionContext) {
-  const useMaterialApproval = payload.action === "capture_lead" &&
-    Boolean(payload.email && payload.consent) &&
+  const normalizedPayload = normalizeLeadIdentity(payload);
+  const useMaterialApproval = normalizedPayload.action === "capture_lead" &&
+    Boolean(normalizedPayload.email && normalizedPayload.consent && normalizedPayload.focusPlan) &&
     materialApprovalEnabled(env);
   const dryRun = !env.NOTION_TOKEN && !env.SLACK_WEBHOOK_URL && !materialApprovalEnabled(env);
   const result = {
@@ -3966,8 +4178,8 @@ async function persistLead(env: Env, payload: LeadBody | PartialLeadBody, ctx?: 
   };
 
   const [notionResult, slackResult] = await Promise.allSettled([
-    upsertNotionLead(env, payload),
-    useMaterialApproval ? Promise.resolve(false) : notifySlack(env, payload),
+    upsertNotionLead(env, normalizedPayload),
+    useMaterialApproval ? Promise.resolve(false) : notifySlack(env, normalizedPayload),
   ]);
 
   if (notionResult.status === "fulfilled") {
@@ -3990,13 +4202,13 @@ async function persistLead(env: Env, payload: LeadBody | PartialLeadBody, ctx?: 
     result.ok = false;
   }
 
-  if (payload.action === "capture_lead" && result.ok) {
-    result.emailSent = queueDiagnosisEmail(env, payload, ctx);
+  if (normalizedPayload.action === "capture_lead" && result.ok) {
+    result.emailSent = queueDiagnosisEmail(env, normalizedPayload, ctx);
     if (useMaterialApproval) {
-      const task = startMaterialFlow(env, payload).catch((error) => {
+      const task = startMaterialFlow(env, normalizedPayload).catch((error) => {
         console.error(JSON.stringify({
           event: "material_flow_failed",
-          sessionId: payload.sessionId,
+          sessionId: normalizedPayload.sessionId,
           error: error instanceof Error ? error.message : "unknown error",
         }));
       });
