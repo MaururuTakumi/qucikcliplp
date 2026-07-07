@@ -44,17 +44,14 @@ const members = [
 
 const traits = [
   {
-    icon: "🎯",
     title: "代表が、直接動く",
     desc: "大企業のたらい回しはない。相談から運用まで、当事者が責任を持って伴走する。",
   },
   {
-    icon: "⚡",
     title: "設計から実装まで一気通貫",
     desc: "伝言ゲームなし。要件を聞いたその人が、そのまま設計し、実装まで作り切る。",
   },
   {
-    icon: "🚀",
     title: "意思決定が、速い",
     desc: "大企業なら数ヶ月かかる判断も、その場で。若い組織のスピードで現場を動かす。",
   },
@@ -194,9 +191,20 @@ const TeamPage = () => {
           </p>
         </Reveal>
         <StaggerGrid columns={{ base: 1, md: 3 }} gap="md">
-          {traits.map((t) => (
+          {traits.map((t, i) => (
             <Card key={t.title}>
-              <span style={{ fontSize: "1.75rem" }}>{t.icon}</span>
+              <span
+                className="font-en"
+                style={{
+                  display: "block",
+                  fontSize: "1.5rem",
+                  fontWeight: 700,
+                  letterSpacing: "0.02em",
+                  color: "var(--color-accent)",
+                }}
+              >
+                {String(i + 1).padStart(2, "0")}
+              </span>
               <h3 style={{ fontSize: "var(--fs-h3)", fontWeight: 700, margin: "1rem 0 0.75rem", color: "var(--text-primary)" }}>
                 {t.title}
               </h3>
