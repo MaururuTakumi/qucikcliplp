@@ -23,7 +23,6 @@ import type {
   ProposalAxis,
   Relationship,
 } from "../types";
-import { emailPlaceholderForCompany } from "../domain";
 
 const CAL_BOOKING_URL = "https://calendar.app.google/DcGsqPYBvRf3dvZJ8";
 
@@ -576,7 +575,9 @@ export function ChatStage({ onNavigate, onClose }: ChatStageProps) {
   const hasAnalysis = Boolean(state.analysis);
   const showSticky = state.phase === "focusShown";
   const canSkipGate = emailGateOptional();
-  const emailPlaceholder = emailPlaceholderForCompany(state.companyUrl);
+  /* 例は自社ドメインで固定（LayerX が hello@layerx.co.jp と自社を例に使うのと同じ）。
+   * 診断対象の会社ドメインを動的に出すと presumptuous で、社長NG。 */
+  const emailPlaceholder = "name@ltdhonkoma.com";
 
   const onUrlSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
