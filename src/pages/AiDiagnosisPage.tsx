@@ -4,9 +4,10 @@
  * Phase0 は noindex(計測しやすい入口として運用、コピー安定後に解放)。
  * ========================================================================== */
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { m, useReducedMotion } from "framer-motion";
 import { ChatStage } from "../features/ai-chat/components/ChatStage";
+import { useAiChat } from "../features/ai-chat/ChatProvider";
 import { dur, ease } from "../design/tokens";
 
 const STEPS = [
@@ -36,6 +37,20 @@ const FAQ = [
 
 export default function AiDiagnosisPage() {
   const reduce = useReducedMotion();
+  const { state, resetChat } = useAiChat();
+
+  /* #53: /ai はYouTube/note からの冷たいキャンペーン着地。sessionStorage から
+   * 前回の別会社診断(例: スノーピーク)が復元されると、開いた瞬間に無関係な他社の
+   * 結果が出て壊れて見える。着地時に復元済みの診断が残っていれば新規診断に戻す
+   * (email/consent は reset が温存)。ドロワーの開閉再開には手を入れない。 */
+  const didReset = useRef(false);
+  useEffect(() => {
+    if (didReset.current) return;
+    didReset.current = true;
+    if (state.phase !== "idle" || state.analysis) resetChat();
+    // マウント時点の復元状態だけを見て一度だけ判定する。
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     document.title = "AI活用診断 | honkoma";
