@@ -1,4 +1,5 @@
 import React from "react";
+import kizunaFinderDemoHorizontal from "../../assets/kizuna/kzfinder_demo_horz.png";
 
 export const ThreeStepsSection = (): JSX.Element => {
   return (
@@ -14,7 +15,7 @@ export const ThreeStepsSection = (): JSX.Element => {
           <div className="relative max-w-4xl">
             <div className="absolute inset-0 bg-gradient-to-r from-primary-600/20 to-orange-600/20 rounded-2xl blur-xl"></div>
             <img 
-              src="/assets/kizuna/kzfinder_demo_horz.png" 
+              src={kizunaFinderDemoHorizontal}
               alt="KizunaFinderの使い方デモ" 
               className="w-full relative z-10 rounded-2xl shadow-2xl hover:scale-105 transition-transform duration-500" 
             />
