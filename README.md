@@ -80,9 +80,9 @@ npm run build
 - プロパティID: `528400146`
 - アクセス用Googleアカウント: `quickclip@ltdhonkoma.com`
 - [GA4レポートを開く（端末共通）](https://analytics.google.com/analytics/web/#/a351570105p528400146/reports/intelligenthome?params=_u..nav%3Dmaui)
-- [GA4レポートを開く（このMacの一時ショートカット）](https://analytics.google.com/analytics/web/?authuser=2#/a351570105p528400146/reports/intelligenthome?params=_u..nav%3Dmaui)
+- [GA4レポートを開く（このMacの一時ショートカット）](https://analytics.google.com/analytics/web/?authuser=1#/a351570105p528400146/reports/intelligenthome?params=_u..nav%3Dmaui)
 
-`authuser=2` は、このMacのChromeにおけるGoogleアカウントのログイン順を表す一時的な値です。端末やChromeプロファイルが変わると番号も変わる可能性があるため、他のデバイスでは `quickclip@ltdhonkoma.com` でログインしてから端末共通リンクを使用してください。確認時は、プロパティ名が `honkoma LP`、プロパティIDが `528400146`、測定IDが `G-2Y4FMJB6GB` であることを照合してください。
+`authuser=1` は、このMacのChromeにおけるGoogleアカウントのログイン順を表す一時的な値です。端末やChromeプロファイルが変わると番号も変わる可能性があるため、他のデバイスでは `quickclip@ltdhonkoma.com` でログインしてから端末共通リンクを使用してください。確認時は、プロパティ名が `honkoma LP`、プロパティIDが `528400146`、測定IDが `G-2Y4FMJB6GB` であることを照合してください。
 
 ## SEO チェックリスト
 
