@@ -8,6 +8,7 @@ import { UseCaseSection } from "./sections/UseCaseSection/UseCaseSection";
 import { ThreeStepsSection } from "./sections/ThreeStepsSection/ThreeStepsSection";
 import { ClientLogosSection } from "./sections/ClientLogosSection";
 import { supabase } from "../../lib/supabase";
+import kizunaFinderLogo from "./assets/kizuna/kzfind_logo_rect-removebg-preview.png";
 
 // Global gtag function declaration for TypeScript
 declare global {
@@ -254,7 +255,7 @@ export const Desktop = (): JSX.Element => {
                 <img
                   className="w-full max-w-[420px] lg:max-w-[520px] h-auto object-contain aspect-auto relative z-10 floating"
                   alt="KizunaFinderアプリケーションのスクリーンショット - AIによるインフルエンサー検索画面"
-                  src="/assets/kizuna/kzfind_logo_rect-removebg-preview.png"
+                  src={kizunaFinderLogo}
                   loading="lazy"
                 />
               </aside>

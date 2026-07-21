@@ -1,3 +1,5 @@
+# 提供終了した別プロダクトの旧公開アセットは、SPAへフォールバックさせず恒久削除を返す
+/assets/kizuna/*  /removed.html  410!
 # AIチャットAPI → Cloudflare Worker へプロキシ（キャッチオールより前に置く＝先勝ち）
 /api/ai-chat    https://honkoma-ai-chat.quickclip.workers.dev/api/ai-chat    200
 # SPA: それ以外は index.html を返しクライアントルーティングに委ねる
