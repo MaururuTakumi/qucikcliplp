@@ -2,6 +2,9 @@
 
 Quick ClipはApp Clipを活用した革新的なQRコード決済ソリューションのランディングページです。
 
+> [!IMPORTANT]
+> 現在のSEO/AIO改善、担当者、完了条件は [honkoma SEO / AIO タスクボード](docs/seo-aio-task-board.md) を正本として管理しています。公開サイトにはこの内部ボードを表示しません。
+
 ## SEO対策について
 
 このプロジェクトには以下の完璧なSEO対策が実装されています：
