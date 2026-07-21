@@ -14,8 +14,8 @@
 
 | 担当 | 今持っているボール | 次にやること |
 | --- | --- | --- |
-| ユーザー | `SEO-AIO-001` | 正規ドメインを `ltdhonkoma.com` として確定する |
-| Codex | `SEO-AIO-004` | 本番とリポジトリの差分、デプロイ元を特定する |
+| ユーザー | `SEO-AIO-060` | Search ConsoleのKizunaFinderサブドメイン削除申請を最終承認する |
+| Codex | `SEO-AIO-061` | Google申請後、Bingと外部検索面の削除・残存確認へ進む |
 | Claude Code | 待機 | `SEO-AIO-013` の独立監査を、前提タスク完了後に実施する |
 | Fable | 待機 | `SEO-AIO-012` の設計レビューを、正規ドメイン確定後に実施する |
 
@@ -45,7 +45,8 @@
 
 - 対象: `ltdhonkoma.com` の企業サイト、正規プロフィール、検索・AIクローラー、GA4、Search Console、Bing Webmaster Tools、サイトに根拠を与える第三者情報
 - KizunaFinder: 別プロダクトとして保持してよい。企業サイトの現行ルート、ナビゲーション、構造化データ、サイトマップ、ビルド成果物へ混入させない
-- 対象外: KizunaFinder自体のSEO、機能、料金、MCP化、プロダクト改善
+- KizunaFinderの例外範囲: 提供終了に伴う公開停止、検索非表示、honkomaとの関連付け解消だけは本ボードで管理する
+- 対象外: KizunaFinder自体の集客SEO、機能、料金、MCP化、プロダクト改善
 - 公開境界: この内部ボードを企業サイトのヘッダー、フッター、公開ページには表示しない
 
 ## 0. 運用と前提
@@ -141,6 +142,17 @@
 | `SEO-AIO-056` | ⬜ 未着手 | Fable | 四半期ごとに戦略、優先順位、ページ構造をレビューする | KPIと未完了タスクから計画を読み取り評価する | 続行・停止・優先度変更の助言が残り、Codexが採否を更新 |
 | `SEO-AIO-057` | ⬜ 未着手 | Codex | 四半期ごとに企業サイトだけを再監査する | KizunaFinderを除外し、同じURL/質問/指標で再評価する | 前回との差、改善要因、悪化要因、次の3タスクが記録される |
 
+## 7. 提供終了プロダクトの公開停止と関連付け解消
+
+| ID | 状態 | ボール | やること・理由 | 次の一手 | 完了条件・証跡 |
+| --- | --- | --- | --- | --- | --- |
+| `SEO-AIO-058` | ✅ 完了 | Codex | KizunaFinderの公開LPを、コードと旧デプロイを残したまま終了させる | 410応答を維持する | [KizunaFinder PR #7](https://github.com/toofat2003/kizunafinderLP/pull/7)、merge commit `4cd5f37`、`kizunafinder-lp.ltdhonkoma.com` と `kizunafinder-lp.vercel.app` が410、通常UA/Googlebot/OAI-SearchBot/ChatGPT-UserとPOSTを2026-07-21に確認 |
+| `SEO-AIO-059` | ✅ 完了 | Codex | 企業サイトで直接公開されていたKizunaFinder画像を、コード資産を壊さず配信対象外へ移す | 旧URLの410を維持する | [企業サイト PR #55](https://github.com/MaururuTakumi/honkoma-corporate-site/pull/55)、merge commit `16fa951`、Netlify Header/Redirect rules PASS、`ltdhonkoma.com/assets/kizuna/*` が410 + noindex、画像3点は`src/screens/Desktop/assets/kizuna/`へ保持 |
+| `SEO-AIO-060` | ⏳ 確認待ち | ユーザー | Google検索結果からKizunaFinderサブドメイン全体を早期に非表示にする | Search Consoleの最終画面で「リクエストを送信」を承認する | `authuser=2` のdomain propertyで `https://kizunafinder-lp.ltdhonkoma.com/` のプレフィックス削除が送信済みになり、申請日時と状態を記録 |
+| `SEO-AIO-061` | ⬜ 未着手 | Codex | Bing、外部プロフィール、検索スニペットに残るKizunaFinderとhonkomaの関連付けを減らす | `060` 後、Bing Webmaster Toolsの権限と検索結果を確認する | 削除申請または修正対象URL、申請日、未対応理由が記録される |
+| `SEO-AIO-062` | ⏳ 確認待ち | ユーザー | 公開GitHubリポジトリのコードから会社との関連が再学習されるリスクを判断する | repo管理者がprivate化、公開継続、別保管のどれにするか決める | `toofat2003/kizunafinderLP` の公開境界が明文化され、private化する場合は管理者権限で実施。Codexの現権限はpushのみでadmin権限なし |
+| `SEO-AIO-063` | ⬜ 未着手 | Codex | 停止後30日・90日に検索とAI回答の残存を定点確認する | `060` と `061` 後、同じ検索語・固定質問で確認日を設定する | `site:`検索、指名質問、会社関連付け、引用URLの残存と変化が日付付きで記録される。学習済みLLM知識の即時消去は保証しない |
+
 ## 証跡の書き方
 
 完了にするときは、該当行の末尾またはこの節に次の形式で追記します。
@@ -152,6 +164,16 @@ SEO-AIO-010 | 2026-07-xx | owner: Codex
 ```
 
 証跡がないものは完了にしません。タスクを廃止する場合も削除せず、「取り下げ」と理由を残します。IDは再利用しません。
+
+```text
+SEO-AIO-058 | 2026-07-21 | owner: Codex
+証跡: PR #7, merge 4cd5f37, Vercel production PASS, public URL 410, browser確認 2026-07-21 17:39 JST
+結果: 公開LP、既知の本番Vercel alias、フォーム/API/画像を停止。会社サイトへのredirectは行っていない
+
+SEO-AIO-059 | 2026-07-21 | owner: Codex
+証跡: PR #55, merge 16fa951, npm run build PASS, Netlify redirect/header checks PASS, browser確認 2026-07-21 17:51 JST
+結果: 企業サイトの旧画像URLを410化し、画像本体は未接続の旧画面コード配下へ保持
+```
 
 ## 公式の判断基準
 
@@ -166,3 +188,4 @@ SEO-AIO-010 | 2026-07-xx | owner: Codex
 
 - 2026-07-21: 初版作成。2026-07-17 GEO監査、repo監査、GitHub Issue、PR #54、Fable設計レビューを統合。KizunaFinderを別プロダクトとして対象外に設定。
 - 2026-07-21: Codex Desktopの専用タスクを作成し、サイドバーへピン留め。
+- 2026-07-21: KizunaFinder公開LPと企業サイト内の旧画像URLを410化。Google/Bing削除と30/90日後の残存確認を`058`〜`063`へ追加。
