@@ -64,11 +64,19 @@ npm run dev
 npm run build
 ```
 
+## Google Analytics 4（GA4）
+
+このサイトには Google Analytics 4（GA4）が導入されています。
+
+- 測定ID: `G-2Y4FMJB6GB`
+- `gtag.js` を全ページ共通のエントリーポイントで読み込み、GA4を初期化
+- お問い合わせフォームおよび口コミAI診断フォームの送信時に `form_submit` イベントを計測
+
 ## SEO チェックリスト
 
 デプロイ前に以下を確認してください：
 
-- [ ] Google Analytics トラッキングIDを実際のIDに置き換え
+- [x] Google Analytics 4（GA4）の測定IDを設定
 - [ ] OG画像（og-image.jpg）を実際の画像に置き換え
 - [ ] ファビコンファイルを配置
 - [ ] サイトマップの最終更新日を更新
