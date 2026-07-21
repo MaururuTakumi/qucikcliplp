@@ -1,512 +1,448 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { Bot, Zap, BarChart3, Users, ArrowRight, Check, X, Minus } from 'lucide-react';
+/* =============================================================================
+ * ProductPage (/product) — サービス（product-and-principles-design.md §2）
+ *
+ * 全面刷新: プラン制(スタンダード/AI顧問/AI秘書)を廃止し、売り物を1つに——
+ * 「会社をAIネイティブにトランスフォームする、徹底的な伴走のフルパッケージ」。
+ * 物語: 目的地(AIネイティブとは) → 道のり(徹底的な伴走) → 打ち手(3つ) →
+ *   業界特化(相談導線) → FAQ → CTA。料金数値・比較表・裏取りなし成果は不掲載
+ *   (監査 #6/#7/#10/#11/#14 を構造的に解消)。
+ * ========================================================================== */
 
+import { useEffect } from "react";
+import { SectionShell } from "../components/Layout/SectionShell";
+import { SectionHeading } from "../components/ui/SectionHeading";
+import { StaggerGrid } from "../components/ui/StaggerGrid";
+import { SurfaceCard } from "../components/ui/SurfaceCard";
+import { Reveal } from "../components/motion/Reveal";
+import { ArrowCTA } from "../components/ui/ArrowCTA";
+import { useAiChat } from "../features/ai-chat/ChatProvider";
 
-const services: {
-  label: string;
-  icon: React.ReactNode;
-  oneLiner: string;
-  problem: string;
-  solution: string;
-  includes: string[];
-  pricing: string;
-  cta: string;
-  extraLink?: { label: string; to: string };
-}[] = [
+/* #2 AIネイティブの定義 = 到達後の"状態"を現在形で描く(提供物リストにしない)。 */
+const PILLARS: { num: string; en: string; title: string; body: string }[] = [
   {
-    label: 'AI秘書派遣',
-    icon: <Bot className="h-6 w-6" />,
-    oneLiner: 'あなた専属のAI秘書を、月5万円から',
-    problem: 'メール対応、日程調整、レポート作成…毎日繰り返す業務に時間を奪われていませんか？',
-    solution: 'honkomaのAI秘書が、御社の業務を学習し、実務レベルで対応します',
-    includes: [
-      'メール下書き・返信補助',
-      '日程調整・カレンダー管理',
-      '口コミ収集・分析レポート',
-      '社内外の進行管理',
-      '週次レポート作成',
-    ],
-    pricing: '初期セットアップ 15万円 + 月額5万円〜',
-    cta: 'AI秘書について相談する',
+    num: "01",
+    en: "Data Foundation",
+    title: "データが、一つの基盤に集まっている。",
+    body: "散らばった資料・記録・ノウハウを整備し、AIが読める共通のデータ基盤にする。トランスフォームは、ここから始まる。",
   },
   {
-    label: '業務自動化支援',
-    icon: <Zap className="h-6 w-6" />,
-    oneLiner: '御社の業務フローをAIで再設計',
-    problem: '手作業のコピペ、転記、チェック作業。人がやる必要のない業務に人件費をかけていませんか？',
-    solution: '業務フローを分析し、最適なAI自動化ソリューションを設計・実装します',
-    includes: [
-      '業務フロー分析・可視化',
-      'RPA・AIによる自動化設計',
-      'データ連携・API構築',
-      'チーム研修・運用マニュアル',
-      '継続的な改善提案',
-    ],
-    pricing: '月額30万円〜（初期セットアップ込み）',
-    cta: '業務自動化について相談する',
+    num: "02",
+    en: "Access for Everyone",
+    title: "全員が、AIでその基盤に触れられる。",
+    body: "一部の詳しい人だけの道具にしない。誰もがAIを通じて会社の共通基盤にアクセスし、必要な答えに自分で届く。",
   },
   {
-    label: '口コミAI',
-    icon: <BarChart3 className="h-6 w-6" />,
-    oneLiner: '口コミ対応、もうあなたがやる必要はありません',
-    problem: '複数サイトの口コミを毎日チェック、返信、分析…月30時間以上かかっていませんか？',
-    solution: 'AIが口コミを自動収集・分析し、週次レポート+返信ドラフトまで自動生成します',
-    includes: [
-      'Booking.com/Google/食べログ等の口コミ自動収集',
-      'ネガティブアラート即時通知',
-      '返信ドラフト自動生成',
-      '競合施設との比較分析',
-      'QSCA月次レポート',
-      '商品企画への示唆',
-    ],
-    pricing: '初期セットアップ 15万円 + 月額3万円〜',
-    cta: '口コミAIについて相談する',
-    extraLink: { label: '口コミAI詳細ページ', to: '/review-ai' },
+    num: "03",
+    en: "AI-Run Back Office",
+    title: "バックオフィスは、基本AIに任せている。",
+    body: "経理・総務・レポート・定型のやりとり。繰り返しの業務はAIエージェントが引き受ける前提で、業務を組み直す。",
   },
   {
-    label: 'AI顧問',
-    icon: <Users className="h-6 w-6" />,
-    oneLiner: 'AIの進化、追いかけるのをやめませんか。',
-    problem: 'AIツールは毎日増え続ける。自社に合うものがどれかわからない。始めたいけど、何から手をつければいいのか見当もつかない。',
-    solution: '毎日AIを経営に活用しているプロが、御社の横に立ちます。週次ミーティングで一緒に手を動かしながら、御社に合ったAI活用を実現します。',
-    includes: [
-      '週次ミーティング（30〜60分）',
-      'AI活用ロードマップ策定',
-      'ハンズオン導入支援（担当者と一緒に実業務で回す）',
-      '社内AI担当者の育成支援',
-      'セキュリティ・情報管理の相談対応',
-      'チャットサポート（翌営業日以内）',
-    ],
-    pricing: '月額10万円〜（税別・最低3ヶ月〜）',
-    cta: 'AI顧問について相談する',
+    num: "04",
+    en: "Humans on Human Work",
+    title: "人は、人にしかできない仕事に集中している。",
+    body: "判断、交渉、創造、関係づくり。空いた時間と集中力を人にしかできない仕事に投じる——これがトランスフォームの目的だ。",
   },
 ];
 
-const comparisonRows = [
+/* #3 進め方4ステップ(#2の4条件とゆるく対応)。 */
+const STEPS: { num: string; en: string; name: string; body: string }[] = [
   {
-    label: '初期コスト',
-    honkoma: { icon: 'good', text: '15万〜' },
-    saas: { icon: 'mid', text: '月10-30万' },
-    consul: { icon: 'bad', text: '100万〜' },
-    self: { icon: 'good', text: '0円' },
+    num: "01",
+    en: "Assess",
+    name: "診断",
+    body: "現場に入り、業務・データ・組織の現在地を把握する。ゴールまでの道筋をここで設計する。",
   },
   {
-    label: '運用コスト',
-    honkoma: { icon: 'good', text: '月5万〜' },
-    saas: { icon: 'mid', text: '月10-30万' },
-    consul: { icon: 'bad', text: '月50万〜' },
-    self: { icon: 'bad', text: '人件費' },
+    num: "02",
+    en: "Build",
+    name: "基盤",
+    body: "データ基盤を整備し、全員がAIでアクセスできる共通基盤を実装する。",
   },
   {
-    label: 'カスタマイズ',
-    honkoma: { icon: 'best', text: '御社専用設計' },
-    saas: { icon: 'bad', text: '既製品' },
-    consul: { icon: 'good', text: '可能' },
-    self: { icon: 'good', text: '自由' },
+    num: "03",
+    en: "Deploy",
+    name: "移行",
+    body: "バックオフィスをはじめ、AIに任せられる業務から順に移していく。現場と一緒に手を動かす。",
   },
   {
-    label: '導入速度',
-    honkoma: { icon: 'good', text: '最短2週間' },
-    saas: { icon: 'good', text: '即日' },
-    consul: { icon: 'bad', text: '2-3ヶ月' },
-    self: { icon: 'bad', text: '数ヶ月' },
-  },
-  {
-    label: '運用サポート',
-    honkoma: { icon: 'best', text: '伴走型' },
-    saas: { icon: 'mid', text: 'ヘルプのみ' },
-    consul: { icon: 'good', text: '期間限定' },
-    self: { icon: 'bad', text: 'なし' },
-  },
-  {
-    label: 'AI活用度',
-    honkoma: { icon: 'best', text: 'AI駆動' },
-    saas: { icon: 'mid', text: '部分的' },
-    consul: { icon: 'mid', text: '提案のみ' },
-    self: { icon: 'bad', text: '自力' },
+    num: "04",
+    en: "Own",
+    name: "定着",
+    body: "全社への定着と、内製化。honkomaがいなくても回り、進化し続ける状態にして引き渡す。",
   },
 ];
 
-function ComparisonIcon({ type }: { type: string }) {
-  switch (type) {
-    case 'best':
-      return <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-accent/10 text-accent"><Check className="h-4 w-4" strokeWidth={3} /></span>;
-    case 'good':
-      return <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-green-100 text-green-600"><Check className="h-4 w-4" /></span>;
-    case 'mid':
-      return <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-yellow-100 text-yellow-600"><Minus className="h-4 w-4" /></span>;
-    case 'bad':
-      return <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-red-100 text-red-500"><X className="h-4 w-4" /></span>;
-    default:
-      return null;
-  }
+/* #3 要素B「すべて、含まれている。」フルパッケージの中身。 */
+const INCLUDES: string[] = [
+  "現状診断とロードマップ設計",
+  "データ基盤の整備",
+  "AI共通基盤の構築",
+  "バックオフィス業務のAI移行",
+  "社内トレーニング・定着支援",
+  "必要なAIツールの開発",
+];
+
+/* #4 3つの打ち手 = HomePage What We Do と一字一句同じ(2ページで言葉をブレさせない)。 */
+const CAPABILITIES: { en: string; title: string; body: string }[] = [
+  {
+    en: "Adopt",
+    title: "AI導入",
+    body: "活用診断から設計・実装、社内定着・内製化まで。AIを“使いこなせる状態”に持っていく。",
+  },
+  {
+    en: "Embed",
+    title: "FDE",
+    body: "エンジニアが現場に入り込み、伴走しながら作り切る。Forward Deployed Engineer。",
+  },
+  {
+    en: "Build",
+    title: "プロダクト開発",
+    body: "必要なAIツールを自社で開発。PoCから運用まで一気通貫で立ち上げる。",
+  },
+];
+
+/* #6 FAQ 確定6問(全面差し替え・料金数値/最短2週間/裏取りなし規模事例は排除)。 */
+const FAQ: { q: string; a: string }[] = [
+  {
+    q: "AIの知識がまったくない状態でも相談できますか？",
+    a: "はい。前提知識は不要です。現状の業務をお聞きするところから始めますので、専門用語の準備もいりません。",
+  },
+  {
+    q: "どのくらいの規模の会社が対象ですか？",
+    a: "規模は問いません。数名規模の会社から上場企業まで、これまで30社以上の現場に伴走してきました。",
+  },
+  {
+    q: "料金はどのように決まりますか？",
+    a: "対象範囲と規模をお聞きした上で、お見積もりをご提案します。初回のご相談は無料です。",
+  },
+  {
+    q: "導入までどのくらいかかりますか？",
+    a: "範囲によって異なるため、一律の期間はお約束していません。初回のご相談で、御社の場合の目安をご提示します。",
+  },
+  {
+    q: "まず一部の業務だけ、スポットで相談することはできますか？",
+    a: "入り口のご相談として歓迎します。ただし私たちが目指すのは会社全体の転換なので、部分的なご依頼でも、全体の道筋を描いた上でご提案します。",
+  },
+  {
+    q: "社内のデータや情報の取り扱いが不安です。",
+    a: "お預かりする情報の範囲と管理方法は、契約時に書面で明確にします。ご不安な点は、初回のご相談でそのままお聞かせください。",
+  },
+];
+
+const ANCHOR = { scrollMarginTop: "6rem" } as const;
+
+/** English accent number + label used across the definition/steps grids. */
+function NumLabel({ num, en }: { num: string; en: string }) {
+  return (
+    <div style={{ display: "flex", alignItems: "baseline", gap: "0.6rem", marginBottom: "0.75rem" }}>
+      <span
+        className="font-en"
+        style={{ fontSize: "0.95rem", fontWeight: 700, color: "var(--color-accent)" }}
+      >
+        {num}
+      </span>
+      <span
+        className="font-en"
+        style={{
+          fontSize: "0.7rem",
+          letterSpacing: "0.12em",
+          textTransform: "uppercase",
+          color: "var(--text-secondary)",
+        }}
+      >
+        {en}
+      </span>
+    </div>
+  );
 }
 
-const ProductPage: React.FC = () => {
-  React.useEffect(() => {
-    document.title = 'サービス・料金 | honkoma';
+const ProductPage = () => {
+  const { openChat } = useAiChat();
+
+  useEffect(() => {
+    document.title = "サービス | honkoma";
   }, []);
 
   return (
-    <div className="bg-cream">
-      {/* ===== 1. HERO ===== */}
-      <section className="py-24 md:py-32 border-b border-subtle">
-        <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            <div className="lg:col-span-3">
-              <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">Services & Pricing</span>
-            </div>
-            <div className="lg:col-span-9">
-              <h1 className="font-serif text-5xl md:text-6xl font-bold text-ink mb-6 leading-tight">
-                御社の業務に、<br />
-                <span className="text-accent">AIエージェント</span>を。
-              </h1>
-              <p className="text-warm text-xl leading-relaxed max-w-2xl mb-10">
-                業務分析から設計・実装・運用まで。honkomaは御社専用のAIエージェントを設計し、実務を任せられるレベルまで仕上げます。
-              </p>
-              <Link
-                to="/contact"
-                className="group inline-flex items-center px-8 py-4 bg-accent text-white font-serif font-medium hover:bg-accent-hover transition-colors duration-300"
-              >
-                無料相談を申し込む
-                <ArrowRight className="ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ===== 2. TRUST BAR ===== */}
-      <section className="py-14 border-b border-subtle">
-        <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-4">
-            {[
-              { num: '20社以上', desc: '導入・商談実績' },
-              { num: '最短2週間', desc: '初期版リリース' },
-              { num: '初回無料', desc: '相談料' },
-            ].map((item, i) => (
-              <div key={i} className="text-center">
-                <div className="font-serif text-3xl md:text-4xl font-bold text-ink">{item.num}</div>
-                <div className="font-mono text-xs text-warm mt-2 tracking-wide">{item.desc}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ===== 3. SERVICE CARD GRID ===== */}
-      <section className="py-24 md:py-32 border-b border-subtle">
-        <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            <div className="lg:col-span-3">
-              <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">Services</span>
-              <h2 className="font-serif text-3xl md:text-4xl font-bold text-ink mt-2">サービス概要</h2>
-            </div>
-            <div className="lg:col-span-9">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {[
-                  { id: 'service-ai-secretary', title: 'AI秘書派遣', desc: 'メール・日程調整・レポート作成をAIが代行', borderColor: 'border-l-blue-500', badgeBg: 'bg-blue-50', iconColor: 'text-blue-600', hoverColor: 'group-hover:text-blue-600', Icon: Bot },
-                  { id: 'service-automation', title: '業務自動化支援', desc: '業務フローをAIで再設計・自動化', borderColor: 'border-l-orange-500', badgeBg: 'bg-orange-50', iconColor: 'text-orange-600', hoverColor: 'group-hover:text-orange-600', Icon: Zap },
-                  { id: 'service-review-ai', title: '口コミAI', desc: '口コミ収集・分析・返信をすべて自動化', borderColor: 'border-l-emerald-500', badgeBg: 'bg-emerald-50', iconColor: 'text-emerald-600', hoverColor: 'group-hover:text-emerald-600', Icon: BarChart3 },
-                  { id: 'service-ai-advisor', title: 'AI顧問', desc: 'AIの進化に追いつく必要はもうありません', borderColor: 'border-l-violet-500', badgeBg: 'bg-violet-50', iconColor: 'text-violet-600', hoverColor: 'group-hover:text-violet-600', Icon: Users },
-                ].map((card) => (
-                  <a
-                    key={card.id}
-                    href={`#${card.id}`}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      document.getElementById(card.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }}
-                    className={`group relative block overflow-hidden rounded-xl bg-white border border-gray-200 border-l-4 ${card.borderColor} p-8 min-h-[220px] hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300`}
-                  >
-                    {/* 右上の大きなあしらいアイコン */}
-                    <div className="absolute -top-4 -right-4 opacity-[0.05]">
-                      <card.Icon className={`w-28 h-28 ${card.iconColor}`} />
-                    </div>
-
-                    {/* コンテンツ */}
-                    <div className="relative z-10 flex flex-col justify-between h-full">
-                      <div className={`w-11 h-11 rounded-xl ${card.badgeBg} flex items-center justify-center mb-6`}>
-                        <card.Icon className={`h-5 w-5 ${card.iconColor}`} />
-                      </div>
-                      <div>
-                        <h3 className="font-serif text-xl font-bold text-ink mb-2">{card.title}</h3>
-                        <p className="text-warm text-sm">{card.desc}</p>
-                      </div>
-                      <div className={`mt-4 flex items-center text-warm text-xs tracking-wide font-mono ${card.hoverColor} transition-colors`}>
-                        詳しく見る
-                        <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                      </div>
-                    </div>
-                  </a>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ===== 4. SERVICES DETAIL ===== */}
-      <section className="border-b border-subtle">
-        <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
-          {services.map((service, idx) => {
-            const serviceIds = ['service-ai-secretary', 'service-automation', 'service-review-ai', 'service-ai-advisor'];
-            return (
-            <div
-              key={idx}
-              id={serviceIds[idx]}
-              className={`py-16 md:py-20 scroll-mt-24 ${idx < services.length - 1 ? 'border-b border-subtle' : ''} ${idx % 2 === 1 ? 'bg-accent-light/10' : ''}`}
-            >
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                {/* Left label — only on first service */}
-                <div className="lg:col-span-3">
-                  {idx === 0 && (
-                    <>
-                      <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">Services — Detail</span>
-                    </>
-                  )}
-                </div>
-
-                <div className="lg:col-span-9">
-                  {/* Service header */}
-                  <div className="flex items-center gap-3 mb-6">
-                    <span className="text-accent">{service.icon}</span>
-                    <h3 className="font-serif text-2xl font-bold text-ink">{service.label}</h3>
-                  </div>
-
-                  {/* One-liner */}
-                  <p className="font-serif text-xl md:text-2xl font-bold text-ink mb-8">
-                    {service.oneLiner}
-                  </p>
-
-                  {/* Problem / Solution */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-subtle mb-10">
-                    <div className="bg-cream p-6 md:p-8">
-                      <h4 className="font-mono text-xs tracking-[0.2em] uppercase text-warm mb-3">課題</h4>
-                      <p className="text-ink leading-relaxed">{service.problem}</p>
-                    </div>
-                    <div className="bg-cream p-6 md:p-8">
-                      <h4 className="font-mono text-xs tracking-[0.2em] uppercase text-warm mb-3">解決</h4>
-                      <p className="text-ink leading-relaxed">{service.solution}</p>
-                    </div>
-                  </div>
-
-                  {/* Includes */}
-                  <div className="border-t border-subtle pt-8 mb-10">
-                    <h4 className="font-mono text-xs tracking-[0.2em] uppercase text-warm mb-5">含まれるもの</h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {service.includes.map((item, i) => (
-                        <div key={i} className="flex items-center gap-3">
-                          <Check className="h-4 w-4 text-accent flex-shrink-0" />
-                          <span className="text-sm text-ink">{item}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Pricing */}
-                  <div className="bg-ink text-cream p-6 md:p-8 mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div>
-                      <h4 className="font-mono text-xs tracking-[0.2em] uppercase text-cream/50 mb-2">料金</h4>
-                      <p className="font-serif text-xl md:text-2xl font-bold">{service.pricing}</p>
-                    </div>
-                  </div>
-
-                  {/* CTA */}
-                  <div className="flex flex-col sm:flex-row gap-4">
-                    <Link
-                      to="/contact"
-                      className="group inline-flex items-center px-8 py-4 bg-accent text-white font-serif font-medium hover:bg-accent-hover transition-colors duration-300"
-                    >
-                      {service.cta}
-                      <ArrowRight className="ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                    </Link>
-                    {service.extraLink && (
-                      <Link
-                        to={service.extraLink.to}
-                        className="group inline-flex items-center px-8 py-4 border border-subtle text-ink font-serif font-medium hover:border-ink transition-colors duration-300"
-                      >
-                        {service.extraLink.label}
-                        <ArrowRight className="ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                      </Link>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* ===== 5. COMPARISON TABLE ===== */}
-      <section className="py-24 md:py-32 border-b border-subtle">
-        <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-14">
-            <div className="lg:col-span-3">
-              <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">Comparison</span>
-            </div>
-            <div className="lg:col-span-9">
-              <h2 className="font-serif text-3xl md:text-4xl font-bold text-ink">導入の比較</h2>
-            </div>
-          </div>
-
-          <div className="lg:ml-[25%] overflow-x-auto -mx-6 px-6 lg:mx-0 lg:px-0">
-            <table className="w-full min-w-[600px] text-sm">
-              <thead>
-                <tr className="bg-ink text-cream">
-                  <th className="text-left font-mono text-xs tracking-wider uppercase p-4">項目</th>
-                  <th className="text-center font-serif font-bold p-4 bg-accent text-white">honkoma</th>
-                  <th className="text-center font-mono text-xs tracking-wider uppercase p-4">一般的なSaaS</th>
-                  <th className="text-center font-mono text-xs tracking-wider uppercase p-4">コンサル会社</th>
-                  <th className="text-center font-mono text-xs tracking-wider uppercase p-4">自社対応</th>
-                </tr>
-              </thead>
-              <tbody>
-                {comparisonRows.map((row, i) => (
-                  <tr key={i} className={`border-b border-subtle ${i % 2 === 0 ? 'bg-cream' : 'bg-accent-light/20'}`}>
-                    <td className="p-4 font-serif font-bold text-ink">{row.label}</td>
-                    <td className="p-4 text-center bg-accent-light/30">
-                      <div className="flex flex-col items-center gap-1">
-                        <ComparisonIcon type={row.honkoma.icon} />
-                        <span className="text-xs text-ink font-medium">{row.honkoma.text}</span>
-                      </div>
-                    </td>
-                    <td className="p-4 text-center">
-                      <div className="flex flex-col items-center gap-1">
-                        <ComparisonIcon type={row.saas.icon} />
-                        <span className="text-xs text-warm">{row.saas.text}</span>
-                      </div>
-                    </td>
-                    <td className="p-4 text-center">
-                      <div className="flex flex-col items-center gap-1">
-                        <ComparisonIcon type={row.consul.icon} />
-                        <span className="text-xs text-warm">{row.consul.text}</span>
-                      </div>
-                    </td>
-                    <td className="p-4 text-center">
-                      <div className="flex flex-col items-center gap-1">
-                        <ComparisonIcon type={row.self.icon} />
-                        <span className="text-xs text-warm">{row.self.text}</span>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-      {/* ===== 6. BEFORE → AFTER JOURNEY ===== */}
-      <section className="py-24 md:py-32 bg-ink">
-        <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-14">
-            <div className="lg:col-span-3">
-              <span className="font-mono text-xs tracking-[0.2em] uppercase text-cream/40">Journey</span>
-            </div>
-            <div className="lg:col-span-9">
-              <h2 className="font-serif text-3xl md:text-4xl font-bold text-cream">Before → After</h2>
-            </div>
-          </div>
-
-          <div className="lg:ml-[25%]">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-0">
-              {/* Step 1 */}
-              <div className="relative p-8 border border-cream/10">
-                <div className="font-mono text-xs tracking-[0.2em] uppercase text-cream/40 mb-4">Step 1 — 導入前</div>
-                <p className="font-serif text-lg text-cream leading-relaxed">
-                  毎日の繰り返し業務に追われ、本来の仕事に集中できない
-                </p>
-                <div className="hidden md:flex absolute -right-4 top-1/2 -translate-y-1/2 z-10">
-                  <ArrowRight className="h-8 w-8 text-accent" />
-                </div>
-                <div className="flex md:hidden justify-center py-4">
-                  <ArrowRight className="h-8 w-8 text-accent rotate-90" />
-                </div>
-              </div>
-
-              {/* Step 2 */}
-              <div className="relative p-8 border border-accent/40 bg-accent/5">
-                <div className="font-mono text-xs tracking-[0.2em] uppercase text-accent mb-4">Step 2 — honkoma導入</div>
-                <p className="font-serif text-lg text-cream leading-relaxed">
-                  AI秘書が実務を引き受け、御社のチームは判断と創造に集中
-                </p>
-                <div className="hidden md:flex absolute -right-4 top-1/2 -translate-y-1/2 z-10">
-                  <ArrowRight className="h-8 w-8 text-accent" />
-                </div>
-                <div className="flex md:hidden justify-center py-4">
-                  <ArrowRight className="h-8 w-8 text-accent rotate-90" />
-                </div>
-              </div>
-
-              {/* Step 3 */}
-              <div className="p-8 border border-cream/10">
-                <div className="font-mono text-xs tracking-[0.2em] uppercase text-cream/40 mb-4">Step 3 — 導入後</div>
-                <p className="font-serif text-lg text-cream leading-relaxed">
-                  月40時間の工数削減。売上に直結する業務に100%集中
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ===== 7. FAQ ===== */}
-      <section id="faq" className="py-28 border-b border-subtle">
-        <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-14">
-            <div className="lg:col-span-3">
-              <span className="font-mono text-xs tracking-[0.2em] uppercase text-warm">FAQ</span>
-            </div>
-            <div className="lg:col-span-9">
-              <h2 className="font-serif text-3xl md:text-4xl font-bold text-ink">よくあるご質問</h2>
-            </div>
-          </div>
-
-          <div className="lg:ml-[25%]">
-            {[
-              { q: 'AIの知識がない状態でも相談できますか？', a: 'もちろんです。専門知識は不要です。御社の業務課題をお聞きした上で、最適なソリューションをわかりやすくご提案いたします。' },
-              { q: '小規模な企業でも依頼できますか？', a: 'はい。規模に関わらず対応しています。2名体制のクリニックから100名規模の企業まで実績があります。' },
-              { q: 'どのプランが自社に合っているかわかりません。', a: '初回相談は無料ですので、まずはお気軽にご相談ください。御社の状況をお伺いした上で、最適なプランをご提案します。' },
-              { q: '導入までどのくらいの期間がかかりますか？', a: 'AI秘書は最短2週間で稼働可能です。業務自動化支援は1〜2ヶ月が目安です。AI顧問は初回MTG後すぐに開始できます。' },
-              { q: 'AI秘書のAI利用料はどのくらいですか？', a: 'AI APIの使用量に応じた従量課金となります。利用規模にもよりますが、月数千円〜数万円程度が一般的です。毎月の利用状況をレポートでお知らせします。' },
-            ].map((item, index) => (
-              <div key={index} className="border-b border-subtle py-8">
-                <h3 className="font-serif text-lg font-bold text-ink mb-3 flex items-start gap-4">
-                  <span className="font-mono text-sm text-accent mt-0.5 flex-shrink-0">Q</span>
-                  {item.q}
-                </h3>
-                <p className="text-warm leading-relaxed ml-8">{item.a}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ===== 8. BOTTOM CTA ===== */}
-
-      <section className="py-32 bg-ink">
-        <div className="max-w-[800px] mx-auto text-center px-6 lg:px-8">
-          <h2 className="font-serif text-4xl md:text-5xl font-bold text-cream mb-6">
-            まずは無料相談から。
-          </h2>
-          <p className="text-cream/50 text-lg mb-12 leading-relaxed">
-            御社の課題に合わせて、最適なソリューションをご提案します。
+    <div style={{ background: "var(--surface-base)" }}>
+      {/* ===== #1 HERO ===== */}
+      <SectionShell>
+        <SectionHeading
+          enLabel="Service"
+          title="会社を、AIネイティブへ。"
+          level={1}
+        />
+        <Reveal variant="fade">
+          <p className="font-en" style={{ margin: "0.5rem 0 0", color: "var(--text-secondary)", letterSpacing: "0.04em", fontSize: "0.9rem" }}>
+            Transform into an AI-native company.
           </p>
-          <Link
-            to="/contact"
-            className="group inline-flex items-center px-10 py-5 border border-cream/20 text-cream text-lg font-serif font-medium hover:bg-cream hover:text-ink transition-all duration-500"
+          <p
+            style={{
+              maxWidth: "48ch",
+              margin: "1.75rem 0 clamp(2rem, 4vw, 3rem)",
+              color: "var(--text-secondary)",
+              fontSize: "clamp(1.05rem, 1.4vw, 1.25rem)",
+              lineHeight: 1.95,
+            }}
           >
-            無料相談を申し込む
-            <ArrowRight className="ml-4 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-          </Link>
-          <p className="font-mono text-xs text-cream/30 mt-8 tracking-wide">
-            初回相談は無料です。
+            ツールを一つ入れて終わり、にはしない。データ基盤から日々の業務、組織の習慣まで——
+            honkomaは徹底的な伴走で、会社がAIを前提に動く状態への転換を支援する。
           </p>
+          <div style={{ display: "flex", gap: "1.25rem", flexWrap: "wrap", alignItems: "center" }}>
+            <ArrowCTA to="/contact" size="lg" variant="fill" withText="ご相談はこちら" label="ご相談はこちら" />
+            <ArrowCTA
+              onClick={() => openChat({ source: "whatwedo" })}
+              variant="outline"
+              withText="自社の場合をAIに聞く"
+              label="自社の場合をAIに聞く"
+            />
+          </div>
+        </Reveal>
+      </SectionShell>
+
+      {/* ===== #2 AIネイティブの定義 ===== */}
+      <SectionShell id="ai-native" wedge="top" style={ANCHOR}>
+        <SectionHeading enLabel="What Is AI-Native" title="AIネイティブとは、どういう状態か。" level={2} />
+        <Reveal variant="fade">
+          <p
+            style={{
+              maxWidth: "52ch",
+              margin: "1.5rem 0 clamp(2.5rem, 5vw, 4rem)",
+              color: "var(--text-secondary)",
+              fontSize: "clamp(1rem, 1.3vw, 1.15rem)",
+              lineHeight: 1.9,
+            }}
+          >
+            AIを“使っている”会社と、AIが“前提の”会社は違う。私たちが目指すのは後者——
+            次の4つが、特別なプロジェクトではなく日常になっている状態だ。
+          </p>
+        </Reveal>
+        <StaggerGrid columns={{ base: 1, md: 2 }} gap="md">
+          {PILLARS.map((p) => (
+            <SurfaceCard key={p.num}>
+              <NumLabel num={p.num} en={p.en} />
+              <h3
+                style={{
+                  fontSize: "var(--fs-h3)",
+                  fontWeight: 700,
+                  margin: "0 0 0.75rem",
+                  color: "var(--text-primary)",
+                  lineHeight: 1.4,
+                }}
+              >
+                {p.title}
+              </h3>
+              <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem", lineHeight: 1.9, flex: 1 }}>
+                {p.body}
+              </p>
+            </SurfaceCard>
+          ))}
+        </StaggerGrid>
+      </SectionShell>
+
+      {/* ===== #3 関わり方(How) — inverse ===== */}
+      <SectionShell id="how" theme="inverse" wedge="top" style={ANCHOR}>
+        <SectionHeading enLabel="How We Work" title={["関わり方は、一つ。", "徹底的な伴走。"]} level={2} />
+        <Reveal variant="fade">
+          <p
+            style={{
+              maxWidth: "52ch",
+              margin: "1.5rem 0 clamp(2.5rem, 5vw, 4rem)",
+              color: "var(--text-secondary)",
+              fontSize: "clamp(1rem, 1.3vw, 1.15rem)",
+              lineHeight: 1.9,
+            }}
+          >
+            プランのメニューは用意していない。診断から定着まで、AIネイティブに至るために必要なことを
+            すべて含んだフルパッケージで、御社の中に入り込んで伴走する。
+          </p>
+        </Reveal>
+
+        {/* 進め方4ステップ */}
+        <StaggerGrid columns={{ base: 1, md: 2, lg: 4 }} gap="md">
+          {STEPS.map((s) => (
+            <div key={s.num}>
+              <NumLabel num={s.num} en={s.en} />
+              <h3
+                style={{
+                  fontSize: "clamp(1.15rem, 1.8vw, 1.4rem)",
+                  fontWeight: 700,
+                  margin: "0 0 0.5rem",
+                  color: "var(--text-primary)",
+                }}
+              >
+                {s.name}
+              </h3>
+              <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem", lineHeight: 1.85 }}>
+                {s.body}
+              </p>
+            </div>
+          ))}
+        </StaggerGrid>
+
+        {/* すべて、含まれている。 */}
+        <div style={{ marginTop: "clamp(3rem, 6vw, 4.5rem)" }}>
+          <Reveal variant="fadeUp">
+            <h3
+              style={{
+                fontSize: "var(--fs-h3)",
+                fontWeight: 700,
+                marginBottom: "1.5rem",
+                color: "var(--text-primary)",
+              }}
+            >
+              すべて、含まれている。
+            </h3>
+            <ul
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+                gap: "0.75rem 1.5rem",
+                listStyle: "none",
+                padding: 0,
+                margin: 0,
+              }}
+            >
+              {INCLUDES.map((item) => (
+                <li key={item} style={{ display: "flex", alignItems: "baseline", gap: "0.6rem", color: "var(--text-secondary)", lineHeight: 1.7 }}>
+                  <span aria-hidden="true" style={{ color: "var(--color-accent)", fontWeight: 700 }}>✓</span>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+            <p style={{ marginTop: "2rem", color: "var(--text-secondary)", fontSize: "0.95rem", lineHeight: 1.9 }}>
+              料金は、対象範囲と規模に応じたお見積もり制。初回のご相談は無料です。
+            </p>
+          </Reveal>
         </div>
-      </section>
+      </SectionShell>
+
+      {/* ===== #4 3つの打ち手(What) ===== */}
+      <SectionShell id="capabilities" wedge="top" style={ANCHOR}>
+        <SectionHeading enLabel="Our Capabilities" title="トランスフォームを支える、3つの打ち手。" level={2} />
+        <Reveal variant="fade">
+          <p
+            style={{
+              maxWidth: "48ch",
+              margin: "1.5rem 0 clamp(2.5rem, 5vw, 4rem)",
+              color: "var(--text-secondary)",
+              fontSize: "clamp(1rem, 1.3vw, 1.15rem)",
+              lineHeight: 1.9,
+            }}
+          >
+            伴走の中身は、この3つの組み合わせでできている。局面に応じて必要な打ち手を選び、
+            御社の転換を前に進める。
+          </p>
+        </Reveal>
+        <StaggerGrid columns={{ base: 1, md: 3 }} gap="md">
+          {CAPABILITIES.map((c) => (
+            <SurfaceCard key={c.title}>
+              <span
+                className="font-en"
+                style={{
+                  fontSize: "0.75rem",
+                  letterSpacing: "0.1em",
+                  textTransform: "uppercase",
+                  color: "var(--color-accent)",
+                }}
+              >
+                {c.en}
+              </span>
+              <h3
+                style={{
+                  fontSize: "var(--fs-h3)",
+                  fontWeight: 700,
+                  margin: "0.75rem 0",
+                  color: "var(--text-primary)",
+                }}
+              >
+                {c.title}
+              </h3>
+              <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem", lineHeight: 1.85, flex: 1 }}>
+                {c.body}
+              </p>
+            </SurfaceCard>
+          ))}
+        </StaggerGrid>
+      </SectionShell>
+
+      {/* ===== #5 業界特化(Where) ===== */}
+      <SectionShell id="solutions" wedge="top" style={ANCHOR}>
+        <SectionHeading enLabel="Industry Focus" title="業界に、深く。" level={2} />
+        <Reveal variant="fade">
+          <p
+            style={{
+              maxWidth: "44ch",
+              margin: "1.5rem 0 clamp(2.5rem, 5vw, 3.5rem)",
+              color: "var(--text-secondary)",
+              fontSize: "clamp(1rem, 1.3vw, 1.15rem)",
+              lineHeight: 1.9,
+            }}
+          >
+            業界固有の業務には、専用の型を用意している。
+          </p>
+        </Reveal>
+        <p style={{ marginTop: "1rem", color: "var(--text-secondary)", fontSize: "0.95rem" }}>
+          業界固有のご相談は、お問い合わせください。
+        </p>
+      </SectionShell>
+
+      {/* ===== #6 FAQ ===== */}
+      <SectionShell id="faq" wedge="top" style={ANCHOR}>
+        <SectionHeading enLabel="FAQ" title="よくあるご質問。" level={2} />
+        <div style={{ marginTop: "clamp(2rem, 4vw, 3rem)", maxWidth: 820 }}>
+          {FAQ.map((f, i) => (
+            <Reveal key={f.q} variant="fadeUp">
+              <div
+                style={{
+                  padding: "1.5rem 0",
+                  borderTop: i === 0 ? "none" : "1px solid color-mix(in srgb, var(--text-primary) 10%, transparent)",
+                }}
+              >
+                <h3 style={{ display: "flex", gap: "0.75rem", fontSize: "clamp(1.05rem, 1.6vw, 1.25rem)", fontWeight: 700, color: "var(--text-primary)", marginBottom: "0.75rem", lineHeight: 1.5 }}>
+                  <span className="font-en" style={{ color: "var(--color-accent)" }}>Q.</span>
+                  {f.q}
+                </h3>
+                <p style={{ display: "flex", gap: "0.75rem", color: "var(--text-secondary)", fontSize: "0.98rem", lineHeight: 1.9 }}>
+                  <span className="font-en" style={{ color: "var(--text-secondary)" }}>A.</span>
+                  <span>{f.a}</span>
+                </p>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </SectionShell>
+
+      {/* ===== #7 CTA — inverse ===== */}
+      <SectionShell id="contact-cta" theme="inverse" wedge="top" width="content" style={ANCHOR}>
+        <div style={{ maxWidth: 760 }}>
+          <SectionHeading enLabel="Contact" title="まずは、話すことから。" level={2} />
+          <Reveal variant="fadeUp">
+            <p
+              style={{
+                margin: "1.5rem 0 clamp(2rem, 4vw, 3rem)",
+                color: "var(--text-secondary)",
+                fontSize: "clamp(1rem, 1.3vw, 1.15rem)",
+                lineHeight: 1.9,
+                maxWidth: "46ch",
+              }}
+            >
+              「何から始めればいいかわからない」——その状態からで大丈夫。
+              AIに聞くのも、人に聞くのも、入り口はどちらでも。
+            </p>
+            <div style={{ display: "flex", gap: "1.5rem", flexWrap: "wrap", alignItems: "center" }}>
+              <ArrowCTA
+                onClick={() => openChat({ source: "whatwedo" })}
+                variant="outline"
+                withText="自社での使い方をAIに聞く"
+                label="自社での使い方をAIに聞く"
+              />
+              <ArrowCTA to="/contact" size="lg" variant="fill" withText="ご相談はこちら" label="ご相談はこちら" />
+            </div>
+          </Reveal>
+        </div>
+      </SectionShell>
     </div>
   );
 };

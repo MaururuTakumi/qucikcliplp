@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <!-- Primary Meta Tags -->
-    <title>honkoma | AIエージェント構築・業務自動化支援</title>
-    <meta name="title" content="honkoma | AIエージェント構築・業務自動化支援" />
-    <meta name="description" content="株式会社honkomaは、AIエージェント構築・業務自動化・Claude Code活用支援を提供します。東大卒エンジニアチームが構想から実装まで一気通貫でサポート。" />
+    <title>honkoma | 会社を、AIネイティブへ。</title>
+    <meta name="title" content="honkoma | 会社を、AIネイティブへ。" />
+    <meta name="description" content="株式会社honkomaは、徹底的な伴走で会社をAIネイティブにトランスフォームするAI導入支援会社です。データ基盤の整備から業務自動化、社内定着・内製化まで一気通貫で伴走します。" />
     <meta name="keywords" content="Honkoma, 株式会社Honkoma, AI導入, 業務自動化, Claude Code, OpenClaw, AIツール, 開発支援, DX推進, RPA, AI開発" />
     <meta name="author" content="株式会社Honkoma" />
     <meta name="robots" content="index, follow" />
@@ -16,10 +16,10 @@
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://honkoma.jp/" />
-    <meta property="og:title" content="honkoma | AIエージェント構築・業務自動化支援" />
-    <meta property="og:description" content="株式会社honkomaは、AIエージェント構築・業務自動化・Claude Code活用支援を提供します。東大卒エンジニアチームが構想から実装まで一気通貫でサポート。" />
-    <meta property="og:image" content="https://honkoma.jp/og-image.jpg" />
+    <meta property="og:url" content="https://ltdhonkoma.com/" />
+    <meta property="og:title" content="honkoma | 会社を、AIネイティブへ。" />
+    <meta property="og:description" content="株式会社honkomaは、徹底的な伴走で会社をAIネイティブにトランスフォームするAI導入支援会社です。データ基盤の整備から業務自動化、社内定着・内製化まで一気通貫で伴走します。" />
+    <meta property="og:image" content="https://ltdhonkoma.com/og-image.jpg" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:site_name" content="株式会社Honkoma" />
@@ -27,13 +27,13 @@
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content="https://honkoma.jp/" />
-    <meta property="twitter:title" content="honkoma | AIエージェント構築・業務自動化支援" />
-    <meta property="twitter:description" content="株式会社honkomaは、AIエージェント構築・業務自動化・Claude Code活用支援を提供します。東大卒エンジニアチームが構想から実装まで一気通貫でサポート。" />
-    <meta property="twitter:image" content="https://honkoma.jp/og-image.jpg" />
+    <meta property="twitter:url" content="https://ltdhonkoma.com/" />
+    <meta property="twitter:title" content="honkoma | 会社を、AIネイティブへ。" />
+    <meta property="twitter:description" content="株式会社honkomaは、徹底的な伴走で会社をAIネイティブにトランスフォームするAI導入支援会社です。データ基盤の整備から業務自動化、社内定着・内製化まで一気通貫で伴走します。" />
+    <meta property="twitter:image" content="https://ltdhonkoma.com/og-image.jpg" />
 
     <!-- Canonical URL -->
-    <link rel="canonical" href="https://honkoma.jp/" />
+    <link rel="canonical" href="https://ltdhonkoma.com/" />
 
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
@@ -53,8 +53,21 @@
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=Noto+Sans+JP:wght@300;400;500;600;700&family=Noto+Serif+JP:wght@400;500;600;700;900&display=swap" rel="stylesheet" />
 
+    <!-- Initial route hint for critical pre-mount paint. -->
+    <script>
+      if (window.location.pathname === "/") {
+        document.documentElement.dataset.initialRoute = "home";
+      }
+    </script>
+
     <!-- Stylesheets -->
     <link href="tailwind.css" rel="stylesheet" />
+    <style>
+      html[data-initial-route="home"] #app:empty {
+        min-height: 100svh;
+        background: var(--surface-inverse);
+      }
+    </style>
 
     <!-- Structured Data -->
     <script type="application/ld+json">
@@ -63,8 +76,8 @@
       "@type": "Corporation",
       "name": "株式会社Honkoma",
       "alternateName": "Honkoma",
-      "url": "https://honkoma.jp/",
-      "logo": "https://honkoma.jp/honkoma-logo-transparent--1--2.png",
+      "url": "https://ltdhonkoma.com/",
+      "logo": "https://ltdhonkoma.com/honkoma-logo-transparent--1--2.png",
       "description": "ルーティーンワークの自動化、AI導入支援、AIツール導入支援を提供するテクノロジーカンパニー。",
       "foundingDate": "2025-07",
       "address": {
@@ -77,7 +90,7 @@
         "@type": "ContactPoint",
         "contactType": "sales",
         "email": "quickclip@ltdhonkoma.com",
-        "url": "https://honkoma.jp/contact"
+        "url": "https://ltdhonkoma.com/contact"
       },
       "founder": [
         { "@type": "Person", "name": "林拓海", "jobTitle": "代表取締役CEO" },
@@ -93,23 +106,31 @@
       "@context": "https://schema.org",
       "@type": "WebSite",
       "name": "株式会社Honkoma",
-      "url": "https://honkoma.jp/",
+      "url": "https://ltdhonkoma.com/",
       "description": "AI導入支援・業務自動化・AIツール導入支援を提供するテクノロジーカンパニー。",
       "publisher": {
         "@type": "Organization",
         "name": "株式会社Honkoma",
-        "logo": "https://honkoma.jp/honkoma-logo-transparent--1--2.png"
+        "logo": "https://ltdhonkoma.com/honkoma-logo-transparent--1--2.png"
       }
     }
     </script>
 
-    <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-2Y4FMJB6GB"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-2Y4FMJB6GB');
+    <!-- Google Analytics: VITE_GA_ID が設定されたビルドだけ送信する。 -->
+    <script type="module">
+      (function () {
+        const gaId = import.meta.env.VITE_GA_ID || "";
+        if (!gaId) return;
+        window.__GA_ID__ = gaId;
+        window.dataLayer = window.dataLayer || [];
+        window.gtag = function(){ window.dataLayer.push(arguments); };
+        window.gtag("js", new Date());
+        window.gtag("config", gaId, { send_page_view: false });
+        var script = document.createElement("script");
+        script.async = true;
+        script.src = "https://www.googletagmanager.com/gtag/js?id=" + encodeURIComponent(gaId);
+        document.head.appendChild(script);
+      })();
     </script>
   </head>
   <body class="bg-cream text-ink antialiased">

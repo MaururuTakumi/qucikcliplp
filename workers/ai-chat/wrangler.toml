@@ -1,0 +1,17 @@
+name = "honkoma-ai-chat"
+main = "src/index.ts"
+compatibility_date = "2026-07-06"
+
+[vars]
+DEEPSEEK_MODEL = "deepseek-v4-pro"
+NOTION_CASES_CACHE_VERSION = "2026-07-06-rag-seed-1"
+EMAIL_FROM = "diagnosis@ltdhonkoma.com"
+EMAIL_FROM_NAME = "honkoma"
+EMAIL_REPLY_TO = "diagnosis@ltdhonkoma.com"
+
+[[send_email]]
+name = "EMAIL"
+
+[[kv_namespaces]]
+binding = "LEAD_MATERIALS"
+id = "5ff69fbdec844093b23012bf5d8766c0"
