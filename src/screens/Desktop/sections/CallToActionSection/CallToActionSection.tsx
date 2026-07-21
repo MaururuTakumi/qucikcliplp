@@ -1,4 +1,5 @@
 import React from "react";
+import kizunaFinderDemoVertical from "../../assets/kizuna/kzfinder_demo_vert.png";
 
 export const CallToActionSection = (): JSX.Element => {
   return (
@@ -33,7 +34,7 @@ export const CallToActionSection = (): JSX.Element => {
         <div className="flex-1 max-w-xl flex justify-center md:justify-end relative">
           <div className="absolute inset-0 bg-gradient-to-r from-primary-600/20 to-orange-600/20 rounded-full blur-3xl animate-pulse"></div>
           <img
-            src="/assets/kizuna/kzfinder_demo_vert.png"
+            src={kizunaFinderDemoVertical}
             alt="KizunaFinder Demo"
             className="rounded-2xl shadow-2xl w-full floating relative z-10 hover:scale-105 transition-transform duration-500"
           />
