@@ -64,11 +64,31 @@ npm run dev
 npm run build
 ```
 
+## Google Analytics 4（GA4）
+
+このサイトには Google Analytics 4（GA4）が導入されています。
+
+- 測定ID: `G-2Y4FMJB6GB`
+- `gtag.js` を全ページ共通のエントリーポイントで読み込み、GA4を初期化
+- お問い合わせフォームおよび口コミAI診断フォームの送信時に `form_submit` イベントを計測
+
+### GA4プロパティへのアクセス
+
+- アカウント名: `Default Account for Firebase`
+- GAアカウントID: `351570105`
+- プロパティ名: `honkoma LP`
+- プロパティID: `528400146`
+- アクセス用Googleアカウント: `quickclip@ltdhonkoma.com`
+- [GA4レポートを開く（端末共通）](https://analytics.google.com/analytics/web/#/a351570105p528400146/reports/intelligenthome?params=_u..nav%3Dmaui)
+- [GA4レポートを開く（このMacの一時ショートカット）](https://analytics.google.com/analytics/web/?authuser=1#/a351570105p528400146/reports/intelligenthome?params=_u..nav%3Dmaui)
+
+`authuser=1` は、このMacのChromeにおけるGoogleアカウントのログイン順を表す一時的な値です。端末やChromeプロファイルが変わると番号も変わる可能性があるため、他のデバイスでは `quickclip@ltdhonkoma.com` でログインしてから端末共通リンクを使用してください。確認時は、プロパティ名が `honkoma LP`、プロパティIDが `528400146`、測定IDが `G-2Y4FMJB6GB` であることを照合してください。
+
 ## SEO チェックリスト
 
 デプロイ前に以下を確認してください：
 
-- [ ] Google Analytics トラッキングIDを実際のIDに置き換え
+- [x] Google Analytics 4（GA4）の測定IDを設定
 - [ ] OG画像（og-image.jpg）を実際の画像に置き換え
 - [ ] ファビコンファイルを配置
 - [ ] サイトマップの最終更新日を更新

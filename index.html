@@ -116,21 +116,14 @@
     }
     </script>
 
-    <!-- Google Analytics: VITE_GA_ID が設定されたビルドだけ送信する。 -->
-    <script type="module">
-      (function () {
-        const gaId = import.meta.env.VITE_GA_ID || "";
-        if (!gaId) return;
-        window.__GA_ID__ = gaId;
-        window.dataLayer = window.dataLayer || [];
-        window.gtag = function(){ window.dataLayer.push(arguments); };
-        window.gtag("js", new Date());
-        window.gtag("config", gaId, { send_page_view: false });
-        var script = document.createElement("script");
-        script.async = true;
-        script.src = "https://www.googletagmanager.com/gtag/js?id=" + encodeURIComponent(gaId);
-        document.head.appendChild(script);
-      })();
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-2Y4FMJB6GB"></script>
+    <script>
+      window.__GA_ID__ = "G-2Y4FMJB6GB";
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag("js", new Date());
+      gtag("config", window.__GA_ID__, { send_page_view: false });
     </script>
   </head>
   <body class="bg-cream text-ink antialiased">
